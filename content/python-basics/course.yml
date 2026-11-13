@@ -1,0 +1,17 @@
+slug: python-basics
+title: Python Basics for a Coffee Shop
+language: python
+locale: en
+level: Beginner
+kind: course
+price_idr: 0
+status: published
+position: 2
+summary: >-
+  Learn Python from scratch through the everyday work of a small coffee shop:
+  showing the menu, adding up receipts, giving discounts, summarising sales,
+  and building a report.
+perks:
+  - 8 lessons, 15 coding exercises and 10 multiple-choice questions
+  - Every exercise runs right in your browser, nothing to install
+  - A completion certificate from tolie.space, signed by Christianto Lie

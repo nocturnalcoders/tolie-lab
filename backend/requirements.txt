@@ -1,0 +1,9 @@
+Flask>=3.0,<4
+Markdown>=3.5
+Pygments>=2.17
+nh3>=0.2.14
+gunicorn>=21.2
+psycopg[binary,pool]>=3.2
+PyYAML>=6.0
+reportlab>=4.0
+Pillow>=10.0

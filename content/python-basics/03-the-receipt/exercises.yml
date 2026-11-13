@@ -1,0 +1,63 @@
+- slug: print-the-receipt
+  type: code
+  title: Print the receipt
+  prompt: |
+    Read the customer name, the item name, the price, and the quantity (four lines). Print a three-line receipt in exactly the format of the example in the lesson:
+
+    ```
+    Receipt for Budi
+    2 x Milk Coffee @ Rp15000
+    Total: Rp30000
+    ```
+  language: python
+  starter: |
+    name = input()
+    item = input()
+    price = int(input())
+    quantity = int(input())
+    # print the receipt below
+  hint: Use an f-string, and calculate the total inside the braces or store it in a variable first.
+  tests:
+    - input: "Budi\nMilk Coffee\n15000\n2"
+      output: "Receipt for Budi\n2 x Milk Coffee @ Rp15000\nTotal: Rp30000"
+    - input: "Siti\nToast\n18000\n1"
+      output: "Receipt for Siti\n1 x Toast @ Rp18000\nTotal: Rp18000"
+  solution: |
+    name = input()
+    item = input()
+    price = int(input())
+    quantity = int(input())
+    print(f"Receipt for {name}")
+    print(f"{quantity} x {item} @ Rp{price}")
+    print(f"Total: Rp{price * quantity}")
+
+- slug: quiz-fstring
+  type: choice
+  title: What appears?
+  prompt: |
+    What appears on the screen?
+
+    ```python
+    x = 3
+    print(f"{x + 1} cups")
+    ```
+  options:
+    - "`{x + 1} cups`"
+    - "`4 cups`"
+    - "`3 cups`"
+    - "An error, because of the curly braces"
+  correct: [1]
+  hint: What is inside the curly braces is calculated first.
+  explanation: Inside an f-string, the contents of the curly braces are calculated and put into the text. `3 + 1` gives `4`.
+
+- slug: quiz-input-type
+  type: choice
+  title: The type of input
+  prompt: What is the data type of the result of `input()`?
+  options:
+    - "`str` (text), whatever was typed"
+    - "`int`, because the user typed a number"
+    - "`float`, because it can be decimal"
+    - "It depends on what the user types"
+  correct: [0]
+  explanation: "`input()` always gives text. That is why we use `int()` to turn it into a number."

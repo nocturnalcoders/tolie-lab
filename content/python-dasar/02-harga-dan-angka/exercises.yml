@@ -1,0 +1,72 @@
+- slug: hitung-total
+  type: code
+  title: Hitung total bayar
+  prompt: |
+    Baca harga per cangkir dan jumlah cangkir (dua baris, keduanya angka bulat). Cetak total yang harus dibayar, hanya angkanya.
+  language: python
+  starter: |
+    harga = int(input())
+    jumlah = int(input())
+    # hitung dan cetak total di bawah ini
+  hint: Total adalah harga dikali jumlah.
+  tests:
+    - input: "15000\n2"
+      output: "30000"
+    - input: "18000\n3"
+      output: "54000"
+    - input: "12500\n0"
+      output: "0"
+  solution: |
+    harga = int(input())
+    jumlah = int(input())
+    print(harga * jumlah)
+
+- slug: kembalian
+  type: code
+  title: Hitung kembalian
+  prompt: |
+    Baca total belanja dan uang yang dibayarkan pelanggan (dua baris). Cetak kembaliannya, hanya angkanya.
+  language: python
+  starter: |
+    total = int(input())
+    bayar = int(input())
+    # cetak kembalian
+  tests:
+    - input: "47000\n50000"
+      output: "3000"
+    - input: "100000\n100000"
+      output: "0"
+    - input: "23500\n50000"
+      output: "26500"
+  solution: |
+    total = int(input())
+    bayar = int(input())
+    print(bayar - total)
+
+- slug: kuis-urutan
+  type: choice
+  title: Urutan hitung
+  prompt: Berapa hasil `10 + 5 * 2`?
+  options:
+    - "`30`"
+    - "`20`"
+    - "`25`"
+    - "`15`"
+  correct: [1]
+  hint: Mana yang dikerjakan lebih dulu, tambah atau kali?
+  explanation: Perkalian dikerjakan lebih dulu, jadi `5 * 2 = 10`, lalu `10 + 10 = 20`.
+
+- slug: kuis-tipe
+  type: choice
+  title: Mana yang angka bulat?
+  prompt: Pilih **semua** yang bertipe angka bulat (`int`).
+  multiple: true
+  options:
+    - "`42`"
+    - "`\"42\"`"
+    - "`int(\"42\")`"
+    - "`4.2`"
+    - "`input()`"
+  correct: [0, 2]
+  hint: Teks di dalam tanda kutip tetap teks, dan `input()` selalu menghasilkan teks.
+  explanation: "`42` dan `int(\"42\")` adalah `int`. `\"42\"` dan `input()` menghasilkan teks, dan `4.2` adalah angka desimal."

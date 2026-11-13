@@ -1,0 +1,44 @@
+# Free and paid, side by side on the home page, one list per site language.
+# Edit the texts freely; they reload when the API restarts.
+id:
+  - id: gratis
+    name: Gratis
+    price: Rp0
+    tagline: Untuk belajar dari nol dan membuktikannya.
+    perks:
+      - Semua kursus gratis, mulai dari Python dasar
+      - Latihan kode langsung di browser, tanpa memasang apa pun
+      - Soal pilihan ganda dengan penjelasan
+      - Kemajuan dan kodemu tersimpan di akun
+      - Sertifikat penyelesaian dari tolie.space, bisa diverifikasi siapa saja
+  - id: modul-berbayar
+    name: Modul berbayar
+    price: Mulai Rp100.000 per modul
+    tagline: Kasus kerja nyata yang sulit, beli sekali.
+    highlight: true
+    perks:
+      - Kasus kerja nyata yang lebih sulit dari kursus gratis
+      - Penilaian di server dengan tes tersembunyi
+      - Sertifikat modul yang bisa diverifikasi publik
+      - Akses selamanya, bayar sekali per modul
+en:
+  - id: free
+    name: Free
+    price: Rp0
+    tagline: To learn from scratch and prove it.
+    perks:
+      - Every free course, starting with Python basics
+      - Coding exercises right in your browser, nothing to install
+      - Multiple-choice questions with explanations
+      - Your progress and code saved in your account
+      - A completion certificate from tolie.space that anyone can verify
+  - id: paid-modules
+    name: Paid modules
+    price: From Rp100,000 per module
+    tagline: Hard real-work cases, buy once.
+    highlight: true
+    perks:
+      - Real-work cases that are harder than the free courses
+      - Graded on the server with hidden tests
+      - A module certificate that anyone can verify
+      - Lifetime access, pay once per module

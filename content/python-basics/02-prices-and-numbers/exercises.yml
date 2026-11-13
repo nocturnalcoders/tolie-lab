@@ -1,0 +1,72 @@
+- slug: total-to-pay
+  type: code
+  title: Work out the total
+  prompt: |
+    Read the price per cup and the number of cups (two lines, both whole numbers). Print the total to pay, as a number only.
+  language: python
+  starter: |
+    price = int(input())
+    quantity = int(input())
+    # work out and print the total below
+  hint: The total is the price times the quantity.
+  tests:
+    - input: "15000\n2"
+      output: "30000"
+    - input: "18000\n3"
+      output: "54000"
+    - input: "12500\n0"
+      output: "0"
+  solution: |
+    price = int(input())
+    quantity = int(input())
+    print(price * quantity)
+
+- slug: change
+  type: code
+  title: Work out the change
+  prompt: |
+    Read the total of the bill and the money the customer paid (two lines). Print the change, as a number only.
+  language: python
+  starter: |
+    total = int(input())
+    paid = int(input())
+    # print the change
+  tests:
+    - input: "47000\n50000"
+      output: "3000"
+    - input: "100000\n100000"
+      output: "0"
+    - input: "23500\n50000"
+      output: "26500"
+  solution: |
+    total = int(input())
+    paid = int(input())
+    print(paid - total)
+
+- slug: quiz-order
+  type: choice
+  title: Order of operations
+  prompt: What is the result of `10 + 5 * 2`?
+  options:
+    - "`30`"
+    - "`20`"
+    - "`25`"
+    - "`15`"
+  correct: [1]
+  hint: Which comes first, adding or multiplying?
+  explanation: Multiplication comes first, so `5 * 2 = 10`, and then `10 + 10 = 20`.
+
+- slug: quiz-types
+  type: choice
+  title: Which ones are whole numbers?
+  prompt: Pick **all** the values that are whole numbers (`int`).
+  multiple: true
+  options:
+    - "`42`"
+    - "`\"42\"`"
+    - "`int(\"42\")`"
+    - "`4.2`"
+    - "`input()`"
+  correct: [0, 2]
+  hint: Text inside quotes is still text, and `input()` always gives text.
+  explanation: "`42` and `int(\"42\")` are `int`. `\"42\"` and `input()` give text, and `4.2` is a decimal number."

@@ -1,0 +1,54 @@
+- slug: tidy-names
+  type: code
+  title: Tidy the names
+  prompt: |
+    The first line holds the number of names `n`, then `n` lines hold messy names. Print each name in tidy form: no spaces at the ends, the first letter of each word capital, the rest lower case.
+  language: python
+  starter: |
+    n = int(input())
+    for _ in range(n):
+        name = input()
+        # print the tidied name
+  tests:
+    - input: "3\n  budi santoso\nSITI aminah \nagus"
+      output: "Budi Santoso\nSiti Aminah\nAgus"
+    - input: "1\n   rINA  "
+      output: "Rina"
+  solution: |
+    n = int(input())
+    for _ in range(n):
+        name = input()
+        print(name.strip().title())
+
+- slug: email-domain
+  type: code
+  title: Email domain
+  prompt: |
+    Read one email address. Print its domain (the part after the `@`) in lower case.
+  language: python
+  starter: |
+    email = input()
+    # print the domain
+  hint: Split with split("@"), take the second part, then make it lower case.
+  tests:
+    - input: "budi@gmail.com"
+      output: "gmail.com"
+    - input: "siti.aminah@senjacoffee.id"
+      output: "senjacoffee.id"
+    - input: "Agus@Yahoo.COM"
+      output: "yahoo.com"
+  solution: |
+    email = input()
+    print(email.split("@")[1].lower())
+
+- slug: quiz-strip
+  type: choice
+  title: The result of strip
+  prompt: What is the result of `"  coffee  ".strip()`?
+  options:
+    - "`\"coffee\"`"
+    - "`\"  coffee\"`"
+    - "`\"coffee  \"`"
+    - "`\"  coffee  \"`"
+  correct: [0]
+  explanation: "`.strip()` removes the spaces at both ends of the text, but spaces in the middle are left alone."

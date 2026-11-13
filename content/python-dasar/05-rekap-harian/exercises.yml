@@ -1,0 +1,77 @@
+- slug: rekap-penjualan
+  type: code
+  title: Rekap penjualan
+  prompt: |
+    Baris pertama berisi banyaknya hari `n`, lalu `n` baris berisi penjualan tiap hari. Cetak dua baris:
+
+    ```
+    Total: <jumlah semua penjualan>
+    Rata-rata: <total dibagi n, dibulatkan ke bawah>
+    ```
+  language: python
+  starter: |
+    n = int(input())
+    total = 0
+    for _ in range(n):
+        # tambahkan penjualan hari ini ke total
+        pass
+    # cetak Total dan Rata-rata
+  hint: Untuk pembagian yang dibulatkan ke bawah pakai //.
+  tests:
+    - input: "3\n100000\n150000\n200000"
+      output: "Total: 450000\nRata-rata: 150000"
+    - input: "2\n50000\n75000"
+      output: "Total: 125000\nRata-rata: 62500"
+    - input: "1\n80000"
+      output: "Total: 80000\nRata-rata: 80000"
+  solution: |
+    n = int(input())
+    total = 0
+    for _ in range(n):
+        total += int(input())
+    print(f"Total: {total}")
+    print(f"Rata-rata: {total // n}")
+
+- slug: hari-terbaik
+  type: code
+  title: Penjualan tertinggi
+  prompt: |
+    Sama seperti sebelumnya: `n` lalu `n` angka penjualan. Cetak penjualan tertinggi dengan format `Tertinggi: <angka>`.
+  language: python
+  starter: |
+    n = int(input())
+    # cari penjualan tertinggi dan cetak
+  hint: Simpan angka terbesar yang sudah dilihat, atau kumpulkan semuanya dalam list lalu pakai max.
+  tests:
+    - input: "3\n100000\n150000\n200000"
+      output: "Tertinggi: 200000"
+    - input: "4\n90000\n300000\n120000\n300000"
+      output: "Tertinggi: 300000"
+    - input: "1\n45000"
+      output: "Tertinggi: 45000"
+  solution: |
+    n = int(input())
+    tertinggi = 0
+    for _ in range(n):
+        nilai = int(input())
+        if nilai > tertinggi:
+            tertinggi = nilai
+    print(f"Tertinggi: {tertinggi}")
+
+- slug: kuis-range
+  type: choice
+  title: Berapa kali berulang?
+  prompt: |
+    Berapa kali `print` dijalankan?
+
+    ```python
+    for i in range(3):
+        print(i)
+    ```
+  options:
+    - "2 kali"
+    - "3 kali"
+    - "4 kali"
+    - "0 kali"
+  correct: [1]
+  explanation: "`range(3)` menghasilkan `0`, `1`, dan `2`, jadi ada tiga putaran."

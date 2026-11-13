@@ -1,0 +1,64 @@
+- slug: cek-harga
+  type: code
+  title: Cek harga menu
+  prompt: |
+    Baca nama menu (huruf kecil). Jika ada di `menu`, cetak `Rp<harga>`. Jika tidak ada, cetak `Menu tidak ada`.
+  language: python
+  starter: |
+    menu = {"kopi susu": 15000, "teh tarik": 12000, "roti bakar": 18000}
+    nama = input()
+    # cek apakah nama ada di menu, lalu cetak hasilnya
+  tests:
+    - input: "kopi susu"
+      output: "Rp15000"
+    - input: "teh tarik"
+      output: "Rp12000"
+    - input: "nasi goreng"
+      output: "Menu tidak ada"
+  solution: |
+    menu = {"kopi susu": 15000, "teh tarik": 12000, "roti bakar": 18000}
+    nama = input()
+    if nama in menu:
+        print(f"Rp{menu[nama]}")
+    else:
+        print("Menu tidak ada")
+
+- slug: total-pesanan
+  type: code
+  title: Total pesanan
+  prompt: |
+    Baris pertama berisi banyaknya pesanan `n`, lalu `n` baris berisi nama menu (semuanya ada di `menu`). Cetak `Total: Rp<jumlah harga semua pesanan>`.
+  language: python
+  starter: |
+    menu = {"kopi susu": 15000, "teh tarik": 12000, "roti bakar": 18000}
+    n = int(input())
+    # jumlahkan harga semua pesanan
+  tests:
+    - input: "2\nkopi susu\nroti bakar"
+      output: "Total: Rp33000"
+    - input: "3\nteh tarik\nteh tarik\nkopi susu"
+      output: "Total: Rp39000"
+  solution: |
+    menu = {"kopi susu": 15000, "teh tarik": 12000, "roti bakar": 18000}
+    n = int(input())
+    total = 0
+    for _ in range(n):
+        total += menu[input()]
+    print(f"Total: Rp{total}")
+
+- slug: kuis-dict
+  type: choice
+  title: Kunci yang tidak ada
+  prompt: |
+    Apa hasil dari ekspresi ini jika `"es jeruk"` tidak ada di `menu`?
+
+    ```python
+    menu.get("es jeruk", 0)
+    ```
+  options:
+    - "Error `KeyError`"
+    - "`0`"
+    - "`None`"
+    - "`\"es jeruk\"`"
+  correct: [1]
+  explanation: "`.get` mengembalikan nilai cadangan, yaitu `0`, bila kunci tidak ada. Tanpa nilai cadangan hasilnya `None`, dan tidak pernah error."

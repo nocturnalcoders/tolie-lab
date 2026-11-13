@@ -1,0 +1,65 @@
+- slug: apply-discount
+  type: code
+  title: Apply the discount
+  prompt: |
+    Read the bill total. If the total is **100000 or more**, the customer gets a 10% discount. Print the amount to pay in the format `Pay: Rp<amount>`.
+  language: python
+  starter: |
+    total = int(input())
+    # print "Pay: Rp..." after checking for the discount
+  hint: Pay 90% of the total with total * 90 // 100.
+  tests:
+    - input: "50000"
+      output: "Pay: Rp50000"
+    - input: "100000"
+      output: "Pay: Rp90000"
+    - input: "250000"
+      output: "Pay: Rp225000"
+  solution: |
+    total = int(input())
+    if total >= 100000:
+        pay = total * 90 // 100
+    else:
+        pay = total
+    print(f"Pay: Rp{pay}")
+
+- slug: order-size
+  type: code
+  title: Order size
+  prompt: |
+    Read the number of items in an order. Print `Large order` for 10 items or more, `Medium order` for 3 to 9 items, and `Small order` for fewer than 3.
+  language: python
+  starter: |
+    quantity = int(input())
+    # choose one of the three sizes
+  tests:
+    - input: "12"
+      output: "Large order"
+    - input: "10"
+      output: "Large order"
+    - input: "5"
+      output: "Medium order"
+    - input: "3"
+      output: "Medium order"
+    - input: "2"
+      output: "Small order"
+  solution: |
+    quantity = int(input())
+    if quantity >= 10:
+        print("Large order")
+    elif quantity >= 3:
+        print("Medium order")
+    else:
+        print("Small order")
+
+- slug: quiz-condition
+  type: choice
+  title: The true condition
+  prompt: If `x = 10`, which condition is `True`?
+  options:
+    - "`x > 10`"
+    - "`x == 10`"
+    - "`x != 10`"
+    - "`x < 5`"
+  correct: [1]
+  explanation: "`x == 10` is true because `x` really is 10. `x > 10` is false because 10 is not greater than 10."

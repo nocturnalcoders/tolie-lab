@@ -1,0 +1,50 @@
+- slug: sapa-pelanggan
+  type: code
+  title: Sapa pelanggan
+  prompt: |
+    Seorang pelanggan baru masuk. Cetak sapaan ini persis seperti tertulis:
+
+    `Selamat datang di Warung Kopi Senja!`
+  language: python
+  starter: |
+    # tulis kodemu di bawah ini
+  hint: Pakai print dan apit teksnya dengan tanda kutip.
+  tests:
+    - input: ""
+      output: "Selamat datang di Warung Kopi Senja!"
+  solution: |
+    print("Selamat datang di Warung Kopi Senja!")
+
+- slug: dua-baris-menu
+  type: code
+  title: Dua baris menu
+  prompt: |
+    Papan menu punya dua baris. Cetak `Kopi susu` di baris pertama dan `Teh tarik` di baris kedua.
+  language: python
+  starter: |
+    # satu print untuk satu baris
+  tests:
+    - input: ""
+      output: "Kopi susu\nTeh tarik"
+  solution: |
+    print("Kopi susu")
+    print("Teh tarik")
+
+- slug: kuis-print
+  type: choice
+  title: Apa yang tampil?
+  prompt: |
+    Apa yang tampil di layar setelah kode ini dijalankan?
+
+    ```python
+    print("Halo")
+    print("Warung")
+    ```
+  options:
+    - "`Halo Warung` dalam satu baris"
+    - "`Halo` dan `Warung`, masing-masing di barisnya sendiri"
+    - "`print(\"Halo\")` dan `print(\"Warung\")` apa adanya"
+    - "Tidak ada, kodenya error"
+  correct: [1]
+  hint: Ingat, setiap print menulis satu baris baru.
+  explanation: Setiap `print` menulis satu baris baru, jadi hasilnya dua baris.

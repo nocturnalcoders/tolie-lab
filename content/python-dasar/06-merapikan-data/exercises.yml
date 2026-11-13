@@ -1,0 +1,54 @@
+- slug: rapikan-nama
+  type: code
+  title: Rapikan nama
+  prompt: |
+    Baris pertama berisi banyaknya nama `n`, lalu `n` baris berisi nama yang berantakan. Cetak tiap nama dalam bentuk rapi: tanpa spasi di pinggir, huruf pertama tiap kata kapital, sisanya kecil.
+  language: python
+  starter: |
+    n = int(input())
+    for _ in range(n):
+        nama = input()
+        # cetak nama yang sudah rapi
+  tests:
+    - input: "3\n  budi santoso\nSITI aminah \nagus"
+      output: "Budi Santoso\nSiti Aminah\nAgus"
+    - input: "1\n   rINA  "
+      output: "Rina"
+  solution: |
+    n = int(input())
+    for _ in range(n):
+        nama = input()
+        print(nama.strip().title())
+
+- slug: domain-email
+  type: code
+  title: Domain email
+  prompt: |
+    Baca satu alamat email. Cetak bagian domainnya (setelah tanda `@`) dalam huruf kecil.
+  language: python
+  starter: |
+    email = input()
+    # cetak domainnya
+  hint: Pecah dengan split("@"), ambil bagian kedua, lalu ubah ke huruf kecil.
+  tests:
+    - input: "budi@gmail.com"
+      output: "gmail.com"
+    - input: "siti.aminah@warungsenja.id"
+      output: "warungsenja.id"
+    - input: "Agus@Yahoo.COM"
+      output: "yahoo.com"
+  solution: |
+    email = input()
+    print(email.split("@")[1].lower())
+
+- slug: kuis-strip
+  type: choice
+  title: Hasil strip
+  prompt: Apa hasil dari `"  kopi  ".strip()`?
+  options:
+    - "`\"kopi\"`"
+    - "`\"  kopi\"`"
+    - "`\"kopi  \"`"
+    - "`\"  kopi  \"`"
+  correct: [0]
+  explanation: "`.strip()` membuang spasi di kedua ujung teks, tetapi spasi di tengah tidak disentuh."
