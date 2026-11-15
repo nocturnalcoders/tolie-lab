@@ -10,7 +10,7 @@ vi.mock('../components/CodeEditor.jsx', () => ({
   default: ({ value, onChange }) => <textarea data-testid="editor" value={value} onChange={(e) => onChange(e.target.value)} />,
 }));
 const runnerMock = { runOnce: vi.fn(), runTests: vi.fn(), reset: vi.fn() };
-vi.mock('../runner/usePythonRunner.js', () => ({ usePythonRunner: () => [runnerMock, 'ready'] }));
+vi.mock('../runner/useRunner.js', () => ({ useRunner: () => [runnerMock, 'ready'] }));
 
 const USER = { id: 7, name: 'Siti Aminah', email: 's@example.test', role: 'student', verified: true };
 const ADMIN = { id: 1, name: 'Chris', email: 'c@example.test', role: 'admin', verified: true };

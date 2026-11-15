@@ -4,8 +4,41 @@ import Layout from '../components/Layout.jsx';
 import { useAuth } from '../auth.jsx';
 import { api } from '../api.js';
 import { useApi, useDocumentTitle } from '../hooks.js';
-import { useT } from '../lang.jsx';
+import { Lamp } from '../components/Lamps.jsx';
+import { dateLocale } from '../i18n.js';
+import { useLang, useT } from '../lang.jsx';
 import { LANGUAGE_LABEL } from '../utils.js';
+
+// Days in a row with practice, and the last seven days as lanterns.
+function Streak({ streak }) {
+  const { t, lang } = useLang();
+  const dayName = (iso) => new Date(`${iso}T00:00:00`).toLocaleDateString(dateLocale(lang), { weekday: 'short' });
+  return (
+    <section className="card streak" aria-label={t('Runtun belajar')}>
+      <span className="tab">{t('Runtun belajar')}</span>
+      <p className="streak-count">
+        <b>{t('{n} hari berturut-turut', { n: streak.current })}</b>
+        <span className="muted"> · {t('terpanjang {n} hari', { n: streak.best })}</span>
+      </p>
+      <ol className="streak-week">
+        {streak.week.map((d) => (
+          <li key={d.date}>
+            <Lamp on={d.active} />
+            <span aria-hidden="true">{dayName(d.date)}</span>
+            <span className="sr">{dayName(d.date)}: {d.active ? t('belajar') : t('tidak belajar')}</span>
+          </li>
+        ))}
+      </ol>
+      <p className="muted">
+        {streak.today
+          ? t('Hari ini sudah belajar. Sampai besok.')
+          : streak.current > 0
+            ? t('Kerjakan satu latihan hari ini supaya runtunmu tidak putus.')
+            : t('Kerjakan satu latihan hari ini untuk memulai runtun baru.')}
+      </p>
+    </section>
+  );
+}
 
 export default function MyCourses() {
   const t = useT();
@@ -42,6 +75,7 @@ export default function MyCourses() {
         </p>
       )}
       {loading && <p className="note">{t('Memuat…')}</p>}
+      {data && data.streak && (data.streak.current > 0 || data.streak.best > 0) && <Streak streak={data.streak} />}
       {data && data.courses.length === 0 && (
         <section className="card empty">
           <p>{t('Kamu belum memulai kursus apa pun.')}</p>

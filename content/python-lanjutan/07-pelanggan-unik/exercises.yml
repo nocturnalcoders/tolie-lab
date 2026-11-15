@@ -1,0 +1,105 @@
+- slug: pelanggan-unik
+  type: code
+  title: Pelanggan unik
+  prompt: |
+    Baris pertama berisi `n`, lalu `n` baris berisi nama pelanggan dari setiap transaksi. Nama diketik tangan, jadi rapikan dulu: buang spasi di pinggir dan jadikan huruf besar di awal kata.
+
+    Cetak `Pelanggan unik: <banyaknya>`, lalu nama-nama yang berbeda itu menurut abjad, satu nama per baris.
+  language: python
+  starter: |
+    n = int(input())
+    pelanggan = set()
+    for _ in range(n):
+        nama = input()
+        # rapikan nama, lalu masukkan ke set
+
+    # cetak banyaknya, lalu nama-namanya menurut abjad
+  hints:
+    - "Set otomatis membuang kembaran, asalkan teksnya persis sama. Jadi nama harus dirapikan sebelum dimasukkan."
+    - "Di dalam perulangan: `pelanggan.add(nama.strip().title())`. Banyaknya nama berbeda adalah `len(pelanggan)`."
+    - "Setelah mencetak `f\"Pelanggan unik: {len(pelanggan)}\"`, ulang `for nama in sorted(pelanggan):` dan cetak setiap nama."
+  tests:
+    - input: "5\nsiti\nBudi\n SITI \nagus\nbudi"
+      output: "Pelanggan unik: 3\nAgus\nBudi\nSiti"
+    - input: "3\nRina\nrina\nRINA"
+      output: "Pelanggan unik: 1\nRina"
+    - input: "4\ndewi\nbudi santoso\nagus\n Budi Santoso"
+      output: "Pelanggan unik: 3\nAgus\nBudi Santoso\nDewi"
+    - input: "0"
+      output: "Pelanggan unik: 0"
+  solution: |
+    n = int(input())
+    pelanggan = set()
+    for _ in range(n):
+        nama = input()
+        pelanggan.add(nama.strip().title())
+
+    print(f"Pelanggan unik: {len(pelanggan)}")
+    for nama in sorted(pelanggan):
+        print(nama)
+
+- slug: hitung-kunjungan
+  type: code
+  title: Hitung kunjungan
+  prompt: |
+    Baris pertama berisi `n` (paling sedikit 1), lalu `n` baris berisi nama pelanggan yang sudah rapi.
+
+    Cetak setiap pelanggan dan berapa kali ia datang dengan format `<nama>: <banyaknya>`, menurut abjad. Lalu cetak `Paling sering: <nama>`. Jika ada yang sama banyak, pilih nama yang lebih awal menurut abjad.
+  language: python
+  starter: |
+    n = int(input())
+    hitung = {}
+    for _ in range(n):
+        nama = input()
+        # tambah hitungan untuk nama ini
+
+    # cetak hitungan menurut abjad, lalu pelanggan yang paling sering
+  hints:
+    - "Dictionary `hitung` menyimpan nama sebagai kunci dan banyaknya kunjungan sebagai nilai. Pakai `.get` supaya nama baru mulai dari 0."
+    - "Di dalam perulangan pertama: `hitung[nama] = hitung.get(nama, 0) + 1`. Untuk mencetak menurut abjad: `for nama in sorted(hitung):`."
+    - "Sambil mencetak, simpan pemegang rekor: jika `hitung[nama] > terbanyak`, perbarui `terbanyak` dan `tersering`. Karena memakai `>` (bukan `>=`) dan urutannya abjad, nama yang lebih awal menang saat seri."
+  tests:
+    - input: "6\nSiti\nBudi\nSiti\nAgus\nSiti\nBudi"
+      output: "Agus: 1\nBudi: 2\nSiti: 3\nPaling sering: Siti"
+    - input: "4\nSiti\nBudi\nBudi\nSiti"
+      output: "Budi: 2\nSiti: 2\nPaling sering: Budi"
+    - input: "5\nRina\nAgus\nRina\nDewi\nAgus"
+      output: "Agus: 2\nDewi: 1\nRina: 2\nPaling sering: Agus"
+    - input: "1\nDewi"
+      output: "Dewi: 1\nPaling sering: Dewi"
+  solution: |
+    n = int(input())
+    hitung = {}
+    for _ in range(n):
+        nama = input()
+        hitung[nama] = hitung.get(nama, 0) + 1
+
+    tersering = ""
+    terbanyak = 0
+    for nama in sorted(hitung):
+        print(f"{nama}: {hitung[nama]}")
+        if hitung[nama] > terbanyak:
+            terbanyak = hitung[nama]
+            tersering = nama
+    print(f"Paling sering: {tersering}")
+
+- slug: kuis-set
+  type: choice
+  title: Isi sebuah set
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```python
+    menu = set()
+    for nama in ["kopi", "teh", "kopi", "roti", "teh"]:
+        menu.add(nama)
+    print(len(menu))
+    ```
+  options:
+    - "`5`"
+    - "`3`"
+    - "`2`"
+    - "Error, karena `kopi` ditambahkan dua kali"
+  correct: [1]
+  hint: Set menyimpan setiap isi hanya sekali.
+  explanation: "Menambahkan isi yang sudah ada ke sebuah set tidak menimbulkan error dan tidak mengubah apa pun. Yang tersimpan hanya `kopi`, `teh`, dan `roti`, jadi panjangnya `3`."

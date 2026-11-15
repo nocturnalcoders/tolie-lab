@@ -8,13 +8,17 @@ import { useT } from '../lang.jsx';
 // and "Periksa jawaban" (every test; the result is reported to the server).
 export default function CodeWorkbench({ exercise, runner, status, theme, signedIn, onPassed }) {
   const t = useT();
-  const STATUS_TEXT = { idle: t('Python belum dimuat'), loading: t('Memuat Python…'), ready: t('Python siap'), running: t('Menjalankan…') };
   const cfg = exercise.code;
+  const isSql = cfg.language === 'sql';
+  const name = isSql ? 'SQL' : 'Python';
+  const STATUS_TEXT = { idle: t('{name} belum dimuat', { name }), loading: t('Memuat {name}…', { name }), ready: t('{name} siap', { name }), running: t('Menjalankan…') };
+  const extra = isSql ? { setup: cfg.setup || '' } : {}; // SQL runs against the tables of the exercise
+  const hints = cfg.hints || [];
   const [code, setCode] = useState(cfg.saved ?? cfg.starter);
   const [stdin, setStdin] = useState('');
   const [panel, setPanel] = useState(null); // { kind: 'try' | 'tests', ... }
   const [busy, setBusy] = useState(false);
-  const [hint, setHint] = useState(false);
+  const [shown, setShown] = useState(0); // how many hints are open
   const [saveError, setSaveError] = useState('');
   const lastSaved = useRef(cfg.saved ?? cfg.starter);
 
@@ -34,7 +38,7 @@ export default function CodeWorkbench({ exercise, runner, status, theme, signedI
   async function tryCode() {
     setBusy(true);
     setPanel({ kind: 'try', pending: true });
-    const r = await runner.runOnce(code, stdin);
+    const r = await runner.runOnce(code, isSql ? '' : stdin, extra);
     setPanel({ kind: 'try', ...r });
     setBusy(false);
   }
@@ -44,8 +48,8 @@ export default function CodeWorkbench({ exercise, runner, status, theme, signedI
     setSaveError('');
     setPanel({ kind: 'tests', results: [], total: cfg.tests.length, pending: true });
     const res = await runner.runTests(code, cfg.tests, (partial) =>
-      setPanel({ kind: 'tests', results: partial, total: cfg.tests.length, pending: true })
-    );
+      setPanel({ kind: 'tests', results: partial, total: cfg.tests.length, pending: true }),
+    extra);
     setPanel({ kind: 'tests', results: res.results, total: res.total });
     if (signedIn && !res.results.some((r) => r.skipped || r.timedOut)) {
       try {
@@ -74,11 +78,17 @@ export default function CodeWorkbench({ exercise, runner, status, theme, signedI
   return (
     <div className="bench-work">
       <div className="editor-bar">
-        <span className="file">main.py</span>
+        <span className="file">{isSql ? 'query.sql' : 'main.py'}</span>
         <span className={`py-status s-${status}`}>{STATUS_TEXT[status] || ''}</span>
       </div>
-      <CodeEditor value={code} onChange={setCode} theme={theme} onRun={busy ? undefined : check} />
-      <details className="stdin">
+      <CodeEditor value={code} onChange={setCode} theme={theme} language={isSql ? 'sql' : 'python'} label={t('Editor kode {name}', { name })} onRun={busy ? undefined : check} />
+      {isSql && cfg.setup && (
+        <details className="stdin">
+          <summary>{t('Tabel yang tersedia')}</summary>
+          <pre className="out">{cfg.setup}</pre>
+        </details>
+      )}
+      {!isSql && <details className="stdin">
         <summary>{t('Input untuk tombol Coba (opsional)')}</summary>
         <textarea
           value={stdin}
@@ -88,19 +98,24 @@ export default function CodeWorkbench({ exercise, runner, status, theme, signedI
           aria-label={t('Input untuk programmu, satu baris per input()')}
           placeholder={t('Satu baris untuk tiap input().\nContoh:\n15000\n2')}
         />
-      </details>
+      </details>}
       <div className="row run-bar">
         <button type="button" onClick={check} disabled={busy}>{t('Periksa jawaban')}</button>
         <button type="button" className="ghost" onClick={tryCode} disabled={busy}>{t('Coba')}</button>
-        {cfg.hint && (
-          <button type="button" className="link" onClick={() => setHint((h) => !h)} aria-expanded={hint}>
-            {hint ? t('Sembunyikan petunjuk') : t('Petunjuk')}
+        {hints.length > 0 && (
+          <button type="button" className="link" onClick={() => setShown((n) => (n >= hints.length ? 0 : n + 1))} aria-expanded={shown > 0}>
+            {shown === 0 ? t('Petunjuk') : shown < hints.length ? t('Petunjuk berikutnya') : t('Sembunyikan petunjuk')}
           </button>
         )}
         <button type="button" className="link" onClick={restart}>{t('Kode awal')}</button>
         <span className="muted keys">{t('Ctrl+Enter memeriksa')}</span>
       </div>
-      {hint && <p className="hint-box" role="note">{cfg.hint}</p>}
+      {hints.slice(0, shown).map((h, i) => (
+        <p className="hint-box" role="note" key={h}>
+          {hints.length > 1 && <b>{t('Petunjuk {n} dari {total}:', { n: i + 1, total: hints.length })} </b>}
+          {h}
+        </p>
+      ))}
       {saveError && <p className="flash err" role="alert">{saveError}</p>}
       {panel && panel.kind === 'try' && (
         <div className="out-panel" aria-live="polite">
@@ -109,7 +124,7 @@ export default function CodeWorkbench({ exercise, runner, status, theme, signedI
           ) : (
             <>
               <p className="results-head">{t('Hasil Coba')}</p>
-              {panel.stdout === '' && !panel.error && <p className="muted">{t('(programmu tidak mencetak apa pun)')}</p>}
+              {panel.stdout === '' && !panel.error && <p className="muted">{isSql ? t('(query-mu tidak menghasilkan baris apa pun)') : t('(programmu tidak mencetak apa pun)')}</p>}
               {panel.stdout !== '' && <pre className="out">{panel.stdout}</pre>}
               {panel.stderr && <pre className="out err">{panel.stderr}</pre>}
               {panel.error && <pre className="out err">{panel.error}</pre>}

@@ -1,0 +1,111 @@
+- slug: menu-list
+  type: code
+  title: The menu list
+  prompt: |
+    Ms. Rina wants to print the menu list. Show the `name` and `price` columns (in that order) of every row in the `menu` table, sorted by `id` (`ORDER BY id`).
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+  starter: |
+    -- replace * with the columns asked for
+    SELECT * FROM menu ORDER BY id;
+  hints:
+    - "The `*` sign fetches every column. Only two columns are asked for, so name them."
+    - "Column names go after `SELECT`, separated by commas, and their order sets the order in the result: `SELECT name, price ...`."
+    - "The answer looks like `SELECT name, price FROM menu ORDER BY id;`."
+  tests:
+    - output: |
+        name|price
+        Black Coffee|10000
+        Milk Coffee|15000
+        Pulled Tea|12000
+        Sweet Iced Tea|8000
+        Toast|18000
+        Banana Fritters|12000
+        Fried Rice|25000
+    - input: |
+        INSERT INTO menu VALUES (8, 'Orange Juice', 'drink', 14000);
+      output: |
+        name|price
+        Black Coffee|10000
+        Milk Coffee|15000
+        Pulled Tea|12000
+        Sweet Iced Tea|8000
+        Toast|18000
+        Banana Fritters|12000
+        Fried Rice|25000
+        Orange Juice|14000
+  solution: |
+    SELECT name, price FROM menu ORDER BY id;
+
+- slug: promo-price
+  type: code
+  title: Promo price
+  prompt: |
+    Today every menu item is Rp2000 off. Show three columns for every row in the `menu` table: `name`, `price`, and the price after taking 2000 off, with the column name `promo_price`. Sort by `id` (`ORDER BY id`).
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+  starter: |
+    -- add a third column: price minus 2000, named promo_price
+    SELECT name, price FROM menu ORDER BY id;
+  hints:
+    - "A column can be a calculation based on another column, for example `price * 2`."
+    - "Write `price - 2000` as the third column, then name it with `AS`."
+    - "The third column is `price - 2000 AS promo_price`, so: `SELECT name, price, price - 2000 AS promo_price FROM menu ORDER BY id;`."
+  tests:
+    - output: |
+        name|price|promo_price
+        Black Coffee|10000|8000
+        Milk Coffee|15000|13000
+        Pulled Tea|12000|10000
+        Sweet Iced Tea|8000|6000
+        Toast|18000|16000
+        Banana Fritters|12000|10000
+        Fried Rice|25000|23000
+    - input: |
+        INSERT INTO menu VALUES (8, 'Orange Juice', 'drink', 14000);
+        UPDATE menu SET price = 20000 WHERE id = 5;
+      output: |
+        name|price|promo_price
+        Black Coffee|10000|8000
+        Milk Coffee|15000|13000
+        Pulled Tea|12000|10000
+        Sweet Iced Tea|8000|6000
+        Toast|20000|18000
+        Banana Fritters|12000|10000
+        Fried Rice|25000|23000
+        Orange Juice|14000|12000
+  solution: |
+    SELECT name, price, price - 2000 AS promo_price FROM menu ORDER BY id;
+
+- slug: quiz-select-star
+  type: choice
+  title: What the star means
+  prompt: |
+    What does this statement show?
+
+    ```sql
+    SELECT * FROM menu;
+    ```
+  options:
+    - "Only the first row of the `menu` table"
+    - "Every column of every row in the `menu` table"
+    - "The number of rows in the `menu` table"
+    - "Only the column names of the `menu` table"
+  correct: [1]
+  explanation: "`*` means every column, and with no filter at all `SELECT` fetches every row."

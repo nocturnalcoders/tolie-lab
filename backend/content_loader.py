@@ -57,6 +57,19 @@ def _split_front_matter(raw: str, where: str) -> tuple[dict, str]:
     return meta, raw[end + 5:].lstrip("\n")
 
 
+def _hints(raw: dict, where: str) -> list[str]:
+    """Hints of a code exercise, shown one at a time: `hints` (up to 3 texts) or a single `hint`."""
+    hints = raw.get("hints")
+    single = _text(raw.get("hint"), where, "hint", required=False, limit=600).strip()
+    if hints is None:
+        return [single] if single else []
+    if single:
+        _fail(where, "use either `hint` or `hints`, not both")
+    if not isinstance(hints, list) or len(hints) > 3 or not all(isinstance(x, str) and 0 < len(x.strip()) <= 600 for x in hints):
+        _fail(where, "`hints` must be a list of up to 3 texts (600 characters each at most)")
+    return [x.strip() for x in hints]
+
+
 def validate_exercise(raw: dict, where: str, course_language: str) -> dict:
     if not isinstance(raw, dict):
         _fail(where, "each exercise must be a mapping")
@@ -86,13 +99,18 @@ def validate_exercise(raw: dict, where: str, course_language: str) -> dict:
             if not isinstance(t, dict) or "output" not in t:
                 _fail(where, f"test {i} needs an `output`")
             clean.append({"input": str(t.get("input", "")), "output": str(t["output"])})
+        hints = _hints(raw, where)
         ex["config"] = {
             "language": language,
             "solution": _text(raw.get("solution"), where, "solution", limit=8000),  # admin-only, never sent to learners
             "starter": _text(raw.get("starter"), where, "starter", required=False, limit=8000),
             "tests": clean,
-            "hint": _text(raw.get("hint"), where, "hint", required=False, limit=600),
+            "hints": hints,
+            "hint": hints[0] if hints else "",  # the first hint, for older readers of the config
         }
+        if language == "sql":
+            # Tables and rows every test starts from. A test's `input` is extra SQL run after it.
+            ex["config"]["setup"] = _text(raw.get("setup"), where, "setup", required=False, limit=8000)
     else:
         options = raw.get("options")
         if not isinstance(options, list) or not 2 <= len(options) <= 8 or not all(isinstance(o, str) and o.strip() for o in options):

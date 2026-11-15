@@ -41,6 +41,13 @@ EN = {
     "Selesaikan semua pelajaran dulu. Sertifikat terbit setelah semua lentera menyala.": "Finish all the lessons first. The certificate is issued once every lantern is lit.",
     "Tulis nama lengkapmu untuk sertifikat (2 sampai 80 karakter).": "Write your full name for the certificate (2 to 80 characters).",
     "Sertifikat ini sudah dicabut.": "This certificate has been revoked.",
+    "Terlalu banyak permintaan atur ulang password. Coba lagi satu jam lagi.": "Too many password reset requests. Try again in an hour.",
+    "Terlalu banyak percobaan. Coba lagi satu jam lagi.": "Too many attempts. Try again in an hour.",
+    "Tautan atur ulang password tidak berlaku lagi. Minta tautan baru.": "This password reset link is no longer valid. Ask for a new one.",
+    "Pembayaran belum dibuka.": "Payments are not open yet.",
+    "Kamu sudah punya akses ke modul ini.": "You already have access to this module.",
+    "Terlalu banyak percobaan pembayaran. Coba lagi satu jam lagi.": "Too many payment attempts. Try again in an hour.",
+    "Pembayaran belum bisa dimulai. Coba lagi sebentar lagi.": "The payment could not be started. Try again in a moment.",
 }
 
 

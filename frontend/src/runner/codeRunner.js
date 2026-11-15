@@ -1,12 +1,19 @@
-// Talks to the Python worker. One worker is kept warm; if a program runs too long the worker is
-// killed (the only way to stop an endless loop) and a fresh one starts on the next run.
+// Talks to a language worker (Python or SQL). One worker is kept warm; if a program runs too long
+// the worker is killed (the only way to stop an endless loop) and a fresh one starts on the next run.
 import { compareOutput } from '../grading.js';
 import { format } from '../i18n.js';
 
-const WORKER_URL = '/runners/python-worker.mjs';
+// name: what the messages call the language. workerUrl: the worker that runs it.
+export const RUNNERS = {
+  python: { name: 'Python', workerUrl: '/runners/python-worker.mjs' },
+  sql: { name: 'SQL', workerUrl: '/runners/sql-worker.mjs' },
+};
 
-export function createPythonRunner({
-  createWorker = () => new Worker(WORKER_URL, { type: 'module' }),
+export const createPythonRunner = (options) => createRunner('python', options);
+
+export function createRunner(language, {
+  name = (RUNNERS[language] || RUNNERS.python).name,
+  createWorker = () => new Worker((RUNNERS[language] || RUNNERS.python).workerUrl, { type: 'module' }),
   runTimeoutMs = 6000,
   loadTimeoutMs = 90000,
   onStatus = () => {},
@@ -42,7 +49,7 @@ export function createPythonRunner({
     });
     ready.catch(() => {}); // the caller handles it; avoid an "unhandled" warning
     const timer = setTimeout(() => {
-      settle.reject(new Error(t('Python terlalu lama dimuat. Cek koneksimu lalu coba lagi.')));
+      settle.reject(new Error(t('{name} terlalu lama dimuat. Cek koneksimu lalu coba lagi.', { name })));
       if (worker === w) kill();
     }, loadTimeoutMs);
     w.onmessage = (event) => {
@@ -53,7 +60,7 @@ export function createPythonRunner({
         settle.resolve();
       } else if (m.type === 'fatal') {
         clearTimeout(timer);
-        settle.reject(new Error(t('Python gagal dimuat: {message}', { message: m.message })));
+        settle.reject(new Error(t('{name} gagal dimuat: {message}', { name, message: m.message })));
         if (worker === w) kill();
       } else if (m.type === 'result' && pending.has(m.id)) {
         const p = pending.get(m.id);
@@ -65,15 +72,16 @@ export function createPythonRunner({
     };
     w.onerror = (event) => {
       clearTimeout(timer);
-      const reason = event && event.message ? t('Python berhenti tiba-tiba: {message}', { message: event.message }) : t('Python berhenti tiba-tiba');
+      const reason = event && event.message ? t('{name} berhenti tiba-tiba: {message}', { name, message: event.message }) : t('{name} berhenti tiba-tiba', { name });
       settle.reject(new Error(reason));
       if (worker === w) kill();
       failAll(reason);
     };
   }
 
+  // `extra` goes to the worker with the program (SQL exercises send their { setup }).
   // -> { stdout, stderr, error, exitCode, truncated, timedOut?, failed? }
-  async function runOnce(code, input = '', timeoutMs = runTimeoutMs) {
+  async function runOnce(code, input = '', extra = {}, timeoutMs = runTimeoutMs) {
     if (!worker) spawn();
     try {
       await ready;
@@ -81,7 +89,7 @@ export function createPythonRunner({
       return { stdout: '', stderr: '', error: err.message, exitCode: 1, truncated: false, failed: true };
     }
     const w = worker;
-    if (!w) return { stdout: '', stderr: '', error: t('Python berhenti. Coba lagi.'), exitCode: 1, truncated: false, failed: true };
+    if (!w) return { stdout: '', stderr: '', error: t('{name} berhenti. Coba lagi.', { name }), exitCode: 1, truncated: false, failed: true };
     onStatus('running');
     return new Promise((resolve) => {
       const id = nextId++;
@@ -99,12 +107,12 @@ export function createPythonRunner({
         });
       }, timeoutMs);
       pending.set(id, { resolve, timer });
-      w.postMessage({ id, type: 'run', code, input });
+      w.postMessage({ ...extra, id, type: 'run', code, input });
     });
   }
 
   // Runs every test. Stops after a timeout or a loading failure, because the rest cannot run either.
-  async function runTests(code, tests, onProgress = () => {}) {
+  async function runTests(code, tests, onProgress = () => {}, extra = {}) {
     const results = [];
     let stopped = false;
     for (let i = 0; i < tests.length; i += 1) {
@@ -113,7 +121,7 @@ export function createPythonRunner({
         results.push({ index: i, ok: false, skipped: true, input: t.input, expected: t.output });
         continue;
       }
-      const r = await runOnce(code, t.input);
+      const r = await runOnce(code, t.input, extra);
       const cmp = r.error || r.failed ? { ok: false } : compareOutput(t.output, r.stdout);
       results.push({
         index: i,

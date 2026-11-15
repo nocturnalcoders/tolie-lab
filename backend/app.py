@@ -7,6 +7,7 @@ server until a question has been answered.
   GET  /api/session                       {user, csrf}
   POST /api/register  /api/login  /api/logout
   GET  /api/verify?token=  POST /api/verify/resend
+  POST /api/password/forgot  /api/password/reset
   GET  /api/courses                       catalog (with the learner's progress when signed in)
   GET  /api/courses/<slug>                lesson list, progress, next lesson
   GET  /api/courses/<slug>/lessons/<slug> lesson text and exercises
@@ -14,7 +15,9 @@ server until a question has been answered.
   POST /api/exercises/<id>/result         code result reported by the browser
   POST /api/exercises/<id>/draft          save the code being written
   POST /api/lessons/<id>/complete         finish a reading-only lesson
-  GET  /api/me/courses                    the learner's courses and progress
+  GET  /api/me/courses                    the learner's courses, progress and learning streak
+  POST /api/courses/<slug>/checkout       start a Stripe payment for a paid module (payments.py)
+  POST /api/stripe/webhook                Stripe tells us a payment went through
   GET  /healthz
 """
 from __future__ import annotations
@@ -74,6 +77,9 @@ SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
 SMTP_USER = os.environ.get("SMTP_USER", "")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
 SMTP_FROM = os.environ.get("SMTP_FROM", SMTP_USER)
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+TIMEZONE = os.environ.get("LAB_TIMEZONE", "Asia/Jakarta")  # a learning day starts at midnight here
 MAX_CODE = 20000
 DUMMY_HASH = generate_password_hash(secrets.token_hex(8))
 EMAIL_RE = re.compile(r"^[^@\s]{1,64}@[^@\s]{1,190}\.[^@\s]{2,}$")
@@ -207,6 +213,17 @@ CREATE TABLE IF NOT EXISTS certificates (
   issued_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   revoked_at TIMESTAMPTZ,
   UNIQUE (user_id, course_id)
+);
+CREATE TABLE IF NOT EXISTS orders (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  course_id BIGINT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  provider TEXT NOT NULL,
+  provider_ref TEXT NOT NULL UNIQUE,
+  amount_idr INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  paid_at TIMESTAMPTZ
 );
 """
 
@@ -376,16 +393,32 @@ def client_ip() -> str:
     return request.remote_addr or "?"
 
 
+def password_stamp(password_hash: str) -> str:
+    return hashlib.sha256(password_hash.encode()).hexdigest()[:16]
+
+
+def sign_in(user: dict) -> None:
+    """Starts a session. It carries a stamp of the password, so changing the password ends every older session."""
+    session.clear()
+    session["uid"] = user["id"]
+    session["pv"] = password_stamp(user["password_hash"])
+    session.permanent = True
+    g.user = user
+
+
 def current_user() -> dict | None:
     if "user" in g:
         return g.user
     uid = session.get("uid")
     g.user = None
     if uid:
-        g.user = db().execute(
-            "SELECT id, email, name, role, email_verified_at FROM users WHERE id = %s", (uid,)).fetchone()
-        if g.user is None:
+        row = db().execute(
+            "SELECT id, email, name, role, email_verified_at, password_hash FROM users WHERE id = %s", (uid,)).fetchone()
+        if row and hmac.compare_digest(str(session.get("pv", "")), password_stamp(row["password_hash"])):
+            g.user = row
+        else:
             session.pop("uid", None)
+            session.pop("pv", None)
     return g.user
 
 
@@ -413,7 +446,7 @@ def json_body() -> dict:
 
 
 # --------------------------------------------------------------------------
-# Email (verification)
+# Email (verification and password reset)
 # --------------------------------------------------------------------------
 def send_mail(to: str, subject: str, body: str) -> bool:
     if not SMTP_HOST:
@@ -460,12 +493,36 @@ def send_verification(user: dict, lang: str = "id") -> bool:
                      "Kalau kamu tidak mendaftar, abaikan email ini.\n")
 
 
+def reset_link(user_id: int) -> str:
+    """A fresh one-hour link to choose a new password. Any older link of this account stops working."""
+    token = secrets.token_urlsafe(32)
+    digest = hashlib.sha256(token.encode()).hexdigest()
+    db().execute("DELETE FROM email_tokens WHERE user_id = %s AND kind = 'reset'", (user_id,))
+    db().execute(
+        "INSERT INTO email_tokens (token_hash, user_id, kind, expires_at) VALUES (%s, %s, 'reset', now() + interval '1 hour')",
+        (digest, user_id))
+    db().commit()
+    return f"{SITE_URL}/reset?token={token}"
+
+
+def send_reset(user: dict, lang: str = "id") -> bool:
+    link = reset_link(user["id"])
+    if lang == "en":
+        return send_mail(user["email"], "Reset your tolie.space Lab password",
+                         f"Hi {user['name']},\n\nOpen this link to choose a new password (valid for 1 hour):\n{link}\n\n"
+                         "If you did not ask for this, ignore this email. Your password stays the same.\n")
+    return send_mail(user["email"], "Atur ulang password Lab tolie.space",
+                     f"Halo {user['name']},\n\nBuka tautan ini untuk membuat password baru (berlaku 1 jam):\n{link}\n\n"
+                     "Kalau kamu tidak memintanya, abaikan email ini. Passwordmu tidak berubah.\n")
+
+
 # --------------------------------------------------------------------------
 # Accounts
 # --------------------------------------------------------------------------
 @app.get("/api/session")
 def api_session():
-    return jsonify(user=user_json(current_user()), csrf=csrf_token(), verification=EMAIL_VERIFICATION)
+    return jsonify(user=user_json(current_user()), csrf=csrf_token(), verification=EMAIL_VERIFICATION,
+                   payments=bool(STRIPE_SECRET_KEY))
 
 
 @app.post("/api/register")
@@ -493,13 +550,10 @@ def api_register():
     verified_sql = "NULL" if EMAIL_VERIFICATION else "now()"
     user = db().execute(
         f"INSERT INTO users (email, name, password_hash, email_verified_at) VALUES (%s, %s, %s, {verified_sql}) "
-        "RETURNING id, email, name, role, email_verified_at",
+        "RETURNING id, email, name, role, email_verified_at, password_hash",
         (email, name, generate_password_hash(password))).fetchone()
     db().commit()
-    session.clear()
-    session["uid"] = user["id"]
-    session.permanent = True
-    g.user = user
+    sign_in(user)
     if EMAIL_VERIFICATION:
         send_verification(user, i18n.lang_of(request))
     return jsonify(user=user_json(user), csrf=csrf_token()), 201
@@ -519,11 +573,8 @@ def api_login():
         (email,)).fetchone()
     ok = check_password_hash(row["password_hash"] if row else DUMMY_HASH, password)
     if row and ok:
-        session.clear()
-        session["uid"] = row["id"]
-        session.permanent = True
+        sign_in(row)
         rate_clear(f"login:{ip}")
-        g.user = row
         return jsonify(user=user_json(row), csrf=csrf_token())
     rate_hit(f"login:{ip}", 900)
     return jsonify(error="Email atau password tidak cocok."), 401
@@ -534,6 +585,54 @@ def api_logout():
     check_csrf()
     session.clear()
     return jsonify(user=None, csrf=csrf_token())
+
+
+@app.post("/api/password/forgot")
+def api_password_forgot():
+    """Always answers the same way, so it does not reveal which emails have an account."""
+    check_csrf()
+    ip = client_ip()
+    if rate_blocked(f"forgot:{ip}", 5, 3600):
+        return jsonify(error="Terlalu banyak permintaan atur ulang password. Coba lagi satu jam lagi."), 429
+    email = str(json_body().get("email", "")).strip()
+    if not EMAIL_RE.match(email) or len(email) > 254:
+        return jsonify(error="Alamat email tidak valid."), 400
+    rate_hit(f"forgot:{ip}", 3600)
+    user = db().execute("SELECT id, email, name FROM users WHERE lower(email) = lower(%s)", (email,)).fetchone()
+    if user and not rate_blocked(f"forgot-user:{user['id']}", 3, 3600):
+        rate_hit(f"forgot-user:{user['id']}", 3600)
+        send_reset(user, i18n.lang_of(request))
+    return jsonify(ok=True)
+
+
+@app.post("/api/password/reset")
+def api_password_reset():
+    check_csrf()
+    ip = client_ip()
+    if rate_blocked(f"reset:{ip}", 10, 3600):
+        return jsonify(error="Terlalu banyak percobaan. Coba lagi satu jam lagi."), 429
+    data = json_body()
+    password = str(data.get("password", ""))
+    if len(password) < 10:
+        return jsonify(error="Password minimal 10 karakter."), 400
+    if len(password) > 200:
+        return jsonify(error="Password terlalu panjang."), 400
+    digest = hashlib.sha256(str(data.get("token", "")).encode()).hexdigest()
+    row = db().execute(
+        "SELECT user_id FROM email_tokens WHERE token_hash = %s AND kind = 'reset' AND expires_at > now()",
+        (digest,)).fetchone()
+    if not row:
+        rate_hit(f"reset:{ip}", 3600)
+        return jsonify(error="Tautan atur ulang password tidak berlaku lagi. Minta tautan baru."), 400
+    # The link arrived by email, so opening it also proves the address is theirs.
+    user = db().execute(
+        "UPDATE users SET password_hash = %s, email_verified_at = COALESCE(email_verified_at, now()) WHERE id = %s "
+        "RETURNING id, email, name, role, email_verified_at, password_hash",
+        (generate_password_hash(password), row["user_id"])).fetchone()
+    db().execute("DELETE FROM email_tokens WHERE user_id = %s AND kind = 'reset'", (row["user_id"],))
+    db().commit()
+    sign_in(user)  # the new password stamp signs out every other session of this account
+    return jsonify(user=user_json(user), csrf=csrf_token())
 
 
 @app.get("/api/verify")
@@ -664,8 +763,11 @@ def exercise_json(row: dict, prog: dict | None) -> dict:
            "prompt_html": render_md(row["prompt_md"]), "required": row["required"],
            "passed": bool(prog and prog["passed_at"]), "attempts": prog["attempts"] if prog else 0}
     if row["type"] == "code":
-        out["code"] = {"language": cfg["language"], "starter": cfg["starter"], "hint": cfg.get("hint", ""),
+        hints = cfg.get("hints") or ([cfg["hint"]] if cfg.get("hint") else [])
+        out["code"] = {"language": cfg["language"], "starter": cfg["starter"], "hints": hints,
                        "tests": cfg["tests"], "saved": (prog or {}).get("last_code")}
+        if cfg["language"] == "sql":
+            out["code"]["setup"] = cfg.get("setup", "")
     else:
         out["choice"] = {"options_html": [render_inline(o) for o in cfg["options"]], "multiple": cfg["multiple"]}
     return out
@@ -844,6 +946,29 @@ def api_lesson_complete(lesson_id: int):
     return jsonify(lesson_done=True, course_done=summary["done"] == summary["total"], progress=summary)
 
 
+def learning_streak(user_id: int) -> dict:
+    """Days in a row with at least one attempt or finished lesson. Today not done yet does not break it."""
+    today = db().execute("SELECT (now() AT TIME ZONE %s)::date AS d", (TIMEZONE,)).fetchone()["d"]
+    days = {r["d"] for r in db().execute(
+        """SELECT (created_at AT TIME ZONE %s)::date AS d FROM submissions WHERE user_id = %s
+           UNION SELECT (completed_at AT TIME ZONE %s)::date FROM lesson_progress WHERE user_id = %s""",
+        (TIMEZONE, user_id, TIMEZONE, user_id))}
+    one = timedelta(days=1)
+    current = 0
+    day = today if today in days else today - one
+    while day in days:
+        current += 1
+        day -= one
+    best = run = 0
+    prev = None
+    for d in sorted(days):
+        run = run + 1 if prev is not None and d - prev == one else 1
+        best = max(best, run)
+        prev = d
+    week = [{"date": (today - one * i).isoformat(), "active": (today - one * i) in days} for i in range(6, -1, -1)]
+    return {"current": current, "best": best, "today": today in days, "week": week}
+
+
 @app.get("/api/me/courses")
 @login_required
 def api_my_courses():
@@ -856,7 +981,7 @@ def api_my_courses():
         item = course_json(c)
         item["progress"] = progress_summary(lesson_states(user["id"], c["id"]))
         out.append(item)
-    return jsonify(courses=out, user=user_json(user))
+    return jsonify(courses=out, user=user_json(user), streak=learning_streak(user["id"]))
 
 
 @app.get("/api/plans")
@@ -916,12 +1041,16 @@ _helpers = types.SimpleNamespace(
     progress_summary=progress_summary, published_course=published_course, has_access=has_access,
     render_md=render_md, user_json=user_json, site_url=lambda: SITE_URL,
     email_verification=lambda: EMAIL_VERIFICATION, base_dir=BASE_DIR,
+    stripe_secret_key=lambda: STRIPE_SECRET_KEY, stripe_webhook_secret=lambda: STRIPE_WEBHOOK_SECRET,
+    timezone=lambda: TIMEZONE,
 )
 import certificates  # noqa: E402
 import admin  # noqa: E402
+import payments  # noqa: E402
 
 certificates.register(app, _helpers)
 admin.register(app, _helpers)
+payments.register(app, _helpers)
 
 init_db()
 

@@ -11,7 +11,7 @@ vi.mock('../components/CodeEditor.jsx', () => ({
   default: ({ value, onChange }) => <textarea data-testid="editor" value={value} onChange={(e) => onChange(e.target.value)} />,
 }));
 const runnerMock = { runOnce: vi.fn(), runTests: vi.fn(), reset: vi.fn() };
-vi.mock('../runner/usePythonRunner.js', () => ({ usePythonRunner: () => [runnerMock, 'ready'] }));
+vi.mock('../runner/useRunner.js', () => ({ useRunner: () => [runnerMock, 'ready'] }));
 
 const USER = { id: 7, name: 'Budi', email: 'budi@example.test', role: 'student', verified: true };
 
@@ -23,7 +23,7 @@ function lessonPayload(over = {}) {
     lesson: { id: 11, slug: 'halo-warung', title: 'Halo, Warung!', position: 1, total: 3, html: '<h2>Menampilkan teks</h2><p>Gunakan <code>print</code>.</p>', done: false },
     exercises: [
       { id: 21, slug: 'sapa', type: 'code', title: 'Sapa pelanggan', prompt_html: '<p>Cetak sapaan.</p>', required: true, passed: false, attempts: 0,
-        code: { language: 'python', starter: '# tulis di sini', hint: 'Pakai print.', tests: [{ input: '', output: 'Halo' }], saved: null } },
+        code: { language: 'python', starter: '# tulis di sini', hints: ['Pakai print.'], tests: [{ input: '', output: 'Halo' }], saved: null } },
       { id: 22, slug: 'kuis', type: 'choice', title: 'Apa yang tampil?', prompt_html: '<p>Pilih satu.</p>', required: true, passed: false, attempts: 0,
         choice: { options_html: ['Satu baris', '<code>Halo</code> di baris sendiri', 'Error'], multiple: false } },
     ],
@@ -232,7 +232,7 @@ describe('lesson: code exercise', () => {
     await user.type(screen.getByLabelText(/Input untuk programmu/), '15000{Enter}2');
     await user.click(screen.getByRole('button', { name: 'Coba' }));
     expect(await screen.findByText('30000')).toBeInTheDocument();
-    expect(runnerMock.runOnce).toHaveBeenCalledWith('# tulis di sini', '15000\n2');
+    expect(runnerMock.runOnce).toHaveBeenCalledWith('# tulis di sini', '15000\n2', {});
   });
 
   it('restores the code the learner saved last time', async () => {

@@ -5,6 +5,8 @@ import Course from './pages/Course.jsx';
 import Login from './pages/Login.jsx';
 import MyCourses from './pages/MyCourses.jsx';
 import Verify from './pages/Verify.jsx';
+import ForgotPassword from './pages/ForgotPassword.jsx';
+import ResetPassword from './pages/ResetPassword.jsx';
 import NotFound from './pages/NotFound.jsx';
 import CertificatePage, { CertificateLookup } from './pages/Certificate.jsx';
 import AdminGuard from './pages/admin/AdminGuard.jsx';
@@ -32,6 +34,8 @@ export default function App() {
       <Route path="/masuk" element={<Login />} />
       <Route path="/belajar" element={<MyCourses />} />
       <Route path="/verify" element={<Verify />} />
+      <Route path="/lupa-password" element={<ForgotPassword />} />
+      <Route path="/reset" element={<ResetPassword />} />
       <Route path="/verifikasi" element={<CertificateLookup />} />
       <Route path="/verifikasi/:id" element={<CertificatePage />} />
       <Route path="/admin" element={<AdminGuard><AdminHome /></AdminGuard>} />

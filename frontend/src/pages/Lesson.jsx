@@ -9,7 +9,7 @@ import { useAuth } from '../auth.jsx';
 import { useLang } from '../lang.jsx';
 import { api } from '../api.js';
 import { useApi, useDocumentTitle, useTheme } from '../hooks.js';
-import { usePythonRunner } from '../runner/usePythonRunner.js';
+import { useRunner } from '../runner/useRunner.js';
 import NotFound from './NotFound.jsx';
 
 function LessonView({ data, courseSlug }) {
@@ -17,8 +17,8 @@ function LessonView({ data, courseSlug }) {
   const { t } = useLang();
   const location = useLocation();
   const [theme] = useTheme();
-  const [runner, status] = usePythonRunner();
   const { course, lesson, exercises, prev, next } = data;
+  const [runner, status] = useRunner(course.language);
 
   const [active, setActive] = useState(() => {
     const firstOpen = exercises.findIndex((e) => !e.passed);

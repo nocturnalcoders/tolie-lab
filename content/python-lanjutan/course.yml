@@ -1,0 +1,19 @@
+slug: python-lanjutan
+title: Python Lanjutan untuk Warung Kopi
+language: python
+locale: id
+level: Menengah
+kind: course
+price_idr: 0
+status: published
+position: 3
+summary: >-
+  Lanjutan dari Python Dasar: merapikan kode dengan fungsi, menyimpan pesanan
+  sebagai catatan, membaca baris data mentah, menangani data yang salah,
+  membuat peringkat, dan menghitung pelanggan unik, sampai menyusun laporan
+  harian Warung Kopi Senja.
+perks:
+  - 8 pelajaran, 17 latihan kode, dan 8 soal pilihan ganda
+  - Petunjuk bertahap di setiap latihan kode, dari arahan ringan sampai hampir jawabannya
+  - Semua latihan dijalankan langsung di browser
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie

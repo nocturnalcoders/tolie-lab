@@ -1,0 +1,115 @@
+- slug: sort-prices
+  type: code
+  title: Sort the price list
+  prompt: |
+    The first line holds `n`, then `n` lines in the format `name,price`. Print the menu from the **cheapest** to the most expensive, one line per item in the format `<name>: Rp<price>`.
+
+    If two prices are the same, the one that came in first is printed first.
+  language: python
+  starter: |
+    n = int(input())
+    menu = []
+    for _ in range(n):
+        name, price = input().split(",")
+        menu.append({"name": name, "price": int(price)})
+
+    # sort the menu by price before printing
+    for m in menu:
+        print(f"{m['name']}: Rp{m['price']}")
+  hints:
+    - "The starter code already prints correctly, but still in the order the items came in. What needs adding is one `sorted` step with a `key`."
+    - "Make a small function `def get_price(m): return m[\"price\"]`, then `ordered = sorted(menu, key=get_price)`. Equal prices stay in the order they came in automatically."
+    - "Once you have `ordered`, change the loop to `for m in ordered:`. No `reverse` is needed, because the order asked for is cheap to expensive."
+  tests:
+    - input: "3\nmilk coffee,15000\norange juice,10000\ntoast,18000"
+      output: "orange juice: Rp10000\nmilk coffee: Rp15000\ntoast: Rp18000"
+    - input: "4\ntoast,18000\npulled tea,12000\niced tea,5000\nblack coffee,12000"
+      output: "iced tea: Rp5000\npulled tea: Rp12000\nblack coffee: Rp12000\ntoast: Rp18000"
+    - input: "2\ntoast,18000\norange juice,10000"
+      output: "orange juice: Rp10000\ntoast: Rp18000"
+    - input: "1\nmilk coffee,15000"
+      output: "milk coffee: Rp15000"
+  solution: |
+    def get_price(m):
+        return m["price"]
+
+
+    n = int(input())
+    menu = []
+    for _ in range(n):
+        name, price = input().split(",")
+        menu.append({"name": name, "price": int(price)})
+
+    for m in sorted(menu, key=get_price):
+        print(f"{m['name']}: Rp{m['price']}")
+
+- slug: top-three-sellers
+  type: code
+  title: The three best sellers
+  prompt: |
+    The first line holds `n`, then `n` lines in the format `name,units sold`. Print **at most three** best sellers, most units first, with a rank number:
+
+    ```
+    1. toast (12)
+    2. milk coffee (10)
+    3. black coffee (8)
+    ```
+
+    If there are fewer than three items, print them all. If two items sold the same number, the one that came in first gets the higher rank.
+  language: python
+  starter: |
+    n = int(input())
+    sales = []
+    for _ in range(n):
+        name, quantity = input().split(",")
+        sales.append({"name": name, "quantity": int(quantity)})
+
+    # sort from the most units sold, take the top three,
+    # then print them with a rank number
+  hints:
+    - "There are three steps: sort from largest to smallest, cut down to the top three, then print while numbering."
+    - "Sort with `sorted(sales, key=get_quantity, reverse=True)`, where `get_quantity` is a function that returns `s[\"quantity\"]`. Then cut with `[:3]`."
+    - "To print: `for number, s in enumerate(top, 1):` then `print(f\"{number}. {s['name']} ({s['quantity']})\")`."
+  tests:
+    - input: "5\nmilk coffee,10\npulled tea,7\ntoast,12\norange juice,3\nblack coffee,8"
+      output: "1. toast (12)\n2. milk coffee (10)\n3. black coffee (8)"
+    - input: "2\norange juice,3\nmilk coffee,9"
+      output: "1. milk coffee (9)\n2. orange juice (3)"
+    - input: "4\nmilk coffee,5\npulled tea,9\ntoast,5\norange juice,5"
+      output: "1. pulled tea (9)\n2. milk coffee (5)\n3. toast (5)"
+    - input: "3\npulled tea,1\nmilk coffee,2\ntoast,3"
+      output: "1. toast (3)\n2. milk coffee (2)\n3. pulled tea (1)"
+  solution: |
+    def get_quantity(s):
+        return s["quantity"]
+
+
+    n = int(input())
+    sales = []
+    for _ in range(n):
+        name, quantity = input().split(",")
+        sales.append({"name": name, "quantity": int(quantity)})
+
+    top = sorted(sales, key=get_quantity, reverse=True)[:3]
+    for number, s in enumerate(top, 1):
+        print(f"{number}. {s['name']} ({s['quantity']})")
+
+- slug: quiz-sorted
+  type: choice
+  title: The original list after sorted
+  prompt: |
+    What is shown after this code runs?
+
+    ```python
+    prices = [15000, 10000, 18000]
+    ordered = sorted(prices, reverse=True)
+    print(prices[0], ordered[0])
+    ```
+  options:
+    - "`15000 18000`"
+    - "`18000 18000`"
+    - "`10000 18000`"
+    - "`15000 10000`"
+  correct: [0]
+  hint: Recall whether sorted changes the list it is given.
+  explanation: "`sorted` builds a new list and leaves `prices` as it was, so `prices[0]` is still `15000`. With `reverse=True` the new list starts with the largest, so `ordered[0]` is `18000`."

@@ -10,11 +10,13 @@
     "preview": "vite preview",
     "test": "vitest run",
     "check-content": "node scripts/check-content.mjs ../content",
-    "test:python": "node scripts/test-python-core.mjs"
+    "test:python": "node scripts/test-python-core.mjs",
+    "test:sql": "node scripts/test-sql-core.mjs"
   },
   "dependencies": {
     "@codemirror/commands": "^6.7.1",
     "@codemirror/lang-python": "^6.1.6",
+    "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/state": "^6.4.1",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.34.1",
@@ -22,7 +24,8 @@
     "pyodide": "314.0.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "sql.js": "^1.13.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",

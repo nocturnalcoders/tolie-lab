@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import { useAuth } from '../auth.jsx';
 import { useDocumentTitle } from '../hooks.js';
@@ -77,6 +77,7 @@ export default function Login() {
               {mode === 'login' ? t('Belum punya akun? Daftar') : t('Sudah punya akun? Masuk')}
             </button>
           </div>
+          {mode === 'login' && <p className="muted"><Link to="/lupa-password">{t('Lupa password?')}</Link></p>}
         </form>
       </section>
     </Layout>

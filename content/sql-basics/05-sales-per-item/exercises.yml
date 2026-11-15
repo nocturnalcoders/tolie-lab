@@ -1,0 +1,127 @@
+- slug: sold-per-item
+  type: code
+  title: Sold per item
+  prompt: |
+    Work out how many servings of each item were sold. From the `sales` table, show `item` and the sum of its `quantity` with the column name `sold`, one row per item. Sort from the highest `sold`. When equal, sort by `item` in alphabetical order.
+  setup: |
+    CREATE TABLE sales (id INTEGER PRIMARY KEY, sale_date TEXT, item TEXT, quantity INTEGER, subtotal INTEGER);
+    INSERT INTO sales VALUES
+      (1, '2024-03-01', 'Milk Coffee', 3, 45000),
+      (2, '2024-03-01', 'Toast', 1, 18000),
+      (3, '2024-03-01', 'Pulled Tea', 2, 24000),
+      (4, '2024-03-01', 'Milk Coffee', 2, 30000),
+      (5, '2024-03-02', 'Black Coffee', 4, 40000),
+      (6, '2024-03-02', 'Fried Rice', 2, 50000),
+      (7, '2024-03-02', 'Milk Coffee', 1, 15000),
+      (8, '2024-03-02', 'Banana Fritters', 3, 36000),
+      (9, '2024-03-03', 'Pulled Tea', 1, 12000),
+      (10, '2024-03-03', 'Milk Coffee', 4, 60000),
+      (11, '2024-03-03', 'Toast', 2, 36000);
+  starter: |
+    -- group by item, then sort
+    SELECT item, SUM(quantity) AS sold
+    FROM sales;
+  hints:
+    - "Without grouping, `SUM` adds the whole table up into one row. What is asked for is one row per item."
+    - "Add `GROUP BY item` after `FROM sales`. For the order, the name `sold` can be used in `ORDER BY`."
+    - "The last two lines: `GROUP BY item`, then `ORDER BY sold DESC, item`."
+  tests:
+    - output: |
+        item|sold
+        Milk Coffee|10
+        Black Coffee|4
+        Banana Fritters|3
+        Pulled Tea|3
+        Toast|3
+        Fried Rice|2
+    - input: |
+        INSERT INTO sales VALUES
+          (12, '2024-03-04', 'Fried Rice', 5, 125000),
+          (13, '2024-03-04', 'Sweet Iced Tea', 3, 24000);
+      output: |
+        item|sold
+        Milk Coffee|10
+        Fried Rice|7
+        Black Coffee|4
+        Banana Fritters|3
+        Pulled Tea|3
+        Sweet Iced Tea|3
+        Toast|3
+  solution: |
+    SELECT item, SUM(quantity) AS sold
+    FROM sales
+    GROUP BY item
+    ORDER BY sold DESC, item;
+
+- slug: star-items
+  type: code
+  title: Star items
+  prompt: |
+    Ms. Rina calls an item a "star" when its revenue reaches Rp50000 or more. From the `sales` table, show `item` and the sum of its `subtotal` with the column name `revenue`, only for items whose revenue is at least 50000. Sort from the highest `revenue`. When equal, sort by `item` in alphabetical order.
+  setup: |
+    CREATE TABLE sales (id INTEGER PRIMARY KEY, sale_date TEXT, item TEXT, quantity INTEGER, subtotal INTEGER);
+    INSERT INTO sales VALUES
+      (1, '2024-03-01', 'Milk Coffee', 3, 45000),
+      (2, '2024-03-01', 'Toast', 1, 18000),
+      (3, '2024-03-01', 'Pulled Tea', 2, 24000),
+      (4, '2024-03-01', 'Milk Coffee', 2, 30000),
+      (5, '2024-03-02', 'Black Coffee', 4, 40000),
+      (6, '2024-03-02', 'Fried Rice', 2, 50000),
+      (7, '2024-03-02', 'Milk Coffee', 1, 15000),
+      (8, '2024-03-02', 'Banana Fritters', 3, 36000),
+      (9, '2024-03-03', 'Pulled Tea', 1, 12000),
+      (10, '2024-03-03', 'Milk Coffee', 4, 60000),
+      (11, '2024-03-03', 'Toast', 2, 36000);
+  starter: |
+    -- show only the items whose revenue is 50000 or more
+    SELECT item, SUM(subtotal) AS revenue
+    FROM sales
+    GROUP BY item
+    ORDER BY revenue DESC, item;
+  hints:
+    - "The condition uses the result of `SUM`, so it cannot go in `WHERE`. `WHERE subtotal >= 50000` would only check transactions one at a time."
+    - "Groups are filtered with `HAVING`, written after `GROUP BY` and before `ORDER BY`."
+    - "Insert the line `HAVING SUM(subtotal) >= 50000` between `GROUP BY item` and `ORDER BY`."
+  tests:
+    - output: |
+        item|revenue
+        Milk Coffee|150000
+        Toast|54000
+        Fried Rice|50000
+    - input: |
+        INSERT INTO sales VALUES
+          (12, '2024-03-04', 'Black Coffee', 2, 20000),
+          (13, '2024-03-04', 'Sweet Iced Tea', 2, 16000);
+      output: |
+        item|revenue
+        Milk Coffee|150000
+        Black Coffee|60000
+        Toast|54000
+        Fried Rice|50000
+  solution: |
+    SELECT item, SUM(subtotal) AS revenue
+    FROM sales
+    GROUP BY item
+    HAVING SUM(subtotal) >= 50000
+    ORDER BY revenue DESC, item;
+
+- slug: quiz-where-having
+  type: choice
+  title: WHERE or HAVING?
+  prompt: |
+    You want to show only the dates that have **more than 3 transactions**. Which part correctly completes this statement?
+
+    ```sql
+    SELECT sale_date, COUNT(*) AS transactions
+    FROM sales
+    GROUP BY sale_date
+    ...
+    ```
+  options:
+    - "`WHERE COUNT(*) > 3`"
+    - "`HAVING COUNT(*) > 3`"
+    - "`LIMIT 3`"
+    - "`ORDER BY COUNT(*) > 3`"
+  correct: [1]
+  hint: "The condition uses a count worked out per group."
+  explanation: "`HAVING` filters groups after `GROUP BY`, so it may use `COUNT(*)`. `WHERE` works before grouping and knows nothing about aggregate results, while `LIMIT 3` only takes the first three rows without looking at what they hold."

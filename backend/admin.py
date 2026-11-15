@@ -57,6 +57,50 @@ def register(app, h) -> None:
             row["revoked"] = row.pop("revoked_at") is not None
         return jsonify(courses=courses, certificates=certs)
 
+    @app.get("/api/admin/stats")
+    @admin_required
+    def admin_stats():
+        """Numbers for the dashboard: who is learning, where they stop, and which exercises are hardest."""
+        tz = h.timezone()
+        totals = h.db().execute(
+            """SELECT (SELECT count(*) FROM users) AS users,
+                      (SELECT count(*) FROM users WHERE created_at > now() - interval '7 days') AS new_users_7d,
+                      (SELECT count(DISTINCT user_id) FROM submissions WHERE created_at > now() - interval '7 days') AS active_7d,
+                      (SELECT count(*) FROM submissions WHERE created_at > now() - interval '7 days') AS submissions_7d,
+                      (SELECT count(*) FROM certificates WHERE revoked_at IS NULL) AS certificates,
+                      (SELECT count(*) FROM orders WHERE status = 'paid') AS paid_orders,
+                      (SELECT coalesce(sum(amount_idr), 0) FROM orders WHERE status = 'paid') AS revenue_idr""").fetchone()
+        signups = h.db().execute(
+            """SELECT d::date AS day,
+                      (SELECT count(*) FROM users u WHERE (u.created_at AT TIME ZONE %s)::date = d::date) AS users,
+                      (SELECT count(DISTINCT s.user_id) FROM submissions s WHERE (s.created_at AT TIME ZONE %s)::date = d::date) AS active
+               FROM generate_series((now() AT TIME ZONE %s)::date - 13, (now() AT TIME ZONE %s)::date, interval '1 day') d
+               ORDER BY d""", (tz, tz, tz, tz)).fetchall()
+        for row in signups:
+            row["day"] = row["day"].isoformat()
+        # Per lesson: how many learners tried it and how many finished it. A big gap is where people give up.
+        lessons = h.db().execute(
+            """WITH req AS (SELECT lesson_id, count(*) AS n FROM exercises WHERE required GROUP BY lesson_id),
+                    per_user AS (
+                      SELECT e.lesson_id, p.user_id, count(*) FILTER (WHERE e.required AND p.passed_at IS NOT NULL) AS passed
+                      FROM exercise_progress p JOIN exercises e ON e.id = p.exercise_id GROUP BY e.lesson_id, p.user_id)
+               SELECT c.id AS course_id, c.title AS course_title, l.id, l.position, l.title,
+                      CASE WHEN coalesce(r.n, 0) = 0 THEN (SELECT count(*) FROM lesson_progress lp WHERE lp.lesson_id = l.id)
+                           ELSE (SELECT count(*) FROM per_user u WHERE u.lesson_id = l.id) END AS started,
+                      CASE WHEN coalesce(r.n, 0) = 0 THEN (SELECT count(*) FROM lesson_progress lp WHERE lp.lesson_id = l.id)
+                           ELSE (SELECT count(*) FROM per_user u WHERE u.lesson_id = l.id AND u.passed = r.n) END AS finished
+               FROM lessons l JOIN courses c ON c.id = l.course_id LEFT JOIN req r ON r.lesson_id = l.id
+               WHERE c.status = 'published' ORDER BY c.position, c.id, l.position, l.id""").fetchall()
+        hardest = h.db().execute(
+            """SELECT e.id, e.title, e.type, l.id AS lesson_id, l.title AS lesson_title, c.title AS course_title,
+                      count(*) AS learners, count(p.passed_at) AS passed,
+                      round(avg(p.attempts)::numeric, 1)::float AS avg_attempts
+               FROM exercise_progress p JOIN exercises e ON e.id = p.exercise_id
+               JOIN lessons l ON l.id = e.lesson_id JOIN courses c ON c.id = l.course_id
+               WHERE p.attempts > 0 GROUP BY e.id, l.id, c.id
+               ORDER BY count(p.passed_at)::float / count(*), avg(p.attempts) DESC, e.id LIMIT 10""").fetchall()
+        return jsonify(totals=totals, days=signups, lessons=lessons, hardest=hardest)
+
     # ------------------------------------------------------------------ courses
     def course_row(cid: int) -> dict:
         row = h.db().execute("SELECT * FROM courses WHERE id = %s", (cid,)).fetchone()

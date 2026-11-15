@@ -4,6 +4,7 @@
     docker compose exec api python manage.py load-content
     docker compose exec api python manage.py make-admin you@example.com
     docker compose exec api python manage.py grant you@example.com python-dasar
+    docker compose exec api python manage.py reset-link you@example.com   (a password reset link, when email is not set up)
 """
 from __future__ import annotations
 
@@ -47,6 +48,14 @@ def main(argv: list[str]) -> int:
             conn.execute("INSERT INTO entitlements (user_id, course_id, source) VALUES (%s, %s, 'admin') ON CONFLICT DO NOTHING",
                          (row["uid"], row["cid"]))
             print("Access granted.")
+        elif cmd == "reset-link" and len(argv) == 3:
+            row = conn.execute("SELECT id FROM users WHERE lower(email) = lower(%s)", (argv[2],)).fetchone()
+            if not row:
+                print("No user with that email.")
+                return 1
+            conn.commit()
+            with app.app.app_context():
+                print("Valid for 1 hour:", app.reset_link(row["id"]))
         else:
             print(__doc__)
             return 2

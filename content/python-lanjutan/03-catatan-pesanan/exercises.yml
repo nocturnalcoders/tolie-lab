@@ -1,0 +1,113 @@
+- slug: catat-pesanan
+  type: code
+  title: Catat pesanan
+  prompt: |
+    Baris pertama berisi `n`, lalu `n` baris berformat `nama,jumlah,harga`. Simpan setiap baris sebagai dictionary dengan kunci `nama`, `jumlah`, dan `harga` di dalam list `pesanan`.
+
+    Setelah semua tercatat, cetak satu baris `<nama>: Rp<jumlah dikali harga>` untuk setiap pesanan, lalu baris terakhir `Total: Rp<jumlah semuanya>`.
+  language: python
+  starter: |
+    n = int(input())
+    pesanan = []
+    for _ in range(n):
+        nama, jumlah, harga = input().split(",")
+        # tambahkan satu dictionary ke list pesanan
+        # (jumlah dan harga disimpan sebagai angka)
+
+    total = 0
+    for p in pesanan:
+        # cetak "<nama>: Rp<subtotal>" lalu tambahkan subtotal ke total
+        pass
+    print(f"Total: Rp{total}")
+  hints:
+    - "Ada dua tahap: mengisi list dengan `.append`, lalu mengulang list itu untuk mencetak dan menjumlahkan."
+    - "Tahap pertama: `pesanan.append({\"nama\": nama, \"jumlah\": int(jumlah), \"harga\": int(harga)})`."
+    - "Tahap kedua, di dalam `for p in pesanan`: hitung `sub = p[\"jumlah\"] * p[\"harga\"]`, cetak `f\"{p['nama']}: Rp{sub}\"`, lalu `total += sub`."
+  tests:
+    - input: "3\nkopi susu,2,15000\nteh tarik,1,12000\nroti bakar,3,18000"
+      output: "kopi susu: Rp30000\nteh tarik: Rp12000\nroti bakar: Rp54000\nTotal: Rp96000"
+    - input: "1\nes jeruk,4,10000"
+      output: "es jeruk: Rp40000\nTotal: Rp40000"
+    - input: "2\nkopi susu,1,15000\nkopi susu,2,15000"
+      output: "kopi susu: Rp15000\nkopi susu: Rp30000\nTotal: Rp45000"
+    - input: "0"
+      output: "Total: Rp0"
+  solution: |
+    n = int(input())
+    pesanan = []
+    for _ in range(n):
+        nama, jumlah, harga = input().split(",")
+        pesanan.append({"nama": nama, "jumlah": int(jumlah), "harga": int(harga)})
+
+    total = 0
+    for p in pesanan:
+        sub = p["jumlah"] * p["harga"]
+        print(f"{p['nama']}: Rp{sub}")
+        total += sub
+    print(f"Total: Rp{total}")
+
+- slug: pesanan-besar
+  type: code
+  title: Pesanan besar
+  prompt: |
+    Bu Rina ingin tahu pesanan mana yang nilainya besar. List `pesanan` sudah diisi oleh kode awal.
+
+    Cetak nama setiap pesanan yang subtotalnya (jumlah dikali harga) **50000 atau lebih**, sesuai urutan masuk, satu nama per baris. Lalu cetak `Pesanan besar: <banyaknya>`. Jika tidak ada, cukup cetak `Pesanan besar: 0`.
+  language: python
+  starter: |
+    n = int(input())
+    pesanan = []
+    for _ in range(n):
+        nama, jumlah, harga = input().split(",")
+        pesanan.append({"nama": nama, "jumlah": int(jumlah), "harga": int(harga)})
+
+    # cetak nama pesanan yang subtotalnya 50000 atau lebih,
+    # lalu cetak banyaknya
+  hints:
+    - "Ulang list `pesanan`, dan di setiap putaran periksa subtotalnya dengan `if`. Siapkan juga satu variabel penghitung yang mulai dari 0."
+    - "Syaratnya `p[\"jumlah\"] * p[\"harga\"] >= 50000`. Pakai `>=`, karena tepat 50000 juga termasuk."
+    - "Di dalam `if`: `print(p[\"nama\"])` dan `banyak += 1`. Setelah perulangan selesai: `print(f\"Pesanan besar: {banyak}\")`."
+  tests:
+    - input: "4\nkopi susu,2,15000\nroti bakar,3,18000\nteh tarik,5,12000\nes jeruk,1,10000"
+      output: "roti bakar\nteh tarik\nPesanan besar: 2"
+    - input: "2\nkopi susu,1,15000\nes jeruk,2,10000"
+      output: "Pesanan besar: 0"
+    - input: "1\nes jeruk,5,10000"
+      output: "es jeruk\nPesanan besar: 1"
+    - input: "3\nteh tarik,4,12000\nkopi susu,4,15000\nroti bakar,2,18000"
+      output: "kopi susu\nPesanan besar: 1"
+  solution: |
+    n = int(input())
+    pesanan = []
+    for _ in range(n):
+        nama, jumlah, harga = input().split(",")
+        pesanan.append({"nama": nama, "jumlah": int(jumlah), "harga": int(harga)})
+
+    banyak = 0
+    for p in pesanan:
+        if p["jumlah"] * p["harga"] >= 50000:
+            print(p["nama"])
+            banyak += 1
+    print(f"Pesanan besar: {banyak}")
+
+- slug: kuis-list-dict
+  type: choice
+  title: Mengambil isi catatan
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```python
+    pesanan = [
+        {"nama": "kopi susu", "jumlah": 2},
+        {"nama": "teh tarik", "jumlah": 5},
+    ]
+    print(pesanan[1]["jumlah"])
+    ```
+  options:
+    - "`2`"
+    - "`5`"
+    - "`teh tarik`"
+    - "Error `KeyError`"
+  correct: [1]
+  hint: Nomor urut list dimulai dari 0.
+  explanation: "`pesanan[1]` adalah catatan kedua, karena nomor urut dimulai dari `0`. Dari catatan itu `[\"jumlah\"]` mengambil nilai `5`."

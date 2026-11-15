@@ -1,0 +1,111 @@
+- slug: daftar-menu
+  type: code
+  title: Daftar menu
+  prompt: |
+    Bu Rina ingin mencetak daftar menu. Tampilkan kolom `nama` dan `harga` (dalam urutan itu) dari semua baris tabel `menu`, urut menurut `id` (`ORDER BY id`).
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, nama TEXT, kategori TEXT, harga INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Kopi Hitam', 'minuman', 10000),
+      (2, 'Kopi Susu', 'minuman', 15000),
+      (3, 'Teh Tarik', 'minuman', 12000),
+      (4, 'Es Teh Manis', 'minuman', 8000),
+      (5, 'Roti Bakar', 'makanan', 18000),
+      (6, 'Pisang Goreng', 'makanan', 12000),
+      (7, 'Nasi Goreng', 'makanan', 25000);
+  starter: |
+    -- ganti * dengan kolom yang diminta
+    SELECT * FROM menu ORDER BY id;
+  hints:
+    - "Tanda `*` mengambil semua kolom. Yang diminta hanya dua kolom, jadi sebutkan namanya."
+    - "Nama kolom ditulis setelah `SELECT`, dipisah koma, dan urutannya menentukan urutan di hasil: `SELECT nama, harga ...`."
+    - "Jawabannya berbentuk `SELECT nama, harga FROM menu ORDER BY id;`."
+  tests:
+    - output: |
+        nama|harga
+        Kopi Hitam|10000
+        Kopi Susu|15000
+        Teh Tarik|12000
+        Es Teh Manis|8000
+        Roti Bakar|18000
+        Pisang Goreng|12000
+        Nasi Goreng|25000
+    - input: |
+        INSERT INTO menu VALUES (8, 'Jus Jeruk', 'minuman', 14000);
+      output: |
+        nama|harga
+        Kopi Hitam|10000
+        Kopi Susu|15000
+        Teh Tarik|12000
+        Es Teh Manis|8000
+        Roti Bakar|18000
+        Pisang Goreng|12000
+        Nasi Goreng|25000
+        Jus Jeruk|14000
+  solution: |
+    SELECT nama, harga FROM menu ORDER BY id;
+
+- slug: harga-promo
+  type: code
+  title: Harga promo
+  prompt: |
+    Hari ini semua menu dipotong Rp2000. Tampilkan tiga kolom dari semua baris tabel `menu`: `nama`, `harga`, dan harga setelah dipotong 2000 dengan nama kolom `harga_promo`. Urutkan menurut `id` (`ORDER BY id`).
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, nama TEXT, kategori TEXT, harga INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Kopi Hitam', 'minuman', 10000),
+      (2, 'Kopi Susu', 'minuman', 15000),
+      (3, 'Teh Tarik', 'minuman', 12000),
+      (4, 'Es Teh Manis', 'minuman', 8000),
+      (5, 'Roti Bakar', 'makanan', 18000),
+      (6, 'Pisang Goreng', 'makanan', 12000),
+      (7, 'Nasi Goreng', 'makanan', 25000);
+  starter: |
+    -- tambahkan kolom ketiga: harga dikurangi 2000, bernama harga_promo
+    SELECT nama, harga FROM menu ORDER BY id;
+  hints:
+    - "Kolom boleh berupa hitungan dari kolom lain, misalnya `harga * 2`."
+    - "Tulis `harga - 2000` sebagai kolom ketiga, lalu beri nama dengan `AS`."
+    - "Kolom ketiganya `harga - 2000 AS harga_promo`, jadi: `SELECT nama, harga, harga - 2000 AS harga_promo FROM menu ORDER BY id;`."
+  tests:
+    - output: |
+        nama|harga|harga_promo
+        Kopi Hitam|10000|8000
+        Kopi Susu|15000|13000
+        Teh Tarik|12000|10000
+        Es Teh Manis|8000|6000
+        Roti Bakar|18000|16000
+        Pisang Goreng|12000|10000
+        Nasi Goreng|25000|23000
+    - input: |
+        INSERT INTO menu VALUES (8, 'Jus Jeruk', 'minuman', 14000);
+        UPDATE menu SET harga = 20000 WHERE id = 5;
+      output: |
+        nama|harga|harga_promo
+        Kopi Hitam|10000|8000
+        Kopi Susu|15000|13000
+        Teh Tarik|12000|10000
+        Es Teh Manis|8000|6000
+        Roti Bakar|20000|18000
+        Pisang Goreng|12000|10000
+        Nasi Goreng|25000|23000
+        Jus Jeruk|14000|12000
+  solution: |
+    SELECT nama, harga, harga - 2000 AS harga_promo FROM menu ORDER BY id;
+
+- slug: kuis-select-bintang
+  type: choice
+  title: Arti tanda bintang
+  prompt: |
+    Apa yang ditampilkan perintah ini?
+
+    ```sql
+    SELECT * FROM menu;
+    ```
+  options:
+    - "Hanya baris pertama tabel `menu`"
+    - "Semua kolom dari semua baris tabel `menu`"
+    - "Banyaknya baris di tabel `menu`"
+    - "Hanya nama-nama kolom tabel `menu`"
+  correct: [1]
+  explanation: "`*` berarti semua kolom, dan tanpa penyaring apa pun `SELECT` mengambil semua baris."

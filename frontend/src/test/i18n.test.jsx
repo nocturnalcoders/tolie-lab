@@ -14,7 +14,7 @@ vi.mock('../components/CodeEditor.jsx', () => ({
   default: ({ value, onChange }) => <textarea data-testid="editor" value={value} onChange={(e) => onChange(e.target.value)} />,
 }));
 const runnerMock = { runOnce: vi.fn(), runTests: vi.fn(), reset: vi.fn() };
-vi.mock('../runner/usePythonRunner.js', () => ({ usePythonRunner: () => [runnerMock, 'ready'] }));
+vi.mock('../runner/useRunner.js', () => ({ useRunner: () => [runnerMock, 'ready'] }));
 
 // ---- every text used in the code has an English version, and the dictionary has nothing left over
 function sourceFiles(dir, out = []) {
@@ -191,7 +191,7 @@ describe('the interface in English', () => {
         course: { slug: 'python-basics', title: CEN.title, language: 'python' },
         lesson: { id: 1, slug: 'hello', title: 'Hello, Coffee Shop!', position: 1, total: 8, html: '<p>Welcome.</p>', done: false },
         exercises: [
-          { id: 5, slug: 'greet', type: 'code', title: 'Greet', prompt_html: '<p>Say hello.</p>', required: true, passed: false, attempts: 0, code: { language: 'python', starter: '', hint: 'Use print.', tests: [{ input: '', output: 'Hello' }], saved: null } },
+          { id: 5, slug: 'greet', type: 'code', title: 'Greet', prompt_html: '<p>Say hello.</p>', required: true, passed: false, attempts: 0, code: { language: 'python', starter: '', hints: ['Use print.'], tests: [{ input: '', output: 'Hello' }], saved: null } },
           { id: 6, slug: 'quiz', type: 'choice', title: 'Quiz', prompt_html: '<p>Pick.</p>', required: true, passed: false, attempts: 0, choice: { options_html: ['A', 'B'], multiple: false } },
         ],
         prev: null, next: null, trail: [{ slug: 'hello', title: 'Hello', done: false }], signed_in: true } },

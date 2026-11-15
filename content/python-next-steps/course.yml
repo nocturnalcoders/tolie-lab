@@ -1,0 +1,19 @@
+slug: python-next-steps
+title: Python Next Steps for a Coffee Shop
+language: python
+locale: en
+level: Intermediate
+kind: course
+price_idr: 0
+status: published
+position: 4
+summary: >-
+  The follow-on to Python Basics: tidying code with functions, keeping orders
+  as records, reading raw rows of data, handling bad input, ranking best
+  sellers, and counting unique customers, all the way to a daily report for
+  Senja Coffee Shop.
+perks:
+  - 8 lessons, 17 coding exercises and 8 multiple-choice questions
+  - Step-by-step hints on every coding exercise, from a gentle nudge to nearly the answer
+  - Every exercise runs right in your browser, nothing to install
+  - A completion certificate from tolie.space, signed by Christianto Lie

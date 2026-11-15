@@ -45,10 +45,10 @@ server {
         proxy_read_timeout 30s;
     }
 
-    # Python in the browser: the worker script and the Pyodide files. They get the strict worker
+    # Python and SQL in the browser: the worker scripts, Pyodide and sql.js. They get the strict worker
     # policy and the right content types for modules and WebAssembly. The file names do not change
     # between versions, so the browser must re-check them (a quick 304 when nothing changed).
-    location ~ ^/(runners|pyodide)/ {
+    location ~ ^/(runners|pyodide|sqljs)/ {
         include /etc/nginx/snippets/worker-security.conf;
         types {
             text/javascript mjs;

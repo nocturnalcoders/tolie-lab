@@ -555,3 +555,17 @@ table.posts a { color: var(--link); }
 .lang-filter { margin: 8px 0 0; font: 400 15px var(--font-ui); }
 .lang-filter .link { color: var(--amber); }
 [data-theme="day"] .lang-filter .link { color: var(--link); }
+
+/* learning streak (My Learning) */
+.streak-count { font: 500 20px var(--font-ui); margin: 6px 0 0; }
+.streak-count .muted { font-size: 15px; font-weight: 400; }
+.streak-week { list-style: none; display: flex; gap: 16px; padding: 0; margin: 18px 0 10px; }
+.streak-week li { display: flex; flex-direction: column; align-items: center; gap: 10px; font: 400 12px var(--font-ui); color: var(--ink-soft); }
+
+/* admin dashboard numbers */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 8px 0 4px; }
+.stat { padding: 12px 14px; border: 2px solid #eadfc8; border-radius: 12px; font: 400 14px var(--font-ui); color: var(--ink-soft); }
+.stat b { display: block; font: 500 26px var(--font-ui); color: var(--ink); }
+.bar { display: block; height: 8px; min-width: 2px; border-radius: 4px; background: var(--amber); }
+.bar.low { background: var(--coral); }
+.streak-week .lamp:not(.on) { background: #efe4cc; border-color: #c9b58f; }

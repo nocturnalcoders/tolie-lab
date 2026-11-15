@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createPythonRunner } from '../runner/pythonRunner.js';
+import { createPythonRunner } from '../runner/codeRunner.js';
 
 // A stand-in for the Web Worker. `script` decides what each program "prints".
 function fakeWorkerFactory(script, { loadMs = 0, fail = null } = {}) {

@@ -1,0 +1,17 @@
+slug: sql-dasar
+title: SQL Dasar untuk Warung Kopi
+language: sql
+locale: id
+level: Pemula
+kind: course
+price_idr: 0
+status: published
+position: 5
+summary: >-
+  Belajar SQL dari nol lewat data sebuah warung kopi: membaca tabel menu,
+  menyaring dan mengurutkan, merekap penjualan harian, menghitung penjualan per
+  menu, sampai menggabungkan pesanan dengan menu menjadi laporan penjualan.
+perks:
+  - 6 pelajaran, 12 latihan kode, dan 6 soal pilihan ganda
+  - Semua latihan dijalankan langsung di browser
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie

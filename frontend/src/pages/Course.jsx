@@ -1,19 +1,74 @@
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout.jsx';
 import CertificatePanel from '../components/CertificatePanel.jsx';
 import { Lamp } from '../components/Lamps.jsx';
 import { useAuth } from '../auth.jsx';
+import { api } from '../api.js';
 import { useApi, useDocumentTitle } from '../hooks.js';
 import { useLang } from '../lang.jsx';
 import { LANGUAGE_LABEL, priceLabel } from '../utils.js';
 import NotFound from './NotFound.jsx';
 
+// What a visitor without access sees on a paid module: the way to buy it.
+function BuyBox({ course }) {
+  const { user, payments } = useAuth();
+  const { t, lang } = useLang();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  if (!payments) return <span className="flash err">{t('Modul berbayar. Pembelian akan dibuka segera.')}</span>;
+  if (!user) {
+    return (
+      <>
+        <Link className="btn" to={`/masuk?next=${encodeURIComponent(`/kursus/${course.slug}`)}`}>{t('Masuk untuk membeli')}</Link>
+        <span className="muted">{t('Bayar sekali, akses selamanya.')}</span>
+      </>
+    );
+  }
+
+  async function buy() {
+    setError('');
+    setBusy(true);
+    try {
+      const out = await api(`/api/courses/${course.slug}/checkout`, { method: 'POST' });
+      window.location.assign(out.url); // Stripe's payment page; it sends the learner back here
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <button type="button" onClick={buy} disabled={busy}>
+        {busy ? t('Membuka halaman pembayaran…') : t('Beli modul ini · {price}', { price: priceLabel(course, t, lang) })}
+      </button>
+      <span className="muted">{t('Bayar sekali, akses selamanya.')}</span>
+      {error && <p className="flash err" role="alert">{error}</p>}
+    </>
+  );
+}
+
+const PAID_CHECKS = 10; // after paying, look for the access this many times (every 3 seconds)
+
 export default function Course() {
   const { course: slug } = useParams();
+  const [params] = useSearchParams();
   const { user, ready } = useAuth();
   const { t, lang } = useLang();
-  const { data, error, loading } = useApi(ready ? `/api/courses/${slug}` : null, user ? user.id : 0);
+  const [checks, setChecks] = useState(0);
+  const { data, error, loading } = useApi(ready ? `/api/courses/${slug}` : null, `${user ? user.id : 0}-${checks}`);
   useDocumentTitle(data ? `${data.course.title} · Lab` : 'Lab');
+
+  // Back from the payment page: Stripe confirms to the server a moment later, so wait for it.
+  const justPaid = params.get('paid') === '1' && !!user;
+  const waiting = justPaid && !!data && !data.access;
+  useEffect(() => {
+    if (!waiting || loading || checks >= PAID_CHECKS) return undefined;
+    const timer = setTimeout(() => setChecks((n) => n + 1), 3000);
+    return () => clearTimeout(timer);
+  }, [waiting, loading, checks]);
 
   if (error && error.status === 404) return <NotFound />;
   if (loading && !data) return <Layout><p className="note">{t('Memuat kursus…')}</p></Layout>;
@@ -31,9 +86,17 @@ export default function Course() {
         </p>
         <h1>{course.title}</h1>
         <p className="lead">{course.summary}</p>
+        {justPaid && access && <p className="flash ok" role="status">{t('Pembayaran diterima. Modul ini sudah terbuka untukmu.')}</p>}
+        {waiting && (
+          <p className="flash ok" role="status">
+            {checks < PAID_CHECKS
+              ? t('Terima kasih. Pembayaranmu sedang dikonfirmasi, biasanya kurang dari satu menit…')
+              : t('Pembayaranmu belum terkonfirmasi. Muat ulang halaman ini beberapa menit lagi; kalau modul masih terkunci, hubungi admin.')}
+          </p>
+        )}
         <div className="row">
-          {!access ? (
-            <span className="flash err">{t('Modul berbayar. Pembelian akan dibuka segera.')}</span>
+          {waiting ? null : !access ? (
+            <BuyBox course={course} />
           ) : next ? (
             <Link className="btn" to={`/kursus/${course.slug}/${next}`}>
               {progress.done > 0 ? t('Lanjutkan belajar') : t('Mulai belajar')}

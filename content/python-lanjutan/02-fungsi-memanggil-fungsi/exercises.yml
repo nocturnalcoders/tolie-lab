@@ -1,0 +1,125 @@
+- slug: bayar-dengan-diskon
+  type: code
+  title: Bayar dengan diskon anggota
+  prompt: |
+    Tulis fungsi `hitung_bayar(total, persen_diskon=0)` yang mengembalikan jumlah bayar setelah dipotong diskon sekian persen (dibulatkan ke bawah).
+
+    Program di bawahnya membaca total dan jenis pembeli (`anggota` atau `umum`). Anggota mendapat diskon 10%, pembeli umum memanggil fungsi tanpa diskon. Hasilnya dicetak sebagai `Bayar: Rp<jumlah>`.
+  language: python
+  starter: |
+    def hitung_bayar(total):
+        # tambahkan parameter persen_diskon dengan nilai bawaan 0,
+        # lalu kembalikan total setelah diskon
+        return total
+
+
+    total = int(input())
+    jenis = input()
+    if jenis == "anggota":
+        bayar = hitung_bayar(total, 10)
+    else:
+        bayar = hitung_bayar(total)
+    print(f"Bayar: Rp{bayar}")
+  hints:
+    - "Program memanggil fungsi dengan dua cara: satu nilai dan dua nilai. Keduanya harus bisa, jadi parameter kedua perlu nilai bawaan."
+    - "Ubah baris def menjadi `def hitung_bayar(total, persen_diskon=0):`. Yang dibayar adalah (100 - persen_diskon) persen dari total."
+    - "Isi fungsinya: `return total * (100 - persen_diskon) // 100`."
+  tests:
+    - input: "50000\numum"
+      output: "Bayar: Rp50000"
+    - input: "50000\nanggota"
+      output: "Bayar: Rp45000"
+    - input: "99999\nanggota"
+      output: "Bayar: Rp89999"
+    - input: "0\nanggota"
+      output: "Bayar: Rp0"
+  solution: |
+    def hitung_bayar(total, persen_diskon=0):
+        return total * (100 - persen_diskon) // 100
+
+
+    total = int(input())
+    jenis = input()
+    if jenis == "anggota":
+        bayar = hitung_bayar(total, 10)
+    else:
+        bayar = hitung_bayar(total)
+    print(f"Bayar: Rp{bayar}")
+
+- slug: baris-struk
+  type: code
+  title: Baris struk
+  prompt: |
+    Fungsi `subtotal` dan `rupiah` sudah tersedia. Tulis fungsi `baris_struk(nama, harga, jumlah=1)` yang memakai keduanya dan mengembalikan teks seperti `kopi susu x2 = Rp30.000`.
+
+    Program membaca nama, harga, dan jumlah, lalu mencetak dua baris: baris struk untuk jumlah itu, dan baris struk tanpa menyebut jumlah (jadi memakai nilai bawaan `1`).
+  language: python
+  starter: |
+    def subtotal(harga, jumlah):
+        return harga * jumlah
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    # tulis fungsi baris_struk di sini
+
+
+    nama = input()
+    harga = int(input())
+    jumlah = int(input())
+    print(baris_struk(nama, harga, jumlah))
+    print(baris_struk(nama, harga))
+  hints:
+    - "Fungsimu tidak perlu menghitung sendiri. Panggil `subtotal` untuk angkanya, lalu `rupiah` untuk tulisannya."
+    - "Baris kedua program memanggil `baris_struk(nama, harga)` tanpa jumlah, jadi parameter `jumlah` harus punya nilai bawaan: `def baris_struk(nama, harga, jumlah=1):`."
+    - "Isi fungsinya: `return f\"{nama} x{jumlah} = {rupiah(subtotal(harga, jumlah))}\"`."
+  tests:
+    - input: "kopi susu\n15000\n2"
+      output: "kopi susu x2 = Rp30.000\nkopi susu x1 = Rp15.000"
+    - input: "roti bakar\n18000\n10"
+      output: "roti bakar x10 = Rp180.000\nroti bakar x1 = Rp18.000"
+    - input: "teh tarik\n12000\n100"
+      output: "teh tarik x100 = Rp1.200.000\nteh tarik x1 = Rp12.000"
+    - input: "kerupuk\n500\n1"
+      output: "kerupuk x1 = Rp500\nkerupuk x1 = Rp500"
+  solution: |
+    def subtotal(harga, jumlah):
+        return harga * jumlah
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    def baris_struk(nama, harga, jumlah=1):
+        return f"{nama} x{jumlah} = {rupiah(subtotal(harga, jumlah))}"
+
+
+    nama = input()
+    harga = int(input())
+    jumlah = int(input())
+    print(baris_struk(nama, harga, jumlah))
+    print(baris_struk(nama, harga))
+
+- slug: kuis-nilai-bawaan
+  type: choice
+  title: Nilai bawaan
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```python
+    def sapa(nama, salam="Halo"):
+        return f"{salam}, {nama}!"
+
+    print(sapa("Budi"))
+    ```
+  options:
+    - "`Halo, Budi!`"
+    - "`Budi, Halo!`"
+    - "`None, Budi!`"
+    - "Error, karena `salam` tidak diisi"
+  correct: [0]
+  hint: Lihat apa yang terjadi pada parameter yang tidak diisi saat fungsi dipanggil.
+  explanation: "`salam` punya nilai bawaan `\"Halo\"`. Karena pemanggil hanya mengirim `\"Budi\"`, nilai bawaan itu yang dipakai, sehingga hasilnya `Halo, Budi!`."

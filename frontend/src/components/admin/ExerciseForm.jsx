@@ -8,13 +8,15 @@ function fromExercise(ex, type) {
   if (!ex) {
     return type === 'choice'
       ? { type, title: '', slug: '', prompt: '', required: true, hint: '', options: ['', ''], correct: [], multiple: false, explanation: '' }
-      : { type, title: '', slug: '', prompt: '', required: true, hint: '', starter: '', solution: '', tests: [blankTest()] };
+      : { type, title: '', slug: '', prompt: '', required: true, hint: '', starter: '', solution: '', setup: '', tests: [blankTest()] };
   }
   const c = ex.config;
-  const base = { type: ex.type, title: ex.title, slug: ex.slug, prompt: ex.prompt, required: ex.required, hint: c.hint || '' };
+  // Code exercises can have up to three hints, edited one per line.
+  const hint = ex.type === 'code' && c.hints ? c.hints.join('\n') : c.hint || '';
+  const base = { type: ex.type, title: ex.title, slug: ex.slug, prompt: ex.prompt, required: ex.required, hint };
   return ex.type === 'choice'
     ? { ...base, options: [...c.options], correct: [...c.correct], multiple: !!c.multiple, explanation: c.explanation }
-    : { ...base, starter: c.starter || '', solution: c.solution || '', tests: c.tests.map((t) => ({ input: t.input || '', output: t.output })) };
+    : { ...base, starter: c.starter || '', solution: c.solution || '', setup: c.setup || '', tests: c.tests.map((t) => ({ input: t.input || '', output: t.output })) };
 }
 
 // One form for both kinds of question. Code questions are checked in the browser before they are saved:
@@ -26,6 +28,8 @@ export default function ExerciseForm({ exercise, type, lessonId, language, runne
   const [verdict, setVerdict] = useState(null); // { ok, message, results? }
   const set = (key) => (e) => setF((s) => ({ ...s, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const isChoice = f.type === 'choice';
+  const isSql = !isChoice && language === 'sql';
+  const extra = isSql ? { setup: f.setup } : {};
 
   function setOption(i, value) {
     setF((s) => ({ ...s, options: s.options.map((o, j) => (j === i ? value : o)) }));
@@ -55,11 +59,12 @@ export default function ExerciseForm({ exercise, type, lessonId, language, runne
   }
 
   function payload() {
-    const common = { type: f.type, title: f.title, slug: f.slug.trim(), prompt: f.prompt, required: f.required, hint: f.hint };
+    const common = { type: f.type, title: f.title, slug: f.slug.trim(), prompt: f.prompt, required: f.required };
     if (isChoice) {
-      return { ...common, options: f.options.map((o) => o.trim()), correct: f.correct, multiple: f.multiple, explanation: f.explanation };
+      return { ...common, hint: f.hint, options: f.options.map((o) => o.trim()), correct: f.correct, multiple: f.multiple, explanation: f.explanation };
     }
-    return { ...common, language, starter: f.starter, solution: f.solution, tests: f.tests.map((t) => ({ input: t.input, output: t.output })) };
+    const hints = f.hint.split('\n').map((h) => h.trim()).filter(Boolean);
+    return { ...common, hints, language, starter: f.starter, solution: f.solution, tests: f.tests.map((t) => ({ input: t.input, output: t.output })), ...extra };
   }
 
   // Runs the solution and the starter. Returns true when the question is sound.
@@ -70,12 +75,12 @@ export default function ExerciseForm({ exercise, type, lessonId, language, runne
       return false;
     }
     setVerdict({ ok: true, message: 'Menguji solusi dan kode awal…', pending: true });
-    const sol = await runner.runTests(f.solution, f.tests);
+    const sol = await runner.runTests(f.solution, f.tests, undefined, extra);
     if (sol.passed !== sol.total) {
       setVerdict({ ok: false, message: `Solusimu belum lulus semua tes (${sol.passed} dari ${sol.total}). Perbaiki solusi atau tesnya.`, results: sol });
       return false;
     }
-    const start = await runner.runTests(f.starter, f.tests);
+    const start = await runner.runTests(f.starter, f.tests, undefined, extra);
     if (start.passed === start.total) {
       setVerdict({ ok: false, message: 'Kode awal sudah lulus semua tes, jadi peserta tidak perlu mengerjakan apa pun. Kosongkan sebagian kode awalnya.' });
       return false;
@@ -146,12 +151,18 @@ export default function ExerciseForm({ exercise, type, lessonId, language, runne
         </fieldset>
       ) : (
         <>
+          {isSql && (
+            <>
+              <label htmlFor="ex-setup">Tabel dan data <small>(SQL yang dijalankan sebelum setiap tes; peserta bisa melihatnya)</small></label>
+              <textarea id="ex-setup" className="mono" value={f.setup} onChange={set('setup')} rows={6} spellCheck={false} />
+            </>
+          )}
           <label htmlFor="ex-starter">Kode awal <small>(yang tampil di editor peserta)</small></label>
           <textarea id="ex-starter" className="mono" value={f.starter} onChange={set('starter')} rows={6} spellCheck={false} />
           <label htmlFor="ex-solution">Solusi <small>(tidak pernah dikirim ke peserta)</small></label>
           <textarea id="ex-solution" className="mono" value={f.solution} onChange={set('solution')} rows={6} spellCheck={false} required />
           <fieldset className="tests-edit">
-            <legend>Tes <small>(input satu baris per input(); keluaran yang diharapkan)</small></legend>
+            <legend>Tes <small>{isSql ? '(input: SQL tambahan untuk tes ini, misalnya baris baru; keluaran: tabel hasil, kolom dipisah |)' : '(input satu baris per input(); keluaran yang diharapkan)'}</small></legend>
             {f.tests.map((t, i) => (
               <div className="test-row-edit" key={i}>
                 <div>
@@ -170,8 +181,17 @@ export default function ExerciseForm({ exercise, type, lessonId, language, runne
         </>
       )}
 
-      <label htmlFor="ex-hint">Petunjuk <small>(opsional)</small></label>
-      <input id="ex-hint" type="text" value={f.hint} onChange={set('hint')} maxLength={600} />
+      {isChoice ? (
+        <>
+          <label htmlFor="ex-hint">Petunjuk <small>(opsional)</small></label>
+          <input id="ex-hint" type="text" value={f.hint} onChange={set('hint')} maxLength={600} />
+        </>
+      ) : (
+        <>
+          <label htmlFor="ex-hint">Petunjuk <small>(opsional; satu per baris, maksimal 3, dari yang paling halus sampai hampir jawabannya)</small></label>
+          <textarea id="ex-hint" value={f.hint} onChange={set('hint')} rows={3} />
+        </>
+      )}
 
       <div className="two-col">
         <div>
@@ -192,7 +212,7 @@ export default function ExerciseForm({ exercise, type, lessonId, language, runne
         <button type="submit" disabled={busy}>{busy ? 'Sebentar…' : 'Simpan soal'}</button>
         {!isChoice && <button type="button" className="ghost" onClick={test} disabled={busy}>Uji solusi dan kode awal</button>}
         <button type="button" className="link" onClick={onCancel}>Batal</button>
-        {!isChoice && <span className="muted">Python: {status === 'ready' ? 'siap' : status === 'loading' ? 'memuat…' : 'dimuat saat diuji'}</span>}
+        {!isChoice && <span className="muted">{isSql ? 'SQL' : 'Python'}: {status === 'ready' ? 'siap' : status === 'loading' ? 'memuat…' : 'dimuat saat diuji'}</span>}
       </div>
     </form>
   );

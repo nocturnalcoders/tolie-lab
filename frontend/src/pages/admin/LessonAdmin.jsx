@@ -5,7 +5,7 @@ import Prose from '../../components/Prose.jsx';
 import ExerciseForm from '../../components/admin/ExerciseForm.jsx';
 import { api } from '../../api.js';
 import { useApi, useDocumentTitle } from '../../hooks.js';
-import { usePythonRunner } from '../../runner/usePythonRunner.js';
+import { useRunner } from '../../runner/useRunner.js';
 
 function LessonForm({ lesson, onSaved }) {
   const [f, setF] = useState({ title: lesson.title, slug: lesson.slug, position: lesson.position, body: lesson.body });
@@ -58,7 +58,7 @@ export default function LessonAdmin() {
   const [reload, setReload] = useState(0);
   const { data, error, loading } = useApi(`/api/admin/lessons/${id}`, reload);
   const [editing, setEditing] = useState(null); // { exercise?, type }
-  const [runner, status] = usePythonRunner();
+  const [runner, status] = useRunner(data ? data.course.language : 'python');
   const [msg, setMsg] = useState('');
   useDocumentTitle(data ? `${data.lesson.title} · Admin` : 'Admin · Lab');
   useEffect(() => { setEditing(null); }, [id]);

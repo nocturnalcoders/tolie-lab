@@ -480,14 +480,14 @@ check("the translation does not touch successful answers", en.get("/api/courses"
 # every learner-facing message has an English version
 import re as _re
 missing = []
-for f in ("app.py", "certificates.py"):
+for f in ("app.py", "certificates.py", "payments.py"):
     src = (HERE.parent / f).read_text(encoding="utf-8")
     for m in _re.finditer(r'(?:error=|bad\()\s*(f?)(["\'])((?:(?!\2).)*)\2', src):
         if not m.group(1) and m.group(3) not in __import__("i18n").EN:
             missing.append(m.group(3))
 check("every learner-facing error message has an English translation", not missing, missing)
 check("no English entry is left without a message in the code", all(
-    any(k in (HERE.parent / f).read_text(encoding="utf-8") for f in ("app.py", "certificates.py")) for k in __import__("i18n").EN))
+    any(k in (HERE.parent / f).read_text(encoding="utf-8") for f in ("app.py", "certificates.py", "payments.py")) for k in __import__("i18n").EN))
 
 # English course certificate
 sql("""INSERT INTO exercise_progress (user_id, exercise_id, attempts, passed_at)
@@ -528,6 +528,152 @@ r = admin.post("/api/admin/courses", {**NEW, "title": "English Module", "locale"
 check("an admin can set the language of a course", r.status_code == 201 and r.json["course"]["locale"] == "en", r.json)
 check("an unknown locale is refused by the admin api", admin.post("/api/admin/courses", {**NEW, "title": "Lain", "locale": "fr"}).status_code == 400)
 check("the language rejects bad plans file languages by falling back", cl.load_plans(HERE.parent.parent / "content", "xx")[0]["id"] == "gratis")
+
+# ---------------------------------------------------------------- password reset
+mails3 = []
+lab.send_mail = lambda to, subject, body: mails3.append((to, subject, body)) or True
+rita, rita_email = new_user("10.4.0.1", name="Rita", password="the old password 1")
+other_device = Client("10.4.0.2")
+other_device.post("/api/login", {"email": rita_email, "password": "the old password 1"})
+fc = Client("10.4.0.3")
+check("forgot needs the csrf header", fc.post("/api/password/forgot", {"email": rita_email}, csrf=False).status_code == 400)
+check("forgot answers ok for an unknown email and sends nothing", fc.post("/api/password/forgot", {"email": "nobody@example.test"}).json == {"ok": True} and not mails3)
+check("forgot answers the same for a known email", fc.post("/api/password/forgot", {"email": rita_email.upper()}).json == {"ok": True})
+check("a reset email is sent with a link", len(mails3) == 1 and mails3[0][0] == rita_email and "/reset?token=" in mails3[0][2] and mails3[0][1].startswith("Atur ulang"))
+rtoken = re.search(r"token=([\w-]+)", mails3[0][2]).group(1)
+check("the reset token is stored hashed", not sql("SELECT 1 FROM email_tokens WHERE token_hash = %s", (rtoken,)))
+check("reset refuses a short password", fc.post("/api/password/reset", {"token": rtoken, "password": "short"}).status_code == 400)
+check("reset refuses a wrong token", fc.post("/api/password/reset", {"token": "nope", "password": "a brand new password"}).status_code == 400)
+check("a verification token cannot reset a password", fc.post("/api/password/reset", {"token": token, "password": "a brand new password"}).status_code == 400)
+done = fc.post("/api/password/reset", {"token": rtoken, "password": "a brand new password"})
+check("reset sets the password and signs in", done.status_code == 200 and done.json["user"]["email"] == rita_email and fc.get("/api/session").json["user"]["name"] == "Rita")
+check("the reset link works only once", Client("10.4.0.4").post("/api/password/reset", {"token": rtoken, "password": "another password 123"}).status_code == 400)
+check("the old password no longer works", Client("10.4.0.5").post("/api/login", {"email": rita_email, "password": "the old password 1"}).status_code == 401)
+check("the new password works", Client("10.4.0.6").post("/api/login", {"email": rita_email, "password": "a brand new password"}).status_code == 200)
+check("sessions from before the reset are signed out", rita.get("/api/session").json["user"] is None and other_device.get("/api/session").json["user"] is None)
+fc2 = Client("10.4.0.7", lang="en")
+fc2.post("/api/password/forgot", {"email": rita_email})
+check("the reset email follows the language", mails3[-1][1].startswith("Reset your") and "valid for 1 hour" in mails3[-1][2])
+first_link = re.search(r"token=([\w-]+)", mails3[-1][2]).group(1)
+fc2.post("/api/password/forgot", {"email": rita_email})
+check("a newer link replaces the older one", fc2.post("/api/password/reset", {"token": first_link, "password": "a brand new password"}).status_code == 400)
+n_before = len(mails3)
+fc2.post("/api/password/forgot", {"email": rita_email})
+check("reset emails are limited per account", len(mails3) == n_before)
+codes = [Client("10.4.0.9").post("/api/password/forgot", {"email": f"x{i}@example.test"}).status_code for i in range(6)]
+check("forgot is rate limited per address", codes == [200] * 5 + [429], codes)
+with lab.app.app_context():
+    link = lab.reset_link(sql("SELECT id FROM users WHERE email = %s", (rita_email,))[0]["id"])
+check("an admin-made reset link works", Client("10.4.0.10").post("/api/password/reset", {"token": link.split("token=")[1], "password": "from the command line"}).status_code == 200)
+
+# ---------------------------------------------------------------- hints
+one = cl.validate_exercise({"slug": "a", "type": "code", "title": "A", "prompt": "p", "solution": "print(1)", "tests": [{"output": "1"}], "hint": "satu"}, "t", "python")
+check("a single hint becomes a list of one", one["config"]["hints"] == ["satu"] and one["config"]["hint"] == "satu")
+many = cl.validate_exercise({"slug": "a", "type": "code", "title": "A", "prompt": "p", "solution": "print(1)", "tests": [{"output": "1"}], "hints": ["satu", " dua ", "tiga"]}, "t", "python")
+check("up to three hints are kept in order", many["config"]["hints"] == ["satu", "dua", "tiga"])
+for label, extra in [("four hints", {"hints": ["a", "b", "c", "d"]}), ("an empty hint", {"hints": ["a", " "]}), ("hint and hints together", {"hint": "a", "hints": ["b"]})]:
+    try:
+        cl.validate_exercise({"slug": "a", "type": "code", "title": "A", "prompt": "p", "solution": "print(1)", "tests": [{"output": "1"}], **extra}, "t", "python")
+        check(f"the loader rejects {label}", False)
+    except cl.ContentError:
+        check(f"the loader rejects {label}", True)
+hl = anon.get("/api/courses/python-dasar/lessons/diskon").json
+hx = next(e for e in hl["exercises"] if e["slug"] == "hitung-diskon")
+check("a lesson sends the hints as a list", hx["code"]["hints"] == ["Bayar 90% dari total dengan total * 90 // 100."] and "hint" not in hx["code"])
+sqlx = cl.validate_exercise({"slug": "q", "type": "code", "title": "Q", "prompt": "p", "solution": "SELECT 1", "setup": "CREATE TABLE t (a);", "tests": [{"output": "1"}]}, "t", "sql")
+check("an sql exercise keeps its setup", sqlx["config"]["setup"] == "CREATE TABLE t (a);" and sqlx["config"]["language"] == "sql")
+check("a python exercise has no setup", "setup" not in one["config"])
+
+# ---------------------------------------------------------------- learning streak
+import datetime as _dt
+sam, sam_email = new_user("10.5.0.1", name="Sam")
+st = sam.get("/api/me/courses").json["streak"]
+check("a new learner has no streak", st["current"] == 0 and st["best"] == 0 and st["today"] is False and len(st["week"]) == 7 and not any(d["active"] for d in st["week"]))
+sam_id = sql("SELECT id FROM users WHERE email = %s", (sam_email,))[0]["id"]
+def practice(days_ago):
+    sql("INSERT INTO submissions (user_id, exercise_id, graded_in, status, created_at) VALUES (%s, %s, 'browser', 'failed', now() - make_interval(days => %s))", (sam_id, sid, days_ago))
+for d in (1, 2, 3, 6, 7, 8, 9, 10):
+    practice(d)
+st = sam.get("/api/me/courses").json["streak"]
+check("yesterday's streak still counts before today's practice", st["current"] == 3 and st["today"] is False and st["best"] == 5, st)
+practice(0)
+st = sam.get("/api/me/courses").json["streak"]
+check("practising today extends the streak", st["current"] == 4 and st["today"] is True and st["week"][-1]["active"] and st["week"][-1]["date"] == sql("SELECT (now() AT TIME ZONE 'Asia/Jakarta')::date AS d")[0]["d"].isoformat(), st)
+check("the week shows which days were active", [d["active"] for d in st["week"]] == [True, False, False, True, True, True, True], st["week"])
+sql("DELETE FROM submissions WHERE user_id = %s AND created_at > now() - interval '36 hours'", (sam_id,))
+check("a missed day resets the current streak but not the best", (lambda x: x["current"] == 0 and x["best"] == 5)(sam.get("/api/me/courses").json["streak"]))
+
+# ---------------------------------------------------------------- payments (Stripe Checkout)
+import hashlib as _hashlib, hmac as _hmac, time as _time
+import payments
+sql("UPDATE courses SET status = 'published' WHERE slug = 'modul-berbayar'")
+pay, pay_email = new_user("10.6.0.1", name="Pay")
+check("the session says payments are off without a key", pay.get("/api/session").json["payments"] is False)
+check("checkout is refused while payments are off", pay.post("/api/courses/modul-berbayar/checkout").status_code == 503)
+lab.STRIPE_SECRET_KEY, lab.STRIPE_WEBHOOK_SECRET = "sk_test_x", "whsec_test"
+check("the session says payments are on with a key", pay.get("/api/session").json["payments"] is True)
+sent = []
+def fake_stripe(key, path, params):
+    sent.append((key, path, params))
+    return {"id": f"cs_test_{len(sent)}", "url": f"https://checkout.stripe.com/c/pay/cs_test_{len(sent)}"}
+payments.stripe_post = fake_stripe
+check("checkout needs a sign-in", anon.post("/api/courses/modul-berbayar/checkout").status_code in (400, 401))
+check("checkout needs the csrf header", pay.post("/api/courses/modul-berbayar/checkout", csrf=False).status_code == 400)
+check("a free course cannot be bought", pay.post("/api/courses/python-dasar/checkout").status_code == 409)
+check("someone with access cannot buy again", buyer.post("/api/courses/modul-berbayar/checkout").status_code == 409)
+co = pay.post("/api/courses/modul-berbayar/checkout")
+check("checkout returns the Stripe page", co.status_code == 200 and co.json["url"].startswith("https://checkout.stripe.com/"), co.json)
+key, path, params = sent[-1]
+check("Stripe is asked for the course price in rupiah", key == "sk_test_x" and path == "/checkout/sessions" and params["line_items[0][price_data][currency]"] == "idr"
+      and params["line_items[0][price_data][unit_amount]"] == 10000000 and params["mode"] == "payment" and params["customer_email"] == pay_email
+      and params["success_url"].endswith("/kursus/modul-berbayar?paid=1") and params["cancel_url"].endswith("/kursus/modul-berbayar"), params)
+order = sql("SELECT * FROM orders WHERE provider_ref = %s", (co.json["url"].rsplit("/", 1)[1],))[0]
+check("a pending order is stored", order["status"] == "pending" and order["amount_idr"] == 100000)
+check("coming back from Stripe does not unlock anything by itself", pay.get("/api/courses/modul-berbayar?paid=1").json["access"] is False)
+
+def webhook(event, secret="whsec_test", age=0, raw_sig=None):
+    body = json.dumps(event).encode()
+    t = int(_time.time()) - age
+    sig = raw_sig or f"t={t},v1=" + _hmac.new(secret.encode(), f"{t}.".encode() + body, _hashlib.sha256).hexdigest()
+    return lab.app.test_client().post("/api/stripe/webhook", data=body, headers={"Stripe-Signature": sig, "Content-Type": "application/json"})
+def paid_event(ref, amount=10000000, kind="checkout.session.completed", status="paid", currency="idr"):
+    return {"type": kind, "data": {"object": {"id": ref, "payment_status": status, "amount_total": amount, "currency": currency}}}
+ref = order["provider_ref"]
+check("a webhook without a signature is refused", webhook(paid_event(ref), raw_sig="nope").status_code == 400)
+check("a webhook signed with the wrong secret is refused", webhook(paid_event(ref), secret="whsec_other").status_code == 400)
+check("an old webhook is refused", webhook(paid_event(ref), age=3600).status_code == 400)
+check("nothing was unlocked by the refused webhooks", pay.get("/api/courses/modul-berbayar").json["access"] is False)
+check("an unpaid checkout does not unlock", webhook(paid_event(ref, status="unpaid")).status_code == 200 and pay.get("/api/courses/modul-berbayar").json["access"] is False)
+check("a wrong amount does not unlock", webhook(paid_event(ref, amount=100)).status_code == 200 and pay.get("/api/courses/modul-berbayar").json["access"] is False)
+check("an unknown checkout is ignored", webhook(paid_event("cs_test_unknown")).status_code == 200)
+check("other events are acknowledged", webhook({"type": "charge.refunded", "data": {"object": {}}}).status_code == 200)
+r = webhook(paid_event(ref))
+check("a signed paid event unlocks the module", r.status_code == 200 and pay.get("/api/courses/modul-berbayar").json["access"] is True and pay.get("/api/courses/modul-berbayar/lessons/baca-dulu").status_code == 200)
+check("the order is marked paid and the access is a purchase", sql("SELECT status FROM orders WHERE provider_ref = %s", (ref,))[0]["status"] == "paid"
+      and sql("SELECT source FROM entitlements e JOIN users u ON u.id = e.user_id WHERE u.email = %s", (pay_email,))[0]["source"] == "purchase")
+check("the same event twice is harmless", webhook(paid_event(ref)).status_code == 200 and sql("SELECT count(*) AS n FROM entitlements e JOIN users u ON u.id = e.user_id WHERE u.email = %s", (pay_email,))[0]["n"] == 1)
+check("only the buyer got access", fresh.get("/api/courses/modul-berbayar").json["access"] is False)
+def boom(*a):
+    raise payments.StripeError("down")
+payments.stripe_post = boom
+r = fresh.post("/api/courses/modul-berbayar/checkout")
+check("a Stripe failure is reported without an order", r.status_code == 502 and sql("SELECT count(*) AS n FROM orders")[0]["n"] == 1, r.json)
+check("signature check handles several v1 values", payments.valid_signature(b"x", "t=100,v1=bad,v1=" + _hmac.new(b"s", b"100.x", _hashlib.sha256).hexdigest(), "s", now=100))
+check("signature check fails closed without a secret", not payments.valid_signature(b"x", "t=100,v1=" + _hmac.new(b"", b"100.x", _hashlib.sha256).hexdigest(), "", now=100))
+lab.STRIPE_SECRET_KEY, lab.STRIPE_WEBHOOK_SECRET = "", ""
+sql("UPDATE courses SET status = 'draft' WHERE slug = 'modul-berbayar'")
+
+# ---------------------------------------------------------------- admin dashboard numbers
+check("stats need an admin", budi.get("/api/admin/stats").status_code == 403 and anon.get("/api/admin/stats").status_code == 401)
+stats = admin.get("/api/admin/stats").json
+tt = stats["totals"]
+check("stats count learners, activity and sales", tt["users"] == sql("SELECT count(*) AS n FROM users")[0]["n"] and tt["new_users_7d"] == tt["users"]
+      and tt["active_7d"] >= 2 and tt["submissions_7d"] >= 8 and tt["paid_orders"] == 1 and tt["revenue_idr"] == 100000, tt)
+check("stats cover the last 14 days", len(stats["days"]) == 14 and stats["days"][-1]["users"] == tt["users"] and stats["days"][-1]["active"] >= 1, stats["days"][-2:])
+halo = next(x for x in stats["lessons"] if x["title"] == lesson["lesson"]["title"] and x["course_title"] == "Python Dasar untuk Warung Kopi")
+check("stats show how many started and finished a lesson", halo["started"] >= halo["finished"] >= 1, halo)
+check("stats rank the hardest exercises first", stats["hardest"] and all(0 <= x["passed"] <= x["learners"] for x in stats["hardest"])
+      and [x["passed"] / x["learners"] for x in stats["hardest"]] == sorted(x["passed"] / x["learners"] for x in stats["hardest"]), stats["hardest"][:3])
 
 print("\nall passed" if not failed else f"\n{failed} FAILED")
 sys.exit(1 if failed else 0)

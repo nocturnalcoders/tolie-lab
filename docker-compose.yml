@@ -41,6 +41,9 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_FROM: ${SMTP_FROM:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      LAB_TIMEZONE: ${LAB_TIMEZONE:-Asia/Jakarta}
     volumes:
       # Course content lives in the repo. git pull + `docker compose restart api` loads changes.
       - ./content:/content:ro
