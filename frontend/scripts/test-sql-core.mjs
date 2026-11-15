@@ -29,6 +29,12 @@ r = run(SQL, 'SELECT nama FROM tidak_ada', '', setup);
 t('a missing table is reported', r.error.includes('no such table: tidak_ada'), r.error);
 r = run(SQL, 'SELECT 1', '', 'CREATE TABLE (');
 t('a broken setup is named as such', r.error.startsWith('Setup error: '), r.error);
+r = run(SQL, "INSERT INTO menu VALUES ('Roti', 12000, NULL); SELECT 'abaikan' AS x;", '', setup, 'SELECT nama FROM menu ORDER BY nama;');
+t('with a check, only the check result is the output', r.stdout === 'nama\nKopi Susu\nRoti\nTeh Manis\n' && !r.error, JSON.stringify(r));
+r = run(SQL, 'SELECT 1;', '', setup, 'SELECT * FROM pelanggan;');
+t('a check that cannot find the table is an error', r.error.includes('no such table: pelanggan') && r.stdout === '', JSON.stringify(r));
+r = run(SQL, 'INSERT INTO nope VALUES (1);', '', setup, 'SELECT count(*) FROM menu;');
+t('the check does not run after a failed script', r.error.includes('no such table: nope') && r.stdout === '', JSON.stringify(r));
 r = run(SQL, 'WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c WHERE x < 20000) SELECT printf("%050d", x) AS x FROM c;', '', '');
 t('output is capped', r.truncated && r.stdout.length <= 64 * 1024, `${r.stdout.length}`);
 

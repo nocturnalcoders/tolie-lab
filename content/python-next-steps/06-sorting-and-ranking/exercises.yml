@@ -1,109 +1,109 @@
-- slug: sort-prices
+- slug: sort-the-price-list
   type: code
-  title: Sort the price list
+  title: Urutkan daftar harga
   prompt: |
-    The first line holds `n`, then `n` lines in the format `name,price`. Print the menu from the **cheapest** to the most expensive, one line per item in the format `<name>: Rp<price>`.
+    Baris pertama berisi `n`, lalu `n` baris berformat `nama,harga`. Cetak daftar menu dari yang **termurah** sampai termahal, satu baris per menu dengan format `<nama>: Rp<harga>`.
 
-    If two prices are the same, the one that came in first is printed first.
+    Jika ada harga yang sama, yang lebih dulu masuk dicetak lebih dulu.
   language: python
   starter: |
     n = int(input())
     menu = []
     for _ in range(n):
-        name, price = input().split(",")
-        menu.append({"name": name, "price": int(price)})
+        nama, harga = input().split(",")
+        menu.append({"nama": nama, "harga": int(harga)})
 
-    # sort the menu by price before printing
+    # urutkan menu berdasarkan harga sebelum dicetak
     for m in menu:
-        print(f"{m['name']}: Rp{m['price']}")
+        print(f"{m['nama']}: Rp{m['harga']}")
   hints:
-    - "The starter code already prints correctly, but still in the order the items came in. What needs adding is one `sorted` step with a `key`."
-    - "Make a small function `def get_price(m): return m[\"price\"]`, then `ordered = sorted(menu, key=get_price)`. Equal prices stay in the order they came in automatically."
-    - "Once you have `ordered`, change the loop to `for m in ordered:`. No `reverse` is needed, because the order asked for is cheap to expensive."
+    - "Kode awal sudah mencetak dengan benar, hanya urutannya masih urutan masuk. Yang perlu ditambah adalah satu langkah `sorted` dengan `key`."
+    - "Buat fungsi kecil `def ambil_harga(m): return m[\"harga\"]`, lalu `urut = sorted(menu, key=ambil_harga)`. Harga yang sama otomatis tetap dalam urutan masuk."
+    - "Setelah punya `urut`, ganti perulangannya menjadi `for m in urut:`. Tidak perlu `reverse`, karena yang diminta dari murah ke mahal."
   tests:
-    - input: "3\nmilk coffee,15000\norange juice,10000\ntoast,18000"
-      output: "orange juice: Rp10000\nmilk coffee: Rp15000\ntoast: Rp18000"
-    - input: "4\ntoast,18000\npulled tea,12000\niced tea,5000\nblack coffee,12000"
-      output: "iced tea: Rp5000\npulled tea: Rp12000\nblack coffee: Rp12000\ntoast: Rp18000"
-    - input: "2\ntoast,18000\norange juice,10000"
-      output: "orange juice: Rp10000\ntoast: Rp18000"
-    - input: "1\nmilk coffee,15000"
-      output: "milk coffee: Rp15000"
+    - input: "3\nkopi susu,15000\nes jeruk,10000\nroti bakar,18000"
+      output: "es jeruk: Rp10000\nkopi susu: Rp15000\nroti bakar: Rp18000"
+    - input: "4\nroti bakar,18000\nteh tarik,12000\nes teh,5000\nkopi hitam,12000"
+      output: "es teh: Rp5000\nteh tarik: Rp12000\nkopi hitam: Rp12000\nroti bakar: Rp18000"
+    - input: "2\nroti bakar,18000\nes jeruk,10000"
+      output: "es jeruk: Rp10000\nroti bakar: Rp18000"
+    - input: "1\nkopi susu,15000"
+      output: "kopi susu: Rp15000"
   solution: |
-    def get_price(m):
-        return m["price"]
+    def ambil_harga(m):
+        return m["harga"]
 
 
     n = int(input())
     menu = []
     for _ in range(n):
-        name, price = input().split(",")
-        menu.append({"name": name, "price": int(price)})
+        nama, harga = input().split(",")
+        menu.append({"nama": nama, "harga": int(harga)})
 
-    for m in sorted(menu, key=get_price):
-        print(f"{m['name']}: Rp{m['price']}")
+    for m in sorted(menu, key=ambil_harga):
+        print(f"{m['nama']}: Rp{m['harga']}")
 
-- slug: top-three-sellers
+- slug: the-three-best-sellers
   type: code
-  title: The three best sellers
+  title: Tiga menu terlaris
   prompt: |
-    The first line holds `n`, then `n` lines in the format `name,units sold`. Print **at most three** best sellers, most units first, with a rank number:
+    Baris pertama berisi `n`, lalu `n` baris berformat `nama,jumlah terjual`. Cetak **paling banyak tiga** menu terlaris, dari jumlah terbanyak, dengan nomor peringkat:
 
     ```
-    1. toast (12)
-    2. milk coffee (10)
-    3. black coffee (8)
+    1. roti bakar (12)
+    2. kopi susu (10)
+    3. kopi hitam (8)
     ```
 
-    If there are fewer than three items, print them all. If two items sold the same number, the one that came in first gets the higher rank.
+    Jika menunya kurang dari tiga, cetak semuanya. Jika ada jumlah yang sama, yang lebih dulu masuk mendapat peringkat lebih tinggi.
   language: python
   starter: |
     n = int(input())
-    sales = []
+    penjualan = []
     for _ in range(n):
-        name, quantity = input().split(",")
-        sales.append({"name": name, "quantity": int(quantity)})
+        nama, jumlah = input().split(",")
+        penjualan.append({"nama": nama, "jumlah": int(jumlah)})
 
-    # sort from the most units sold, take the top three,
-    # then print them with a rank number
+    # urutkan dari jumlah terbanyak, ambil tiga teratas,
+    # lalu cetak dengan nomor peringkat
   hints:
-    - "There are three steps: sort from largest to smallest, cut down to the top three, then print while numbering."
-    - "Sort with `sorted(sales, key=get_quantity, reverse=True)`, where `get_quantity` is a function that returns `s[\"quantity\"]`. Then cut with `[:3]`."
-    - "To print: `for number, s in enumerate(top, 1):` then `print(f\"{number}. {s['name']} ({s['quantity']})\")`."
+    - "Ada tiga langkah: urutkan dari besar ke kecil, potong menjadi tiga teratas, lalu cetak sambil memberi nomor."
+    - "Urutkan dengan `sorted(penjualan, key=ambil_jumlah, reverse=True)`, dengan `ambil_jumlah` fungsi yang mengembalikan `p[\"jumlah\"]`. Lalu potong dengan `[:3]`."
+    - "Untuk mencetak: `for nomor, p in enumerate(teratas, 1):` lalu `print(f\"{nomor}. {p['nama']} ({p['jumlah']})\")`."
   tests:
-    - input: "5\nmilk coffee,10\npulled tea,7\ntoast,12\norange juice,3\nblack coffee,8"
-      output: "1. toast (12)\n2. milk coffee (10)\n3. black coffee (8)"
-    - input: "2\norange juice,3\nmilk coffee,9"
-      output: "1. milk coffee (9)\n2. orange juice (3)"
-    - input: "4\nmilk coffee,5\npulled tea,9\ntoast,5\norange juice,5"
-      output: "1. pulled tea (9)\n2. milk coffee (5)\n3. toast (5)"
-    - input: "3\npulled tea,1\nmilk coffee,2\ntoast,3"
-      output: "1. toast (3)\n2. milk coffee (2)\n3. pulled tea (1)"
+    - input: "5\nkopi susu,10\nteh tarik,7\nroti bakar,12\nes jeruk,3\nkopi hitam,8"
+      output: "1. roti bakar (12)\n2. kopi susu (10)\n3. kopi hitam (8)"
+    - input: "2\nes jeruk,3\nkopi susu,9"
+      output: "1. kopi susu (9)\n2. es jeruk (3)"
+    - input: "4\nkopi susu,5\nteh tarik,9\nroti bakar,5\nes jeruk,5"
+      output: "1. teh tarik (9)\n2. kopi susu (5)\n3. roti bakar (5)"
+    - input: "3\nteh tarik,1\nkopi susu,2\nroti bakar,3"
+      output: "1. roti bakar (3)\n2. kopi susu (2)\n3. teh tarik (1)"
   solution: |
-    def get_quantity(s):
-        return s["quantity"]
+    def ambil_jumlah(p):
+        return p["jumlah"]
 
 
     n = int(input())
-    sales = []
+    penjualan = []
     for _ in range(n):
-        name, quantity = input().split(",")
-        sales.append({"name": name, "quantity": int(quantity)})
+        nama, jumlah = input().split(",")
+        penjualan.append({"nama": nama, "jumlah": int(jumlah)})
 
-    top = sorted(sales, key=get_quantity, reverse=True)[:3]
-    for number, s in enumerate(top, 1):
-        print(f"{number}. {s['name']} ({s['quantity']})")
+    teratas = sorted(penjualan, key=ambil_jumlah, reverse=True)[:3]
+    for nomor, p in enumerate(teratas, 1):
+        print(f"{nomor}. {p['nama']} ({p['jumlah']})")
 
-- slug: quiz-sorted
+- slug: the-original-list-after-sorted
   type: choice
-  title: The original list after sorted
+  title: List asli setelah sorted
   prompt: |
-    What is shown after this code runs?
+    Apa yang tampil setelah kode ini dijalankan?
 
     ```python
-    prices = [15000, 10000, 18000]
-    ordered = sorted(prices, reverse=True)
-    print(prices[0], ordered[0])
+    harga = [15000, 10000, 18000]
+    urut = sorted(harga, reverse=True)
+    print(harga[0], urut[0])
     ```
   options:
     - "`15000 18000`"
@@ -111,5 +111,5 @@
     - "`10000 18000`"
     - "`15000 10000`"
   correct: [0]
-  hint: Recall whether sorted changes the list it is given.
-  explanation: "`sorted` builds a new list and leaves `prices` as it was, so `prices[0]` is still `15000`. With `reverse=True` the new list starts with the largest, so `ordered[0]` is `18000`."
+  hint: Ingat apakah sorted mengubah list yang diberikan kepadanya.
+  explanation: "`sorted` membuat list baru dan membiarkan `harga` apa adanya, jadi `harga[0]` tetap `15000`. Dengan `reverse=True` list baru dimulai dari yang terbesar, sehingga `urut[0]` adalah `18000`."

@@ -1,0 +1,198 @@
+- slug: an-order-as-json
+  type: code
+  title: An order as JSON
+  prompt: |
+    Orders taken by phone are written down by hand. Read four lines: the customer's name, the dish, the quantity and the price of one.
+
+    Build a dictionary with the keys `customer`, `dish`, `qty` (a number), `price` (a number) and `total` (qty times price). Print it as one line of JSON with the keys in alphabetical order and the name shown as it is:
+
+    ```
+    {"customer": "André", "dish": "beef rendang rice", "price": 28000, "qty": 2, "total": 56000}
+    ```
+  starter: |
+    import json
+
+    customer = input()
+    dish = input()
+    qty = input()
+    price = input()
+    order = {"customer": customer, "dish": dish, "qty": qty, "price": price}
+    # qty and price must be numbers, add "total", then print with json.dumps
+    print(order)
+  hints:
+    - >-
+      Three things are missing: `qty` and `price` are still text, the key `total` is not there yet, and `print(order)` gives Python notation, not JSON.
+    - >-
+      Convert with `qty = int(input())` and `price = int(input())`, then add `order["total"] = qty * price`.
+    - >-
+      Print with `print(json.dumps(order, sort_keys=True, ensure_ascii=False))`. `sort_keys` sorts the keys, and `ensure_ascii=False` keeps letters such as `é`.
+  tests:
+    - input: |
+        André
+        beef rendang rice
+        2
+        28000
+      output: |
+        {"customer": "André", "dish": "beef rendang rice", "price": 28000, "qty": 2, "total": 56000}
+    - input: |
+        Dewi
+        sweet iced tea
+        5
+        6000
+      output: |
+        {"customer": "Dewi", "dish": "sweet iced tea", "price": 6000, "qty": 5, "total": 30000}
+    - input: |
+        Zoë Putri
+        chicken satay
+        1
+        25000
+      output: |
+        {"customer": "Zoë Putri", "dish": "chicken satay", "price": 25000, "qty": 1, "total": 25000}
+    - input: |
+        Budi Santoso
+        smashed chicken
+        10
+        22000
+      output: |
+        {"customer": "Budi Santoso", "dish": "smashed chicken", "price": 22000, "qty": 10, "total": 220000}
+  solution: |
+    import json
+
+    customer = input()
+    dish = input()
+    qty = int(input())
+    price = int(input())
+    order = {"customer": customer, "dish": dish, "qty": qty, "price": price}
+    order["total"] = qty * price
+    print(json.dumps(order, sort_keys=True, ensure_ascii=False))
+
+- slug: a-tidy-order-summary
+  type: code
+  title: A tidy order summary
+  prompt: |
+    One line of input holds an order with the keys `id`, `customer` (a name) and `items` (a list of objects with the keys `dish`, `qty` and `price`).
+
+    Build a summary with these keys:
+
+    - `id` and `customer`: the same as the input
+    - `item_count`: the number of portions in total
+    - `dishes`: the list of dish names, in alphabetical order
+    - `total`: qty times price over all items
+
+    Print it with `indent=2`, the keys in alphabetical order, and the name shown as it is:
+
+    ```
+    {
+      "customer": "Dewi",
+      "dishes": [
+        "beef rendang rice",
+        "sweet iced tea"
+      ],
+      "id": "AM-1021",
+      "item_count": 4,
+      "total": 68000
+    }
+    ```
+
+    The `items` list can be empty.
+  starter: |
+    import json
+
+    order = json.loads(input())
+    summary = {"id": order["id"], "customer": order["customer"]}
+    # work out item_count, dishes and total, then put them into summary
+    print(json.dumps(summary))
+  hints:
+    - >-
+      Set up three containers before the loop: `item_count = 0`, `total = 0` and `dishes = []`. Fill all three while looping over `order["items"]`.
+    - >-
+      Inside the loop: `item_count += item["qty"]`, `total += item["qty"] * item["price"]` and `dishes.append(item["dish"])`. Afterwards store them in the summary, with `summary["dishes"] = sorted(dishes)`.
+    - >-
+      The last line becomes `print(json.dumps(summary, indent=2, sort_keys=True, ensure_ascii=False))`.
+  tests:
+    - input: |
+        {"id": "AM-1021", "customer": "Dewi", "items": [{"dish": "beef rendang rice", "qty": 2, "price": 28000}, {"dish": "sweet iced tea", "qty": 2, "price": 6000}]}
+      output: |
+        {
+          "customer": "Dewi",
+          "dishes": [
+            "beef rendang rice",
+            "sweet iced tea"
+          ],
+          "id": "AM-1021",
+          "item_count": 4,
+          "total": 68000
+        }
+    - input: |
+        {"id": "AM-1022", "customer": "André", "items": [{"dish": "smashed chicken", "qty": 3, "price": 22000}]}
+      output: |
+        {
+          "customer": "André",
+          "dishes": [
+            "smashed chicken"
+          ],
+          "id": "AM-1022",
+          "item_count": 3,
+          "total": 66000
+        }
+    - input: |
+        {"id": "AM-1023", "customer": "Tari", "items": []}
+      output: |
+        {
+          "customer": "Tari",
+          "dishes": [],
+          "id": "AM-1023",
+          "item_count": 0,
+          "total": 0
+        }
+    - input: |
+        {"items": [{"dish": "chicken satay", "qty": 1, "price": 25000}, {"dish": "beef rendang rice", "qty": 1, "price": 28000}, {"dish": "sweet iced tea", "qty": 4, "price": 6000}], "customer": "Agus", "id": "AM-1024"}
+      output: |
+        {
+          "customer": "Agus",
+          "dishes": [
+            "beef rendang rice",
+            "chicken satay",
+            "sweet iced tea"
+          ],
+          "id": "AM-1024",
+          "item_count": 6,
+          "total": 77000
+        }
+  solution: |
+    import json
+
+    order = json.loads(input())
+    summary = {"id": order["id"], "customer": order["customer"]}
+    item_count = 0
+    total = 0
+    dishes = []
+    for item in order["items"]:
+        item_count += item["qty"]
+        total += item["qty"] * item["price"]
+        dishes.append(item["dish"])
+    summary["item_count"] = item_count
+    summary["dishes"] = sorted(dishes)
+    summary["total"] = total
+    print(json.dumps(summary, indent=2, sort_keys=True, ensure_ascii=False))
+
+- slug: what-json-dumps-gives
+  type: choice
+  title: What json.dumps gives
+  prompt: |
+    What is shown after this code runs?
+
+    ```python
+    import json
+
+    data = {"b": 1, "a": True, "c": None}
+    print(json.dumps(data, sort_keys=True))
+    ```
+  options:
+    - '`{"b": 1, "a": True, "c": None}`'
+    - '`{"a": true, "b": 1, "c": null}`'
+    - "`{'a': True, 'b': 1, 'c': None}`"
+    - '`{"a": "true", "b": 1, "c": "null"}`'
+  correct: [1]
+  hint: Two things change, namely the order of the keys and the spelling of the special values.
+  explanation: "`sort_keys=True` sorts the keys into `a`, `b`, `c`. `True` is written `true` and `None` is written `null`, both without quotes because they are not text. Single quotes and a capital `True` are Python notation, not JSON."

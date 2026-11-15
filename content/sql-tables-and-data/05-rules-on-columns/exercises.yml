@@ -1,0 +1,97 @@
+- slug: a-tidy-customers-table
+  type: code
+  title: Tabel pelanggan yang rapi
+  prompt: |
+    Buat tabel `pelanggan` dengan tiga kolom dan aturannya:
+
+    - `id`: `INTEGER`, tanda pengenal baris (`PRIMARY KEY`)
+    - `nama`: `TEXT`, tidak boleh kosong
+    - `telepon`: `TEXT`, tidak boleh ada dua pelanggan dengan nomor yang sama
+
+    Pemeriksa akan mencoba memasukkan empat pelanggan tanpa menyebut `id`: Sari (telepon `0811`), seorang pelanggan tanpa nama, Budi dengan telepon `0811` yang sudah dipakai Sari, dan Dewi (telepon `0833`). Dua baris yang melanggar aturan harus tertolak. Lalu ditampilkan `id`, `nama`, `telepon` dari tabel `pelanggan`, urut menurut `telepon`.
+  check: |
+    INSERT INTO pelanggan (nama, telepon) VALUES ('Sari', '0811');
+    INSERT OR IGNORE INTO pelanggan (nama, telepon) VALUES (NULL, '0822');
+    INSERT OR IGNORE INTO pelanggan (nama, telepon) VALUES ('Budi', '0811');
+    INSERT INTO pelanggan (nama, telepon) VALUES ('Dewi', '0833');
+    SELECT id, nama, telepon FROM pelanggan ORDER BY telepon;
+  starter: |
+    -- kolomnya sudah ada; tambahkan aturan di belakang tiap tipe
+    CREATE TABLE pelanggan (
+      id INTEGER,
+      nama TEXT,
+      telepon TEXT
+    );
+  hints:
+    - "Aturan ditulis setelah tipe kolom, sebelum koma. Tiap kolom di sini butuh satu aturan."
+    - "`id` adalah tanda pengenal, jadi `PRIMARY KEY`. Kolom yang tidak boleh kosong memakai `NOT NULL`. Kolom yang nilainya tidak boleh kembar memakai `UNIQUE`."
+    - "Isi kurungnya: `id INTEGER PRIMARY KEY, nama TEXT NOT NULL, telepon TEXT UNIQUE`."
+  tests:
+    - output: |
+        id|nama|telepon
+        1|Sari|0811
+        2|Dewi|0833
+  solution: |
+    CREATE TABLE pelanggan (
+      id INTEGER PRIMARY KEY,
+      nama TEXT NOT NULL,
+      telepon TEXT UNIQUE
+    );
+
+- slug: a-tidy-menu-table
+  type: code
+  title: Tabel menu yang rapi
+  prompt: |
+    Buat tabel `menu` dengan empat kolom dan aturannya:
+
+    - `id`: `INTEGER`, `PRIMARY KEY`
+    - `nama`: `TEXT`, tidak boleh kosong
+    - `kategori`: `TEXT`, berisi `'minuman'` kalau tidak disebut saat `INSERT`
+    - `harga`: `INTEGER`, harus lebih besar dari 0
+
+    Pemeriksa akan mencoba memasukkan: Kopi Hitam seharga 10000 tanpa menyebut kategori, Roti Bakar seharga 0, Teh Tarik seharga -12000, sebuah makanan tanpa nama, dan Nasi Goreng (makanan) seharga 25000. Baris yang melanggar aturan harus tertolak. Lalu ditampilkan `id`, `nama`, `kategori`, `harga` dari tabel `menu`, urut menurut `id`.
+  check: |
+    INSERT INTO menu (nama, harga) VALUES ('Kopi Hitam', 10000);
+    INSERT OR IGNORE INTO menu (nama, kategori, harga) VALUES ('Roti Bakar', 'makanan', 0);
+    INSERT OR IGNORE INTO menu (nama, kategori, harga) VALUES ('Teh Tarik', 'minuman', -12000);
+    INSERT OR IGNORE INTO menu (nama, kategori, harga) VALUES (NULL, 'makanan', 9000);
+    INSERT INTO menu (nama, kategori, harga) VALUES ('Nasi Goreng', 'makanan', 25000);
+    SELECT id, nama, kategori, harga FROM menu ORDER BY id;
+  starter: |
+    -- id dan nama sudah beres; tambahkan aturan untuk kategori dan harga
+    CREATE TABLE menu (
+      id INTEGER PRIMARY KEY,
+      nama TEXT NOT NULL,
+      kategori TEXT,
+      harga INTEGER
+    );
+  hints:
+    - "Dua aturan yang belum dipakai: `DEFAULT` untuk nilai bawaan, dan `CHECK` untuk syarat pada nilai."
+    - "`DEFAULT` diikuti nilainya, dan tulisan diapit petik tunggal. `CHECK` diikuti syarat di dalam kurung, ditulis seperti syarat `WHERE`."
+    - "Dua baris terakhirnya: `kategori TEXT DEFAULT 'minuman',` dan `harga INTEGER CHECK (harga > 0)`."
+  tests:
+    - output: |
+        id|nama|kategori|harga
+        1|Kopi Hitam|minuman|10000
+        2|Nasi Goreng|makanan|25000
+  solution: |
+    CREATE TABLE menu (
+      id INTEGER PRIMARY KEY,
+      nama TEXT NOT NULL,
+      kategori TEXT DEFAULT 'minuman',
+      harga INTEGER CHECK (harga > 0)
+    );
+
+- slug: the-right-rule
+  type: choice
+  title: Aturan yang tepat
+  prompt: |
+    Bu Rina ingin setiap pelanggan punya alamat email yang berbeda: dua pelanggan tidak boleh memakai email yang sama. Aturan mana yang dipasang pada kolom `email`?
+  options:
+    - "`NOT NULL`"
+    - "`DEFAULT`"
+    - "`UNIQUE`"
+    - "`CHECK (email > 0)`"
+  correct: [2]
+  hint: "Yang dilarang adalah nilai yang kembar, bukan nilai yang kosong."
+  explanation: "`UNIQUE` menolak baris baru yang nilainya sudah dipakai baris lain. `NOT NULL` hanya melarang kolom kosong, `DEFAULT` hanya memberi nilai bawaan, dan `CHECK` memeriksa nilai satu baris itu sendiri tanpa membandingkannya dengan baris lain."

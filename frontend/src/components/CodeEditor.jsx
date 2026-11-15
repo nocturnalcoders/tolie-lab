@@ -5,11 +5,13 @@ import { keymap } from '@codemirror/view';
 import { indentWithTab } from '@codemirror/commands';
 import { python } from '@codemirror/lang-python';
 import { sql, SQLite } from '@codemirror/lang-sql';
+import { javascript } from '@codemirror/lang-javascript';
+import { java } from '@codemirror/lang-java';
 import { oneDark } from '@codemirror/theme-one-dark';
 
 const themeFor = (theme) => (theme === 'day' ? [] : oneDark);
 
-// A code editor with Python or SQL highlighting. Ctrl/Cmd+Enter runs the tests; Esc lets go of the
+// A code editor with Python, SQL, JavaScript or Java highlighting (Kotlin borrows Java's, which is close enough). Ctrl/Cmd+Enter runs the tests; Esc lets go of the
 // keyboard focus (Tab indents inside the editor, so Esc is the way out for keyboard users).
 export default function CodeEditor({ value, onChange, theme = 'night', onRun, language = 'python', label = 'Editor kode' }) {
   const host = useRef(null);
@@ -31,7 +33,7 @@ export default function CodeEditor({ value, onChange, theme = 'night', onRun, la
         ),
         basicSetup,
         keymap.of([indentWithTab]),
-        language === 'sql' ? sql({ dialect: SQLite }) : python(),
+        language === 'sql' ? sql({ dialect: SQLite }) : language === 'javascript' ? javascript() : language === 'java' || language === 'kotlin' ? java() : python(),
         themeSlot.current.of(themeFor(theme)),
         EditorView.updateListener.of((u) => {
           if (u.docChanged && latest.current.onChange) latest.current.onChange(u.state.doc.toString());

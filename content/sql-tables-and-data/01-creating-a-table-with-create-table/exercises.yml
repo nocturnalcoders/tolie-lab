@@ -1,0 +1,86 @@
+- slug: the-customers-table
+  type: code
+  title: Tabel pelanggan
+  prompt: |
+    Bu Rina ingin mulai mencatat pelanggan tetap. Buat tabel bernama `pelanggan` dengan tiga kolom, dalam urutan ini:
+
+    - `id` bertipe `INTEGER`
+    - `nama` bertipe `TEXT`
+    - `kota` bertipe `TEXT`
+
+    Pemeriksa akan membaca daftar kolom tabel `pelanggan` (nama dan tipenya), jadi nama tabel, nama kolom, dan urutannya harus persis.
+  check: |
+    SELECT name AS kolom, upper(type) AS tipe FROM pragma_table_info('pelanggan') ORDER BY cid;
+  starter: |
+    -- tambahkan kolom nama dan kota
+    CREATE TABLE pelanggan (
+      id INTEGER
+    );
+  hints:
+    - "Tiap kolom ditulis sebagai nama lalu tipenya, dan kolom dipisah koma di dalam kurung."
+    - "Setelah `id INTEGER` beri koma, lalu tulis `nama TEXT`, koma lagi, lalu kolom terakhir tanpa koma di belakangnya."
+    - "Isi kurungnya: `id INTEGER, nama TEXT, kota TEXT`."
+  tests:
+    - output: |
+        kolom|tipe
+        id|INTEGER
+        nama|TEXT
+        kota|TEXT
+  solution: |
+    CREATE TABLE pelanggan (
+      id INTEGER,
+      nama TEXT,
+      kota TEXT
+    );
+
+- slug: the-stock-table
+  type: code
+  title: Tabel stok bahan
+  prompt: |
+    Stok bahan di dapur juga perlu dicatat. Buat tabel bernama `stok` dengan empat kolom, dalam urutan ini:
+
+    - `id`: nomor urut, bilangan bulat
+    - `bahan`: nama bahan, tulisan
+    - `jumlah`: banyaknya, bisa berkoma seperti 2.5
+    - `satuan`: tulisan seperti `kg` atau `liter`
+
+    Pilih sendiri tipe yang tepat untuk tiap kolom. Pemeriksa akan memasukkan dua baris ke tabel `stok`, lalu menampilkan isinya beserta tipe nilai di kolom `jumlah`.
+  check: |
+    INSERT INTO stok (id, bahan, jumlah, satuan) VALUES (1, 'Biji Kopi', 2.5, 'kg'), (2, 'Susu', 6, 'liter');
+    SELECT id, bahan, jumlah, satuan, typeof(jumlah) AS tipe_jumlah FROM stok ORDER BY id;
+  starter: |
+    -- tambahkan kolom jumlah dan satuan dengan tipe yang tepat
+    CREATE TABLE stok (
+      id INTEGER,
+      bahan TEXT
+    );
+  hints:
+    - "Ada tiga tipe yang sudah kamu kenal: `INTEGER` untuk bilangan bulat, `TEXT` untuk tulisan, `REAL` untuk bilangan berkoma."
+    - "`jumlah` bisa bernilai 2.5, jadi tipenya `REAL`. `satuan` berisi tulisan, jadi `TEXT`."
+    - "Isi kurungnya: `id INTEGER, bahan TEXT, jumlah REAL, satuan TEXT`."
+  tests:
+    - output: |
+        id|bahan|jumlah|satuan|tipe_jumlah
+        1|Biji Kopi|2.5|kg|real
+        2|Susu|6|liter|real
+  solution: |
+    CREATE TABLE stok (
+      id INTEGER,
+      bahan TEXT,
+      jumlah REAL,
+      satuan TEXT
+    );
+
+- slug: choosing-a-column-type
+  type: choice
+  title: Memilih tipe kolom
+  prompt: |
+    Bu Rina membeli gula dalam takaran seperti 0.25 kg dan 1.5 kg. Tipe apa yang paling tepat untuk kolom `berat_kg`?
+  options:
+    - "`INTEGER`"
+    - "`TEXT`"
+    - "`REAL`"
+    - "Kolom tidak perlu tipe karena isinya angka"
+  correct: [2]
+  hint: "Perhatikan apakah nilainya selalu bulat."
+  explanation: "0.25 dan 1.5 adalah bilangan berkoma, jadi tipenya `REAL`. `INTEGER` hanya untuk bilangan bulat, dan `TEXT` membuat angka diperlakukan sebagai tulisan sehingga sulit dihitung dan diurutkan."

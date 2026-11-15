@@ -1,0 +1,140 @@
+- slug: how-many-steps-at-most
+  type: code
+  title: Paling banyak berapa langkah?
+  prompt: |
+    Pak Darto ingin tahu seberapa besar bedanya sebelum repot-repot mengurutkan rak.
+
+    Masukan berisi satu angka `n`, jumlah paket di gudang. Cetak jumlah langkah **paling banyak** untuk mencari satu paket dengan dua cara:
+
+    ```
+    Satu per satu: 1000 langkah
+    Membagi dua: 10 langkah
+    ```
+
+    Langkah membagi dua dihitung dengan perulangan: bagi `n` dengan `// 2` berulang kali sampai menjadi 0, dan hitung berapa kali pembagian itu terjadi.
+  language: python
+  starter: |
+    n = int(input())
+
+    langkah = 0
+    # bagi dua sisa paket berulang kali sampai habis,
+    # dan hitung berapa kali
+
+    print(f"Satu per satu: {n} langkah")
+    print(f"Membagi dua: {langkah} langkah")
+  hints:
+    - "Baris pertama sudah benar. Untuk baris kedua kamu perlu `while`, karena jumlah pengulangannya belum diketahui dari awal."
+    - "Salin `n` ke variabel lain dulu, misalnya `sisa = n`, supaya `n` masih utuh saat dicetak. Lalu ulangi selama `sisa > 0`."
+    - "Isi perulangannya dua baris: `sisa = sisa // 2` dan `langkah += 1`. Untuk `n = 0` perulangan tidak pernah berjalan, jadi langkahnya 0."
+  tests:
+    - input: "1000"
+      output: "Satu per satu: 1000 langkah\nMembagi dua: 10 langkah"
+    - input: "8"
+      output: "Satu per satu: 8 langkah\nMembagi dua: 4 langkah"
+    - input: "1"
+      output: "Satu per satu: 1 langkah\nMembagi dua: 1 langkah"
+    - input: "0"
+      output: "Satu per satu: 0 langkah\nMembagi dua: 0 langkah"
+    - input: "1000000"
+      output: "Satu per satu: 1000000 langkah\nMembagi dua: 20 langkah"
+  solution: |
+    n = int(input())
+
+    langkah = 0
+    sisa = n
+    while sisa > 0:
+        sisa = sisa // 2
+        langkah += 1
+
+    print(f"Satu per satu: {n} langkah")
+    print(f"Membagi dua: {langkah} langkah")
+
+- slug: find-a-tracking-number-by-halving
+  type: code
+  title: Cari resi dengan membagi dua
+  prompt: |
+    Baris pertama berisi `n`, lalu `n` baris nomor resi berupa angka yang **sudah terurut** dari kecil ke besar. Baris terakhir adalah resi yang dicari.
+
+    Cari dengan pencarian biner seperti di pelajaran: mulai dari `kiri = 0` dan `kanan = n - 1`, dan setiap putaran periksa `tengah = (kiri + kanan) // 2`. Cetak posisinya (mulai dari 1) dan jumlah langkah, yaitu berapa kali isi `tengah` diperiksa:
+
+    ```
+    Ketemu di posisi 6
+    Langkah: 2
+    ```
+
+    Jika resinya tidak ada, baris pertama menjadi `Tidak ketemu`.
+  language: python
+  starter: |
+    n = int(input())
+    resi = []
+    for _ in range(n):
+        resi.append(int(input()))
+    dicari = int(input())
+
+    kiri = 0
+    kanan = n - 1
+    posisi = 0
+    langkah = 0
+    # ulangi selama kiri <= kanan: periksa tengah,
+    # lalu buang separuh yang tidak mungkin
+
+    if posisi > 0:
+        print(f"Ketemu di posisi {posisi}")
+    else:
+        print("Tidak ketemu")
+    print(f"Langkah: {langkah}")
+  hints:
+    - "Kerangkanya `while kiri <= kanan:`. Di dalamnya hitung `tengah`, tambah `langkah`, lalu ada tiga kemungkinan: sama, lebih kecil, atau lebih besar dari yang dicari."
+    - "Jika `resi[tengah] == dicari`: simpan `posisi = tengah + 1` lalu `break`. Jika `resi[tengah] < dicari`, paketnya ada di sebelah kanan, jadi `kiri = tengah + 1`."
+    - "Kemungkinan terakhir (`else`): `kanan = tengah - 1`. Jangan lupa `+ 1` dan `- 1` itu. Tanpa keduanya wilayahnya tidak pernah mengecil dan program berputar terus."
+  tests:
+    - input: "7\n105\n118\n124\n131\n140\n152\n167\n152"
+      output: "Ketemu di posisi 6\nLangkah: 2"
+    - input: "7\n105\n118\n124\n131\n140\n152\n167\n105"
+      output: "Ketemu di posisi 1\nLangkah: 3"
+    - input: "7\n105\n118\n124\n131\n140\n152\n167\n130"
+      output: "Tidak ketemu\nLangkah: 3"
+    - input: "0\n105"
+      output: "Tidak ketemu\nLangkah: 0"
+    - input: "10\n11\n22\n33\n44\n55\n66\n77\n88\n99\n110\n99"
+      output: "Ketemu di posisi 9\nLangkah: 3"
+  solution: |
+    n = int(input())
+    resi = []
+    for _ in range(n):
+        resi.append(int(input()))
+    dicari = int(input())
+
+    kiri = 0
+    kanan = n - 1
+    posisi = 0
+    langkah = 0
+    while kiri <= kanan:
+        tengah = (kiri + kanan) // 2
+        langkah += 1
+        if resi[tengah] == dicari:
+            posisi = tengah + 1
+            break
+        elif resi[tengah] < dicari:
+            kiri = tengah + 1
+        else:
+            kanan = tengah - 1
+
+    if posisi > 0:
+        print(f"Ketemu di posisi {posisi}")
+    else:
+        print("Tidak ketemu")
+    print(f"Langkah: {langkah}")
+
+- slug: why-does-it-have-to-be-sorted
+  type: choice
+  title: Mengapa harus terurut?
+  prompt: Mengapa pencarian biner hanya boleh dipakai pada data yang sudah terurut?
+  options:
+    - "Karena Python menolak menjalankan `while` pada list yang acak"
+    - "Karena hanya pada data terurut satu perbandingan di tengah cukup untuk memastikan separuh mana yang tidak berisi jawabannya"
+    - "Karena data terurut memakai lebih sedikit memori"
+    - "Karena pada data acak pencarian biner selalu memeriksa semua isi"
+  correct: [1]
+  hint: Pikirkan apa yang kita simpulkan setelah melihat isi rak tengah.
+  explanation: Setelah melihat isi tengah, kita membuang separuh rak tanpa memeriksanya. Itu hanya sah kalau semua isi di kiri pasti lebih kecil dan semua isi di kanan pasti lebih besar, yaitu kalau datanya terurut. Pada data acak programnya tetap berjalan, tetapi bisa menjawab "tidak ketemu" untuk paket yang sebenarnya ada.

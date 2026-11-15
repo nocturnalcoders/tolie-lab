@@ -1,0 +1,140 @@
+- slug: sales-by-date
+  type: code
+  title: Sales by date
+  prompt: |
+    The first line holds `n`, followed by `n` deposit rows written as `day/month/year,amount`, for example `14/03/2025,45000`. The rows are not in order and one date can appear more than once.
+
+    Add up the deposits for each date. Print one line `<day/month/year>: <sales in rupiah format>` for each date, starting from the **earliest** date. The last line: `Total: <the sum of everything in rupiah format>`.
+
+    The `rupiah` function is already there.
+  language: python
+  starter: |
+    from datetime import datetime
+
+
+    def rupiah(number):
+        return "Rp" + f"{number:,}".replace(",", ".")
+
+
+    n = int(input())
+    sales = {}
+    total = 0
+    for _ in range(n):
+        text, amount = input().split(",")
+        # turn the text into a date, then add the amount to sales and total
+
+    # print the sales of each date from the earliest, then the total
+  hints:
+    - "Use the `date` as the dictionary key, not the text. That way `sorted(sales)` sorts by the calendar."
+    - "Inside the loop: `day = datetime.strptime(text, \"%d/%m/%Y\").date()`, then `sales[day] = sales.get(day, 0) + int(amount)` and `total += int(amount)`."
+    - "After the loop: `for day in sorted(sales):` print `f\"{day.strftime('%d/%m/%Y')}: {rupiah(sales[day])}\"`. Finally print `f\"Total: {rupiah(total)}\"`."
+  tests:
+    - input: "4\n14/03/2025,45000\n13/03/2025,30000\n14/03/2025,15000\n02/04/2025,60000"
+      output: "13/03/2025: Rp30.000\n14/03/2025: Rp60.000\n02/04/2025: Rp60.000\nTotal: Rp150.000"
+    - input: "3\n01/01/2025,120000\n31/12/2024,250000\n01/01/2025,80000"
+      output: "31/12/2024: Rp250.000\n01/01/2025: Rp200.000\nTotal: Rp450.000"
+    - input: "3\n01/03/2024,18000\n29/02/2024,36000\n28/02/2024,12000"
+      output: "28/02/2024: Rp12.000\n29/02/2024: Rp36.000\n01/03/2024: Rp18.000\nTotal: Rp66.000"
+    - input: "1\n05/06/2025,1250000"
+      output: "05/06/2025: Rp1.250.000\nTotal: Rp1.250.000"
+  solution: |
+    from datetime import datetime
+
+
+    def rupiah(number):
+        return "Rp" + f"{number:,}".replace(",", ".")
+
+
+    n = int(input())
+    sales = {}
+    total = 0
+    for _ in range(n):
+        text, amount = input().split(",")
+        day = datetime.strptime(text, "%d/%m/%Y").date()
+        sales[day] = sales.get(day, 0) + int(amount)
+        total += int(amount)
+
+    for day in sorted(sales):
+        print(f"{day.strftime('%d/%m/%Y')}: {rupiah(sales[day])}")
+    print(f"Total: {rupiah(total)}")
+
+- slug: sales-by-month
+  type: code
+  title: Sales by month
+  prompt: |
+    The input is the same as in the previous exercise: `n`, then `n` rows `day/month/year,amount` in no particular order.
+
+    This time add up the deposits per **month**. Print one line `<year-month>: <sales in rupiah format>` for each month, starting from the earliest month, for example `2025-03: Rp75.000`. The last line: `Best month: <the year-month with the highest sales>`.
+
+    If months have equal sales, pick the earlier month.
+  language: python
+  starter: |
+    from datetime import datetime
+
+
+    def rupiah(number):
+        return "Rp" + f"{number:,}".replace(",", ".")
+
+
+    n = int(input())
+    by_month = {}
+    for _ in range(n):
+        text, amount = input().split(",")
+        day = datetime.strptime(text, "%d/%m/%Y").date()
+        # add the amount to the right month
+
+    # print the sales of each month from the earliest, then the best month
+  hints:
+    - "The dictionary key is the year and month as text: `month = day.strftime(\"%Y-%m\")`. Then use the `.get` pattern as usual."
+    - "`by_month[month] = by_month.get(month, 0) + int(amount)`. After the loop, `for month in sorted(by_month):` print `f\"{month}: {rupiah(by_month[month])}\"`."
+    - "For the best month, set `best = None` before the printing loop. Inside it: `if best is None or by_month[month] > by_month[best]: best = month`. Because it uses `>` and goes from the earliest month, the earlier month wins when sales are equal."
+  tests:
+    - input: "5\n14/03/2025,45000\n02/04/2025,60000\n13/03/2025,30000\n28/02/2025,50000\n30/04/2025,10000"
+      output: "2025-02: Rp50.000\n2025-03: Rp75.000\n2025-04: Rp70.000\nBest month: 2025-03"
+    - input: "4\n01/01/2025,120000\n31/12/2024,250000\n15/01/2025,80000\n01/12/2024,10000"
+      output: "2024-12: Rp260.000\n2025-01: Rp200.000\nBest month: 2024-12"
+    - input: "3\n10/05/2025,40000\n10/04/2025,40000\n29/02/2024,5000"
+      output: "2024-02: Rp5.000\n2025-04: Rp40.000\n2025-05: Rp40.000\nBest month: 2025-04"
+    - input: "1\n29/02/2024,99000"
+      output: "2024-02: Rp99.000\nBest month: 2024-02"
+  solution: |
+    from datetime import datetime
+
+
+    def rupiah(number):
+        return "Rp" + f"{number:,}".replace(",", ".")
+
+
+    n = int(input())
+    by_month = {}
+    for _ in range(n):
+        text, amount = input().split(",")
+        day = datetime.strptime(text, "%d/%m/%Y").date()
+        month = day.strftime("%Y-%m")
+        by_month[month] = by_month.get(month, 0) + int(amount)
+
+    best = None
+    for month in sorted(by_month):
+        print(f"{month}: {rupiah(by_month[month])}")
+        if best is None or by_month[month] > by_month[best]:
+            best = month
+    print(f"Best month: {best}")
+
+- slug: sorting-date-text
+  type: choice
+  title: Sorting date text
+  prompt: |
+    What does this code show?
+
+    ```python
+    dates = ["05/02/2025", "20/01/2025", "11/12/2024"]
+    print(sorted(dates)[0])
+    ```
+  options:
+    - "`11/12/2024`, because it is the earliest date"
+    - "`05/02/2025`, because text is compared from the leftmost character"
+    - "`20/01/2025`, because January is the first month"
+    - "The program stops with an error"
+  correct: [1]
+  hint: The list holds text, not dates. How does Python compare two pieces of text?
+  explanation: "Text is sorted character by character from the left, so the `0`, `2` and `1` at the front decide. Python does not know the text is a date. Turn it into a `date` with `strptime` first so the order follows the calendar."

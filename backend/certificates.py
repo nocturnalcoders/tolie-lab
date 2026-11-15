@@ -10,7 +10,7 @@ from flask import Response, abort, jsonify, request
 import certificate_pdf
 
 ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no 0/O or 1/I
-LANGUAGE_LABEL = {"python": "Python", "javascript": "JavaScript", "sql": "SQL", "java": "Java"}
+LANGUAGE_LABEL = {"python": "Python", "javascript": "JavaScript", "sql": "SQL", "java": "Java", "kotlin": "Kotlin"}
 
 
 def new_public_id() -> str:
@@ -29,11 +29,16 @@ def register(app, h) -> None:
                FROM lessons l LEFT JOIN exercises e ON e.lesson_id = l.id WHERE l.course_id = %s""", (course_id,)).fetchone()
         return row["lessons"], row["exercises"]
 
+    def in_cert_language(row: dict, course: dict) -> dict:
+        """The course as the certificate names it: in the language the learner had when claiming it."""
+        return h.course_view(course, row.get("locale") or course["locale"])
+
     def cert_json(row: dict, course: dict) -> dict:
         lessons, exercises = counts(course["id"])
+        v = in_cert_language(row, course)
         return {"id": row["public_id"], "name": row["holder_name"], "issued_at": iso(row["issued_at"]),
                 "revoked": row["revoked_at"] is not None, "lessons": lessons, "exercises": exercises,
-                "course": {"slug": course["slug"], "title": course["title"], "language": course["language"], "level": course["level"], "locale": course["locale"]},
+                "course": {"slug": course["slug"], "title": v["title"], "language": course["language"], "level": v["level"], "locale": v["shown_locale"]},
                 "verify_url": f"{h.site_url()}/verifikasi/{row['public_id']}",
                 "pdf_url": f"/api/certificates/{row['public_id']}/pdf"}
 
@@ -80,8 +85,8 @@ def register(app, h) -> None:
         for _ in range(5):  # the id is random; a clash is practically impossible but cheap to handle
             try:
                 row = h.db().execute(
-                    "INSERT INTO certificates (public_id, user_id, course_id, holder_name) VALUES (%s, %s, %s, %s) RETURNING *",
-                    (new_public_id(), user["id"], course["id"], name)).fetchone()
+                    "INSERT INTO certificates (public_id, user_id, course_id, holder_name, locale) VALUES (%s, %s, %s, %s, %s) RETURNING *",
+                    (new_public_id(), user["id"], course["id"], name, h.course_view(course)["shown_locale"])).fetchone()
                 break
             except Exception as exc:  # noqa: BLE001
                 h.db().rollback()
@@ -118,9 +123,9 @@ def register(app, h) -> None:
             return jsonify(error="Sertifikat ini sudah dicabut."), 410
         data = cert_json(row, course)
         pdf = certificate_pdf.render(
-            holder=row["holder_name"], course_title=course["title"], language_label=LANGUAGE_LABEL.get(course["language"], course["language"]),
-            level=course["level"], lessons=data["lessons"], exercises=data["exercises"], issued_at=row["issued_at"].astimezone(timezone.utc),
-            public_id=row["public_id"], verify_url=data["verify_url"], locale=course["locale"])
+            holder=row["holder_name"], course_title=data["course"]["title"], language_label=LANGUAGE_LABEL.get(course["language"], course["language"]),
+            level=data["course"]["level"], lessons=data["lessons"], exercises=data["exercises"], issued_at=row["issued_at"].astimezone(timezone.utc),
+            public_id=row["public_id"], verify_url=data["verify_url"], locale=data["course"]["locale"])
         resp = Response(pdf, mimetype="application/pdf")
         resp.headers["Content-Disposition"] = f'inline; filename="sertifikat-{course["slug"]}-{row["public_id"]}.pdf"'
         return resp

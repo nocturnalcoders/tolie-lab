@@ -1,0 +1,90 @@
+- slug: add-up-the-prices
+  type: code
+  title: Jumlahkan harga
+  prompt: |
+    Buat fungsi `jumlahHarga(daftarHarga)` yang menerima array berisi harga dan mengembalikan jumlah semuanya.
+
+    Contoh: `jumlahHarga([85000, 45000])` menghasilkan `130000`. Array kosong menghasilkan `0`.
+  starter: |
+    function jumlahHarga(daftarHarga) {
+      let total = 0;
+      // tambahkan setiap harga ke total
+
+    }
+  hints:
+    - "Kunjungi setiap harga dengan `for (const harga of daftarHarga) { ... }`."
+    - "Di dalam perulangan, tambahkan harga ke penampung: `total = total + harga;`"
+    - "Setelah perulangan selesai (di luar kurung kurawalnya), tulis `return total;`. Kalau `return` diletakkan di dalam perulangan, fungsi berhenti di harga pertama."
+  tests:
+    - input: "console.log(jumlahHarga([85000, 45000]))"
+      output: "130000"
+    - input: "console.log(jumlahHarga([12000, 12000, 12000, 60000]))"
+      output: "96000"
+    - input: "console.log(jumlahHarga([60000]))"
+      output: "60000"
+    - input: "console.log(jumlahHarga([]))"
+      output: "0"
+  solution: |
+    function jumlahHarga(daftarHarga) {
+      let total = 0;
+      for (const harga of daftarHarga) {
+        total = total + harga;
+      }
+      return total;
+    }
+
+- slug: affordable-prices
+  type: code
+  title: Harga terjangkau
+  prompt: |
+    Pembeli ingin menyaring produk sesuai isi dompet. Buat fungsi `hargaTerjangkau(daftarHarga, batas)` yang mengembalikan **array baru** berisi harga yang **kurang dari atau sama dengan** `batas`, dengan urutan yang sama.
+
+    Contoh: `hargaTerjangkau([85000, 45000, 12000], 50000)` menghasilkan `[45000,12000]`. Kalau tidak ada yang cocok, kembalikan array kosong `[]`.
+  starter: |
+    function hargaTerjangkau(daftarHarga, batas) {
+      const hasil = [];
+      // masukkan harga yang cocok ke hasil
+
+    }
+  hints:
+    - "Polanya sama dengan menjumlahkan, tetapi penampungnya array: kunjungi setiap harga, lalu putuskan dengan `if` apakah harga itu ikut."
+    - "Harga yang cocok dimasukkan dengan `hasil.push(harga);`. Harga yang sama dengan batas juga ikut, jadi pakai `<=`."
+    - "Di dalam perulangan: `if (harga <= batas) { hasil.push(harga); }`. Setelah perulangan: `return hasil;`"
+  tests:
+    - input: "console.log(hargaTerjangkau([85000, 45000, 12000], 50000))"
+      output: "[45000,12000]"
+    - input: "console.log(hargaTerjangkau([85000, 45000, 60000, 12000], 60000))"
+      output: "[45000,60000,12000]"
+    - input: "console.log(hargaTerjangkau([85000, 60000], 10000))"
+      output: "[]"
+    - input: "console.log(hargaTerjangkau([], 100000))"
+      output: "[]"
+  solution: |
+    function hargaTerjangkau(daftarHarga, batas) {
+      const hasil = [];
+      for (const harga of daftarHarga) {
+        if (harga <= batas) {
+          hasil.push(harga);
+        }
+      }
+      return hasil;
+    }
+
+- slug: positions-in-an-array
+  type: choice
+  title: Posisi di dalam array
+  prompt: |
+    Apa yang tampil?
+
+    ```javascript
+    const produk = ["Tas rajut", "Topi rajut", "Syal"];
+    console.log(produk[1]);
+    ```
+  options:
+    - "`Tas rajut`"
+    - "`Topi rajut`"
+    - "`Syal`"
+    - "`undefined`"
+  correct: [1]
+  hint: Posisi di dalam array dihitung mulai dari 0.
+  explanation: "Posisi dihitung dari 0, jadi `produk[0]` adalah `Tas rajut` dan `produk[1]` adalah `Topi rajut`. `produk[3]` tidak ada isinya, sehingga hasilnya `undefined`."

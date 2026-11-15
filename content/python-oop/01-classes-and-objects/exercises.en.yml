@@ -1,0 +1,136 @@
+- slug: the-first-menu-item
+  type: code
+  title: The first menu item
+  prompt: |
+    Ms. Rina wants every menu item to be one object. Complete `__init__` in the `MenuItem` class so that each object stores the attributes `name` and `price`.
+
+    The code below the class already reads one line in the format `name,price`, creates the object, and prints:
+
+    ```
+    Item: <name>
+    Price: Rp<price>
+    ```
+  language: python
+  starter: |
+    class MenuItem:
+        def __init__(self, name, price):
+            # store name and price inside the object
+            pass
+
+
+    name, price = input().split(",")
+    item = MenuItem(name, int(price))
+    print(f"Item: {item.name}")
+    print(f"Price: Rp{item.price}")
+  hints:
+    - "Right now `__init__` receives `name` and `price` but does not keep them anywhere. That is why `item.name` does not exist yet."
+    - "An attribute is created by writing to `self`: `self.name = name`."
+    - "Replace `pass` with two lines: `self.name = name` and `self.price = price`."
+  tests:
+    - input: "milk coffee,15000"
+      output: "Item: milk coffee\nPrice: Rp15000"
+    - input: "toast,18000"
+      output: "Item: toast\nPrice: Rp18000"
+    - input: "orange juice,10000"
+      output: "Item: orange juice\nPrice: Rp10000"
+    - input: "tap water,0"
+      output: "Item: tap water\nPrice: Rp0"
+  solution: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+
+    name, price = input().split(",")
+    item = MenuItem(name, int(price))
+    print(f"Item: {item.name}")
+    print(f"Price: Rp{item.price}")
+
+- slug: the-most-expensive-item
+  type: code
+  title: The most expensive item
+  prompt: |
+    The first line holds `n` (at least 1), then `n` lines in the format `name,price`.
+
+    Create one `MenuItem` object for each line and collect them in the list `items`. The starter code already prints every item. Your second job: find the object with the highest price so that the last line shows `Most expensive: <name>`. If the highest price is shared, pick the one that came in first.
+  language: python
+  starter: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+
+    n = int(input())
+    items = []
+    for _ in range(n):
+        name, price = input().split(",")
+        # create a MenuItem object, then add it to items
+
+    for m in items:
+        print(f"{m.name} - Rp{m.price}")
+
+    priciest = items[0]
+    # check every object in items; keep the one with the higher price
+    print(f"Most expensive: {priciest.name}")
+  hints:
+    - "Two parts are empty: filling `items` with objects, then comparing each object's price with `priciest`."
+    - "Part one: `items.append(MenuItem(name, int(price)))`. The price has to become a number so it can be compared."
+    - "Part two: `for m in items:` then `if m.price > priciest.price:` set `priciest = m`. Use `>` (not `>=`) so the earlier one stays chosen when prices are equal."
+  tests:
+    - input: "3\nmilk coffee,15000\ntoast,18000\norange juice,10000"
+      output: "milk coffee - Rp15000\ntoast - Rp18000\norange juice - Rp10000\nMost expensive: toast"
+    - input: "1\npulled tea,12000"
+      output: "pulled tea - Rp12000\nMost expensive: pulled tea"
+    - input: "3\npulled tea,12000\nmilk coffee,15000\nblack coffee,15000"
+      output: "pulled tea - Rp12000\nmilk coffee - Rp15000\nblack coffee - Rp15000\nMost expensive: milk coffee"
+    - input: "2\norange juice,10000\npulled tea,9000"
+      output: "orange juice - Rp10000\npulled tea - Rp9000\nMost expensive: orange juice"
+  solution: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+
+    n = int(input())
+    items = []
+    for _ in range(n):
+        name, price = input().split(",")
+        items.append(MenuItem(name, int(price)))
+
+    for m in items:
+        print(f"{m.name} - Rp{m.price}")
+
+    priciest = items[0]
+    for m in items:
+        if m.price > priciest.price:
+            priciest = m
+    print(f"Most expensive: {priciest.name}")
+
+- slug: two-objects-two-sets-of-data
+  type: choice
+  title: Two objects, two sets of data
+  prompt: |
+    What is shown after this code runs?
+
+    ```python
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+    a = MenuItem("milk coffee", 15000)
+    b = MenuItem("milk coffee", 15000)
+    b.price = 17000
+    print(a.price)
+    ```
+  options:
+    - "`15000`"
+    - "`17000`"
+    - "`32000`"
+    - "An `AttributeError`"
+  correct: [0]
+  hint: "`a` and `b` are created by two separate calls to `MenuItem(...)`."
+  explanation: "Every call to `MenuItem(...)` creates a new object with its own attributes. `a` and `b` start with the same contents, but they are different objects, so changing `b.price` does not change `a.price`."

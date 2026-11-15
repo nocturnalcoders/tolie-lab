@@ -1,0 +1,284 @@
+- slug: the-menu
+  type: code
+  title: Daftar menu
+  prompt: |
+    Tulis isi kelas `Menu`. Semua item disimpan di dictionary `self.daftar`, dengan nama item sebagai kunci.
+
+    - `tambah(item)` menyimpan satu `ItemMenu`
+    - `cari(nama)` merapikan `nama` dengan `.strip().lower()`, lalu mengembalikan item yang cocok. Jika tidak ada, munculkan `ValueError` dengan pesan `Menu tidak ada: <nama yang sudah dirapikan>`
+
+    Program di bawahnya membaca `m`, lalu `m` baris `nama,harga` untuk mengisi menu. Setelah itu ia membaca `k`, lalu `k` nama yang dicari, dan mencetak itemnya atau pesan errornya.
+  language: python
+  starter: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+        def __str__(self):
+            return f"{self.nama}: Rp{self.harga}"
+
+
+    class Menu:
+        def __init__(self):
+            self.daftar = {}
+
+        def tambah(self, item):
+            # simpan item di self.daftar dengan namanya sebagai kunci
+            pass
+
+        def cari(self, nama):
+            # rapikan nama, lalu kembalikan itemnya atau munculkan ValueError
+            pass
+
+
+    menu = Menu()
+    m = int(input())
+    for _ in range(m):
+        nama, harga = input().split(",")
+        menu.tambah(ItemMenu(nama, int(harga)))
+
+    k = int(input())
+    for _ in range(k):
+        try:
+            print(menu.cari(input()))
+        except ValueError as e:
+            print(e)
+  hints:
+    - "`tambah` mengisi dictionary, `cari` membacanya. Kuncinya adalah `item.nama`, dan nilainya objek `item` itu sendiri."
+    - "Isi `tambah`: `self.daftar[item.nama] = item`. Di `cari`, mulai dengan `kunci = nama.strip().lower()`."
+    - "Lanjutan `cari`: `if kunci not in self.daftar:` lalu `raise ValueError(f\"Menu tidak ada: {kunci}\")`. Setelah itu `return self.daftar[kunci]`."
+  tests:
+    - input: "3\nkopi susu,15000\nteh tarik,12000\nroti bakar,18000\n2\nteh tarik\nnasi goreng"
+      output: "teh tarik: Rp12000\nMenu tidak ada: nasi goreng"
+    - input: "2\nkopi susu,15000\nes jeruk,10000\n3\n Kopi Susu \nES JERUK\nkopi"
+      output: "kopi susu: Rp15000\nes jeruk: Rp10000\nMenu tidak ada: kopi"
+    - input: "0\n1\n Roti Bakar"
+      output: "Menu tidak ada: roti bakar"
+    - input: "2\nkopi susu,15000\nkopi susu,16000\n1\nkopi susu"
+      output: "kopi susu: Rp16000"
+  solution: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+        def __str__(self):
+            return f"{self.nama}: Rp{self.harga}"
+
+
+    class Menu:
+        def __init__(self):
+            self.daftar = {}
+
+        def tambah(self, item):
+            self.daftar[item.nama] = item
+
+        def cari(self, nama):
+            kunci = nama.strip().lower()
+            if kunci not in self.daftar:
+                raise ValueError(f"Menu tidak ada: {kunci}")
+            return self.daftar[kunci]
+
+
+    menu = Menu()
+    m = int(input())
+    for _ in range(m):
+        nama, harga = input().split(",")
+        menu.tambah(ItemMenu(nama, int(harga)))
+
+    k = int(input())
+    for _ in range(k):
+        try:
+            print(menu.cari(input()))
+        except ValueError as e:
+            print(e)
+
+- slug: the-till-receipt
+  type: code
+  title: Struk kasir
+  prompt: |
+    Kelas `ItemMenu`, `Menu`, dan `BarisPesanan` sudah tersedia, dan menu warung sudah diisi. Lengkapi kelas `Pesanan`:
+
+    - `tambah(item, jumlah)` memunculkan `ValueError` dengan pesan `Jumlah harus lebih dari 0` jika `jumlah` 0 atau kurang. Jika sah, tambahkan satu `BarisPesanan` ke `self.baris`.
+    - `total()` mengembalikan jumlah subtotal semua baris
+    - `cetak()` mencetak struk:
+
+    ```
+    == Struk Siti ==
+    2 x kopi susu = Rp30000
+    1 x roti bakar = Rp18000
+    Total: Rp48000
+    ```
+
+    Program di bawahnya membaca nama pelanggan, lalu `n`, lalu `n` baris `nama menu,jumlah`. Baris yang ditolak dicetak sebagai `Dilewati: <pesan>` sebelum struk.
+  language: python
+  starter: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+
+    class Menu:
+        def __init__(self):
+            self.daftar = {}
+
+        def tambah(self, item):
+            self.daftar[item.nama] = item
+
+        def cari(self, nama):
+            kunci = nama.strip().lower()
+            if kunci not in self.daftar:
+                raise ValueError(f"Menu tidak ada: {kunci}")
+            return self.daftar[kunci]
+
+
+    class BarisPesanan:
+        def __init__(self, item, jumlah):
+            self.item = item
+            self.jumlah = jumlah
+
+        def subtotal(self):
+            return self.item.harga * self.jumlah
+
+
+    class Pesanan:
+        def __init__(self, pelanggan):
+            self.pelanggan = pelanggan
+            self.baris = []
+
+        def tambah(self, item, jumlah):
+            # tolak jumlah 0 atau kurang, lalu tambahkan BarisPesanan
+            pass
+
+        def total(self):
+            # jumlahkan subtotal semua baris
+            pass
+
+        def cetak(self):
+            # cetak judul struk, setiap baris, lalu total
+            pass
+
+
+    menu = Menu()
+    menu.tambah(ItemMenu("kopi susu", 15000))
+    menu.tambah(ItemMenu("teh tarik", 12000))
+    menu.tambah(ItemMenu("roti bakar", 18000))
+    menu.tambah(ItemMenu("es jeruk", 10000))
+
+    pesanan = Pesanan(input())
+    n = int(input())
+    for _ in range(n):
+        nama, jumlah = input().split(",")
+        try:
+            pesanan.tambah(menu.cari(nama), int(jumlah))
+        except ValueError as e:
+            print(f"Dilewati: {e}")
+    pesanan.cetak()
+  hints:
+    - "Kerjakan satu metode setiap kali: `tambah` (periksa dulu, simpan belakangan), `total` (perulangan dan penjumlahan), lalu `cetak` yang memakai keduanya."
+    - "`tambah`: `if jumlah <= 0: raise ValueError(\"Jumlah harus lebih dari 0\")`, lalu `self.baris.append(BarisPesanan(item, jumlah))`. `total`: jumlahkan `b.subtotal()` untuk setiap `b` di `self.baris`, lalu `return`."
+    - "`cetak`: `print(f\"== Struk {self.pelanggan} ==\")`, lalu untuk setiap `b` cetak `f\"{b.jumlah} x {b.item.nama} = Rp{b.subtotal()}\"`, dan terakhir `print(f\"Total: Rp{self.total()}\")`."
+  tests:
+    - input: "Siti\n2\nkopi susu,2\nroti bakar,1"
+      output: "== Struk Siti ==\n2 x kopi susu = Rp30000\n1 x roti bakar = Rp18000\nTotal: Rp48000"
+    - input: "Budi\n3\n Teh Tarik ,3\nnasi goreng,1\nes jeruk,0"
+      output: "Dilewati: Menu tidak ada: nasi goreng\nDilewati: Jumlah harus lebih dari 0\n== Struk Budi ==\n3 x teh tarik = Rp36000\nTotal: Rp36000"
+    - input: "Dewi\n3\nes jeruk,1\nkopi susu,1\nes jeruk,2"
+      output: "== Struk Dewi ==\n1 x es jeruk = Rp10000\n1 x kopi susu = Rp15000\n2 x es jeruk = Rp20000\nTotal: Rp45000"
+    - input: "Agus\n2\nroti bakar,-1\nmie rebus,2"
+      output: "Dilewati: Jumlah harus lebih dari 0\nDilewati: Menu tidak ada: mie rebus\n== Struk Agus ==\nTotal: Rp0"
+    - input: "Rina\n0"
+      output: "== Struk Rina ==\nTotal: Rp0"
+  solution: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+
+    class Menu:
+        def __init__(self):
+            self.daftar = {}
+
+        def tambah(self, item):
+            self.daftar[item.nama] = item
+
+        def cari(self, nama):
+            kunci = nama.strip().lower()
+            if kunci not in self.daftar:
+                raise ValueError(f"Menu tidak ada: {kunci}")
+            return self.daftar[kunci]
+
+
+    class BarisPesanan:
+        def __init__(self, item, jumlah):
+            self.item = item
+            self.jumlah = jumlah
+
+        def subtotal(self):
+            return self.item.harga * self.jumlah
+
+
+    class Pesanan:
+        def __init__(self, pelanggan):
+            self.pelanggan = pelanggan
+            self.baris = []
+
+        def tambah(self, item, jumlah):
+            if jumlah <= 0:
+                raise ValueError("Jumlah harus lebih dari 0")
+            self.baris.append(BarisPesanan(item, jumlah))
+
+        def total(self):
+            hasil = 0
+            for b in self.baris:
+                hasil += b.subtotal()
+            return hasil
+
+        def cetak(self):
+            print(f"== Struk {self.pelanggan} ==")
+            for b in self.baris:
+                print(f"{b.jumlah} x {b.item.nama} = Rp{b.subtotal()}")
+            print(f"Total: Rp{self.total()}")
+
+
+    menu = Menu()
+    menu.tambah(ItemMenu("kopi susu", 15000))
+    menu.tambah(ItemMenu("teh tarik", 12000))
+    menu.tambah(ItemMenu("roti bakar", 18000))
+    menu.tambah(ItemMenu("es jeruk", 10000))
+
+    pesanan = Pesanan(input())
+    n = int(input())
+    for _ in range(n):
+        nama, jumlah = input().split(",")
+        try:
+            pesanan.tambah(menu.cari(nama), int(jumlah))
+        except ValueError as e:
+            print(f"Dilewati: {e}")
+    pesanan.cetak()
+
+- slug: where-the-error-goes
+  type: choice
+  title: Ke mana error pergi
+  prompt: |
+    Dengan kelas `Menu` dari pelajaran ini (menu berisi `kopi susu` saja), apa yang tampil?
+
+    ```python
+    try:
+        item = menu.cari("nasi goreng")
+        print("A")
+    except ValueError as e:
+        print("B")
+    print("C")
+    ```
+  options:
+    - "`A`, lalu `C`"
+    - "`B`, lalu `C`"
+    - "Hanya `C`, karena `cari` mengembalikan `None`"
+    - "Program berhenti dengan `ValueError` dan tidak mencetak apa-apa"
+  correct: [1]
+  hint: "`raise` di dalam sebuah metode mengirim error ke kode yang memanggil metode itu."
+  explanation: "`cari` memunculkan `ValueError` karena `nasi goreng` tidak ada. Error itu keluar dari metode dan sampai ke `try` yang memanggilnya, jadi `print(\"A\")` dilewati dan `except` mencetak `B`. Karena errornya sudah ditangkap, program lanjut dan mencetak `C`."

@@ -1,0 +1,136 @@
+- slug: summary-of-one-order
+  type: code
+  title: Ringkasan satu pesanan
+  prompt: |
+    Buat fungsi `ringkasPesanan(teks)` yang menerima **teks JSON** sebuah pesanan seperti ini:
+
+    ```
+    {"id":"L-101","pembeli":{"nama":"Dimas","kota":"Bandung"},"barang":[{"nama":"Lampu Meja","jumlah":1},{"nama":"Lilin Aroma","jumlah":2}]}
+    ```
+
+    dan mengembalikan teks ringkasan berformat `<id>: <nama> (<kota>), <total> barang`. Untuk contoh di atas: `L-101: Dimas (Bandung), 3 barang`.
+
+    `<total>` adalah jumlah dari `jumlah` semua barang. Jika `barang` kosong, totalnya `0`.
+  language: javascript
+  starter: |
+    const ringkasPesanan = (teks) => {
+      const pesanan = JSON.parse(teks);
+      // ambil nama dan kota pembeli, lalu jumlahkan semua barang
+      return `${pesanan.id}: ?`;
+    };
+  hints:
+    - 'Setelah `JSON.parse`, kamu punya objek biasa. Nama pembeli ada di `pesanan.pembeli.nama`, dan `pesanan.barang` adalah array.'
+    - 'Ambil isinya dengan destructuring: `const { id, pembeli, barang } = pesanan;`. Total barang dihitung dengan `barang.reduce((t, b) => t + b.jumlah, 0)`.'
+    - 'Susun hasilnya dengan template literal yang berisi `${id}: ${pembeli.nama} (${pembeli.kota}), ${total} barang`. Perhatikan koma dan spasinya.'
+  tests:
+    - input: |
+        console.log(ringkasPesanan('{"id":"L-101","pembeli":{"nama":"Dimas","kota":"Bandung"},"barang":[{"nama":"Lampu Meja","jumlah":1},{"nama":"Lilin Aroma","jumlah":2}]}'))
+      output: "L-101: Dimas (Bandung), 3 barang"
+    - input: |
+        console.log(ringkasPesanan('{"id":"L-102","pembeli":{"nama":"Sari","kota":"Cimahi"},"barang":[{"nama":"Lampu Tumblr","jumlah":4}]}'))
+      output: "L-102: Sari (Cimahi), 4 barang"
+    - input: |
+        console.log(ringkasPesanan('{"id":"L-103","pembeli":{"nama":"Bayu","kota":"Garut"},"barang":[]}'))
+      output: "L-103: Bayu (Garut), 0 barang"
+    - input: |
+        console.log(ringkasPesanan('{"id":"L-104","pembeli":{"nama":"Wulan","kota":"Bandung"},"barang":[{"nama":"Lampion Kertas","jumlah":2},{"nama":"Lilin Aroma","jumlah":2},{"nama":"Kap Lampu Rotan","jumlah":1}]}'))
+      output: "L-104: Wulan (Bandung), 5 barang"
+  solution: |
+    const ringkasPesanan = (teks) => {
+      const { id, pembeli, barang } = JSON.parse(teks);
+      const { nama, kota } = pembeli;
+      const total = barang.reduce((t, b) => t + b.jumlah, 0);
+      return `${id}: ${nama} (${kota}), ${total} barang`;
+    };
+
+- slug: update-stock-in-json-data
+  type: code
+  title: Perbarui stok di data JSON
+  prompt: |
+    Data stok toko disimpan sebagai teks JSON berisi array produk, misalnya:
+
+    ```
+    [{"nama":"Lampu Meja","stok":4},{"nama":"Lilin Aroma","stok":0}]
+    ```
+
+    Buat fungsi `perbaruiStok(teks, nama, stokBaru)` yang mengubah `stok` produk bernama `nama` menjadi `stokBaru`, lalu mengembalikan seluruh datanya **sebagai teks JSON lagi**.
+
+    Contoh: `perbaruiStok(teks, "Lilin Aroma", 12)` pada data di atas mengembalikan teks `[{"nama":"Lampu Meja","stok":4},{"nama":"Lilin Aroma","stok":12}]`.
+
+    Jika tidak ada produk dengan nama itu, datanya dikembalikan tanpa perubahan.
+  language: javascript
+  starter: |
+    const perbaruiStok = (teks, nama, stokBaru) => {
+      // ubah teks menjadi array, perbarui stoknya,
+      // lalu ubah kembali menjadi teks
+      return teks;
+    };
+  hints:
+    - 'Ada tiga langkah: `JSON.parse` untuk mendapatkan array, ubah satu produk di dalamnya, lalu `JSON.stringify` untuk mengembalikannya sebagai teks.'
+    - 'Cari produknya dengan `find`: `const p = daftar.find((x) => x.nama === nama);`. Hasilnya bisa `undefined`, jadi ubah stoknya hanya jika produknya ada.'
+    - 'Di dalam `if (p !== undefined)` tulis `p.stok = stokBaru;`. Setelah itu `return JSON.stringify(daftar);`. Yang dikembalikan harus teks, bukan array-nya.'
+  tests:
+    - input: |
+        {
+          const hasil = perbaruiStok('[{"nama":"Lampu Meja","stok":4},{"nama":"Lilin Aroma","stok":0}]', "Lilin Aroma", 12);
+          console.log(typeof hasil);
+          console.log(hasil);
+        }
+      output: |
+        string
+        [{"nama":"Lampu Meja","stok":4},{"nama":"Lilin Aroma","stok":12}]
+    - input: |
+        {
+          const hasil = perbaruiStok('[{"nama":"Lampu Meja","stok":4},{"nama":"Lampion Kertas","stok":7},{"nama":"Lampu Tumblr","stok":9}]', "Lampu Meja", 0);
+          console.log(typeof hasil);
+          console.log(hasil);
+        }
+      output: |
+        string
+        [{"nama":"Lampu Meja","stok":0},{"nama":"Lampion Kertas","stok":7},{"nama":"Lampu Tumblr","stok":9}]
+    - input: |
+        {
+          const hasil = perbaruiStok('[{"nama":"Lampu Meja","stok":4}]', "Kipas Angin", 3);
+          console.log(typeof hasil);
+          console.log(hasil);
+        }
+      output: |
+        string
+        [{"nama":"Lampu Meja","stok":4}]
+    - input: |
+        {
+          const hasil = perbaruiStok('[]', "Lampu Meja", 3);
+          console.log(typeof hasil);
+          console.log(hasil);
+        }
+      output: |
+        string
+        []
+  solution: |
+    const perbaruiStok = (teks, nama, stokBaru) => {
+      const daftar = JSON.parse(teks);
+      const p = daftar.find((x) => x.nama === nama);
+      if (p !== undefined) {
+        p.stok = stokBaru;
+      }
+      return JSON.stringify(daftar);
+    };
+
+- slug: json-text-is-not-an-object
+  type: choice
+  title: Teks JSON bukan objek
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```javascript
+    const teks = '{"nama":"Lilin Aroma","stok":5}';
+    console.log(teks.stok);
+    ```
+  options:
+    - "`undefined`"
+    - "`5`"
+    - "`\"5\"`"
+    - "Program berhenti dengan error"
+  correct: [0]
+  hint: Perhatikan tanda kutip di awal dan akhir nilai `teks`. Apa jenis nilainya?
+  explanation: '`teks` masih berupa teks, bukan objek, dan sebuah teks tidak punya isi bernama `stok`, jadi hasilnya `undefined` tanpa error. Untuk mendapatkan `5`, ubah dulu teksnya: `JSON.parse(teks).stok`.'

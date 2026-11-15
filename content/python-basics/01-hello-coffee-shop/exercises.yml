@@ -1,50 +1,50 @@
 - slug: greet-the-customer
   type: code
-  title: Greet the customer
+  title: Sapa pelanggan
   prompt: |
-    A new customer walks in. Print this greeting exactly as written:
+    Seorang pelanggan baru masuk. Cetak sapaan ini persis seperti tertulis:
 
-    `Welcome to Senja Coffee Shop!`
+    `Selamat datang di Warung Kopi Senja!`
   language: python
   starter: |
-    # write your code below
-  hint: Use print and wrap the text in quotes.
+    # tulis kodemu di bawah ini
+  hint: Pakai print dan apit teksnya dengan tanda kutip.
   tests:
     - input: ""
-      output: "Welcome to Senja Coffee Shop!"
+      output: "Selamat datang di Warung Kopi Senja!"
   solution: |
-    print("Welcome to Senja Coffee Shop!")
+    print("Selamat datang di Warung Kopi Senja!")
 
 - slug: two-line-menu
   type: code
-  title: A two-line menu
+  title: Dua baris menu
   prompt: |
-    The menu board has two lines. Print `Milk coffee` on the first line and `Pulled tea` on the second.
+    Papan menu punya dua baris. Cetak `Kopi susu` di baris pertama dan `Teh tarik` di baris kedua.
   language: python
   starter: |
-    # one print for each line
+    # satu print untuk satu baris
   tests:
     - input: ""
-      output: "Milk coffee\nPulled tea"
+      output: "Kopi susu\nTeh tarik"
   solution: |
-    print("Milk coffee")
-    print("Pulled tea")
+    print("Kopi susu")
+    print("Teh tarik")
 
 - slug: quiz-print
   type: choice
-  title: What appears?
+  title: Apa yang tampil?
   prompt: |
-    What appears on the screen after this code runs?
+    Apa yang tampil di layar setelah kode ini dijalankan?
 
     ```python
-    print("Hello")
-    print("Shop")
+    print("Halo")
+    print("Warung")
     ```
   options:
-    - "`Hello Shop` on a single line"
-    - "`Hello` and `Shop`, each on its own line"
-    - "`print(\"Hello\")` and `print(\"Shop\")` exactly as written"
-    - "Nothing, the code has an error"
+    - "`Halo Warung` dalam satu baris"
+    - "`Halo` dan `Warung`, masing-masing di barisnya sendiri"
+    - "`print(\"Halo\")` dan `print(\"Warung\")` apa adanya"
+    - "Tidak ada, kodenya error"
   correct: [1]
-  hint: Remember, every print writes a new line.
-  explanation: Every `print` writes one new line, so the result is two lines.
+  hint: Ingat, setiap print menulis satu baris baru.
+  explanation: Setiap `print` menulis satu baris baru, jadi hasilnya dua baris.

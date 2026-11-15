@@ -1,0 +1,79 @@
+- slug: work-out-the-subtotal
+  type: code
+  title: Work out the subtotal
+  prompt: |
+    Write a function `calcSubtotal(price, quantity)` that **returns** the price times the number of items.
+
+    Example: `calcSubtotal(85000, 2)` gives `170000`.
+
+    You do not need to call `console.log` yourself. The tests call your function.
+  starter: |
+    function calcSubtotal(price, quantity) {
+      // return the price times the quantity
+    }
+  hints:
+    - "This function needs just one line: work out the result, then send it out with `return`."
+    - "If you see `undefined`, your function is not returning anything yet. Use `return`, not `console.log`."
+    - "The body of the function: `return price * quantity;`"
+  tests:
+    - input: "console.log(calcSubtotal(85000, 2))"
+      output: "170000"
+    - input: "console.log(calcSubtotal(12000, 5))"
+      output: "60000"
+    - input: "console.log(calcSubtotal(45000, 1))"
+      output: "45000"
+    - input: "console.log(calcSubtotal(60000, 0))"
+      output: "0"
+  solution: |
+    function calcSubtotal(price, quantity) {
+      return price * quantity;
+    }
+
+- slug: price-label
+  type: code
+  title: Price label
+  prompt: |
+    Sekar wants price labels with the product name in capital letters.
+
+    Write a function `priceLabel(name, price)` that returns text in the format `<NAME> - Rp<price>`.
+
+    Example: `priceLabel("Knit bag", 85000)` gives `KNIT BAG - Rp85000`.
+  starter: |
+    function priceLabel(name, price) {
+      // return the label text
+    }
+  hints:
+    - "`name.toUpperCase()` gives the name in capital letters."
+    - "Build the text with a template literal. Inside `${...}` you may write `name.toUpperCase()`. Mind the spaces on both sides of the `-`."
+    - "The body of the function: return `${name.toUpperCase()} - Rp${price}`;"
+  tests:
+    - input: "console.log(priceLabel('Knit bag', 85000))"
+      output: "KNIT BAG - Rp85000"
+    - input: "console.log(priceLabel('scarf', 60000))"
+      output: "SCARF - Rp60000"
+    - input: "console.log(priceLabel('HAT', 45000))"
+      output: "HAT - Rp45000"
+    - input: "console.log(priceLabel('Keychain', 0))"
+      output: "KEYCHAIN - Rp0"
+  solution: |
+    function priceLabel(name, price) {
+      return `${name.toUpperCase()} - Rp${price}`;
+    }
+
+- slug: adding-or-joining
+  type: choice
+  title: Adding or joining?
+  prompt: |
+    What appears?
+
+    ```javascript
+    console.log("Rp" + 5000 + 500);
+    ```
+  options:
+    - "`Rp5500`"
+    - "`Rp5000500`"
+    - "`5500`"
+    - "An error, text cannot be added to a number"
+  correct: [1]
+  hint: JavaScript works from left to right. What does `"Rp" + 5000` give?
+  explanation: "`\"Rp\" + 5000` gives the string `Rp5000`. After that, a string plus `500` means joining again, so the result is `Rp5000500`. To add first, write `\"Rp\" + (5000 + 500)` or use a template literal."

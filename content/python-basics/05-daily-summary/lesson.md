@@ -1,18 +1,18 @@
 ---
-title: Daily summary with loops
+title: Rekap harian dengan perulangan
 ---
-Every night, Ms. Rina writes down the day's sales. Adding them up one by one is tiring, and repeating things is exactly what computers are best at.
+Tiap malam, Bu Rina mencatat penjualan harian. Menjumlahkan satu per satu itu melelahkan, padahal komputer paling pandai mengulang.
 
-## for and range
+## for dan range
 
-`for` repeats a block of code. `range(n)` produces the numbers `0` up to `n - 1`:
+`for` mengulang blok kode. `range(n)` menghasilkan angka `0` sampai `n - 1`:
 
 ```python
 for i in range(3):
     print(i)
 ```
 
-The result:
+Hasilnya:
 
 ```
 0
@@ -20,11 +20,11 @@ The result:
 2
 ```
 
-When the counter is not used, the habit is to name the variable `_`: `for _ in range(3):`.
+Kalau nomor urutnya tidak dipakai, kebiasaannya menulis `_` sebagai nama variabel: `for _ in range(3):`.
 
-## Collecting a total
+## Mengumpulkan total
 
-Prepare a starting variable, then add to it in every round:
+Siapkan variabel awal, lalu tambahkan di setiap putaran:
 
 ```python
 total = 0
@@ -33,11 +33,11 @@ for _ in range(3):
 print(total)
 ```
 
-`total += 5` means `total = total + 5`. The result is `15`.
+`total += 5` artinya `total = total + 5`. Hasilnya `15`.
 
-## Reading many lines
+## Membaca banyak baris
 
-A common pattern: the first line holds the number of data items `n`, and the next `n` lines hold the data.
+Pola umum soal: baris pertama berisi jumlah data `n`, lalu `n` baris berikutnya berisi datanya.
 
 ```python
 n = int(input())

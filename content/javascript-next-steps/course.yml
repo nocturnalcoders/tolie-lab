@@ -1,0 +1,32 @@
+slug: javascript-next-steps
+title: "JavaScript Lanjutan: Mengolah Data Toko Online"
+language: javascript
+locale: id
+level: Menengah
+kind: course
+price_idr: 0
+status: published
+position: 11
+summary: >-
+  Lanjutan dari JavaScript Dasar: mengolah daftar produk dan pesanan Toko
+  Lentera dengan fungsi panah, map, filter, find, reduce, dan sort, membaca
+  data JSON yang bersarang, sampai menyusun laporan pesanan dari data mentah.
+perks:
+  - 6 pelajaran, 12 latihan kode, dan 6 soal pilihan ganda
+  - Petunjuk bertahap di setiap latihan kode, dari arahan ringan sampai hampir jawabannya
+  - Semua latihan dijalankan langsung di browser
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie
+translations:
+  en:
+    title: "JavaScript Next Steps: Working with Online Shop Data"
+    level: Intermediate
+    summary: >-
+      The follow-on to JavaScript Basics: working with Lentera Shop's product
+      and order lists using arrow functions, map, filter, find, reduce and
+      sort, reading nested JSON data, all the way to building an order report
+      from raw data.
+    perks:
+      - 6 lessons, 12 coding exercises and 6 multiple-choice questions
+      - Step-by-step hints on every coding exercise, from a gentle nudge to nearly the answer
+      - Every exercise runs right in your browser, nothing to install
+      - A completion certificate from tolie.space, signed by Christianto Lie

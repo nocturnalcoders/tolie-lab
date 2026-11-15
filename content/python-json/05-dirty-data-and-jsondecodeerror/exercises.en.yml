@@ -1,0 +1,202 @@
+- slug: skip-lines-that-are-not-json
+  type: code
+  title: Skip lines that are not JSON
+  prompt: |
+    The first line holds `n`, then `n` lines follow. Each line should hold one order as JSON with the keys `id` and `total`, but some lines are broken and are not valid JSON.
+
+    Add up `total` over the valid lines, skip the broken ones, then print:
+
+    ```
+    Total: Rp<sum of total over the valid lines>
+    Broken lines: <number of broken lines>
+    ```
+  starter: |
+    import json
+
+    n = int(input())
+    total = 0
+    broken = 0
+    for _ in range(n):
+        order = json.loads(input())
+        total += order["total"]
+    print(f"Total: Rp{total}")
+    print(f"Broken lines: {broken}")
+  hints:
+    - >-
+      The starter code is already right for tidy data. It stops as soon as `json.loads` meets a line that is not JSON.
+    - >-
+      Wrap the two lines inside the loop in a `try:`. The error that `json.loads` raises is called `json.JSONDecodeError`.
+    - >-
+      Below the `try`, lined up with it, write `except json.JSONDecodeError:` and then `broken += 1`. The total only grows when the line was read successfully.
+  tests:
+    - input: |
+        4
+        {"id": "AM-1021", "total": 68000}
+        {"id": "AM-1022", "total": 22000
+        {'id': 'AM-1023', 'total': 50000}
+        {"id": "AM-1024", "total": 30000}
+      output: |
+        Total: Rp98000
+        Broken lines: 2
+    - input: |
+        2
+        {"id": "AM-1030", "total": 25000}
+        {"id": "AM-1031", "total": 6000}
+      output: |
+        Total: Rp31000
+        Broken lines: 0
+    - input: |
+        3
+        id=AM-1040,total=68000
+        <html>Server Error</html>
+        {"id": "AM-1042", "total": 12000,}
+      output: |
+        Total: Rp0
+        Broken lines: 3
+    - input: |
+        0
+      output: |
+        Total: Rp0
+        Broken lines: 0
+  solution: |
+    import json
+
+    n = int(input())
+    total = 0
+    broken = 0
+    for _ in range(n):
+        try:
+            order = json.loads(input())
+            total += order["total"]
+        except json.JSONDecodeError:
+            broken += 1
+    print(f"Total: Rp{total}")
+    print(f"Broken lines: {broken}")
+
+- slug: check-every-order
+  type: code
+  title: Check every order
+  prompt: |
+    Complete the function `check(text)`. It takes one line of text and returns one piece of text with the verdict. Check in this order, and return the result of the first check that fails:
+
+    1. `BROKEN: not JSON` if the text is not valid JSON
+    2. `BROKEN: not an object` if the result is not a dictionary
+    3. `BROKEN: missing key` if the key `id`, `qty` or `price` is missing
+    4. `BROKEN: bad number` if `qty` or `price` cannot be converted with `int()`, or `qty` is less than 1
+
+    If everything passes, return `OK <id> Rp<qty times price>`. A number inside quotes such as `"3"` is still accepted.
+
+    The program below it already prints every verdict and counts the valid and broken lines.
+  starter: |
+    import json
+
+
+    def check(text):
+        data = json.loads(text)
+        # add four checks before this return line
+        return f"OK {data['id']} Rp{data['qty'] * data['price']}"
+
+
+    n = int(input())
+    valid = 0
+    broken = 0
+    for _ in range(n):
+        result = check(input())
+        print(result)
+        if result.startswith("OK"):
+            valid += 1
+        else:
+            broken += 1
+    print(f"Valid: {valid}, broken: {broken}")
+  hints:
+    - >-
+      Work from the outside in, as in the lesson. Start by moving `json.loads(text)` inside a `try`, and in `except json.JSONDecodeError:` write `return "BROKEN: not JSON"`.
+    - >-
+      Then `if not isinstance(data, dict):` return `BROKEN: not an object`, and `if "id" not in data or "qty" not in data or "price" not in data:` return `BROKEN: missing key`.
+    - >-
+      Finally, inside a second `try`: `qty = int(data["qty"])` and `price = int(data["price"])`, with `except (ValueError, TypeError):` returning `BROKEN: bad number`. After that `if qty < 1:` return the same text, and work out the total from `qty * price`.
+  tests:
+    - input: |
+        5
+        {"id": "AM-1021", "qty": 2, "price": 28000}
+        {"id": "AM-1022", "qty": "3", "price": "22000"}
+        {"id": "AM-1023", "qty": 2
+        [1, 2, 3]
+        {"id": "AM-1025", "price": 6000}
+      output: |
+        OK AM-1021 Rp56000
+        OK AM-1022 Rp66000
+        BROKEN: not JSON
+        BROKEN: not an object
+        BROKEN: missing key
+        Valid: 2, broken: 3
+    - input: |
+        3
+        {"id": "AM-1030", "qty": "two", "price": 25000}
+        {"id": "AM-1031", "qty": null, "price": 25000}
+        {"id": "AM-1032", "qty": 0, "price": 25000}
+      output: |
+        BROKEN: bad number
+        BROKEN: bad number
+        BROKEN: bad number
+        Valid: 0, broken: 3
+    - input: |
+        2
+        "AM-1040"
+        {"price": 6000, "qty": 4, "id": "AM-1041", "note": null}
+      output: |
+        BROKEN: not an object
+        OK AM-1041 Rp24000
+        Valid: 1, broken: 1
+    - input: |
+        0
+      output: |
+        Valid: 0, broken: 0
+  solution: |
+    import json
+
+
+    def check(text):
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError:
+            return "BROKEN: not JSON"
+        if not isinstance(data, dict):
+            return "BROKEN: not an object"
+        if "id" not in data or "qty" not in data or "price" not in data:
+            return "BROKEN: missing key"
+        try:
+            qty = int(data["qty"])
+            price = int(data["price"])
+        except (ValueError, TypeError):
+            return "BROKEN: bad number"
+        if qty < 1:
+            return "BROKEN: bad number"
+        return f"OK {data['id']} Rp{qty * price}"
+
+
+    n = int(input())
+    valid = 0
+    broken = 0
+    for _ in range(n):
+        result = check(input())
+        print(result)
+        if result.startswith("OK"):
+            valid += 1
+        else:
+            broken += 1
+    print(f"Valid: {valid}, broken: {broken}")
+
+- slug: which-one-is-not-json
+  type: choice
+  title: Which one is not JSON?
+  prompt: |
+    Which text makes `json.loads` stop with a `json.JSONDecodeError`?
+  options:
+    - '`{"dish": "chicken satay"}`'
+    - "`{'dish': 'chicken satay'}`"
+    - "`null`"
+    - "`[1, 2, 3]`"
+  correct: [1]
+  hint: JSON is stricter than Python about quotes.
+  explanation: "JSON only knows double quotes, so the text with single quotes is rejected even though in Python it is a perfectly good dictionary. The other three are valid JSON: an object, `null` (which becomes `None`), and a list. Valid JSON is not necessarily an object, and that is what the `isinstance` check is for."

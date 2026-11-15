@@ -1,0 +1,171 @@
+- slug: order-item-breakdown
+  type: code
+  title: Rincian item pesanan
+  prompt: |
+    Satu baris masukan berisi pesanan bersarang seperti di materi: `pelanggan` adalah objek dengan kunci `nama` dan `kota`, dan `item` adalah daftar objek dengan kunci `menu`, `jumlah`, dan `harga`.
+
+    Cetak satu baris pelanggan, satu baris untuk setiap item sesuai urutannya, lalu totalnya:
+
+    ```
+    Pelanggan: <nama> (<kota>)
+    - <menu> x<jumlah> = Rp<jumlah dikali harga>
+    Total: Rp<jumlah semua item>
+    ```
+
+    Daftar `item` bisa kosong. Saat itu hanya baris pelanggan dan `Total: Rp0` yang dicetak.
+  starter: |
+    import json
+
+    pesanan = json.loads(input())
+    total = 0
+    # cetak baris pelanggan, lalu satu baris per item sambil menjumlahkan total
+    print(f"Total: Rp{total}")
+  hints:
+    - >-
+      Nama pelanggan ada dua lapis di dalam: ambil dulu `pesanan["pelanggan"]`, lalu `["nama"]` dan `["kota"]` dari sana.
+    - >-
+      Ulang daftar itemnya dengan `for item in pesanan["item"]:`. Di dalamnya hitung `subtotal = item["jumlah"] * item["harga"]` dan tambahkan ke `total`.
+    - >-
+      Baris item: `print(f"- {item['menu']} x{item['jumlah']} = Rp{subtotal}")`. Baris pelanggan: simpan `p = pesanan["pelanggan"]`, lalu `print(f"Pelanggan: {p['nama']} ({p['kota']})")`.
+  tests:
+    - input: |
+        {"id": "AM-1021", "pelanggan": {"nama": "Dewi", "kota": "Bandung"}, "item": [{"menu": "nasi rendang", "jumlah": 2, "harga": 28000}, {"menu": "es teh manis", "jumlah": 2, "harga": 6000}]}
+      output: |
+        Pelanggan: Dewi (Bandung)
+        - nasi rendang x2 = Rp56000
+        - es teh manis x2 = Rp12000
+        Total: Rp68000
+    - input: |
+        {"id": "AM-1022", "pelanggan": {"nama": "Budi Santoso", "kota": "Cimahi"}, "item": [{"menu": "ayam geprek", "jumlah": 3, "harga": 22000}]}
+      output: |
+        Pelanggan: Budi Santoso (Cimahi)
+        - ayam geprek x3 = Rp66000
+        Total: Rp66000
+    - input: |
+        {"id": "AM-1023", "pelanggan": {"nama": "Tari", "kota": "Bandung"}, "item": []}
+      output: |
+        Pelanggan: Tari (Bandung)
+        Total: Rp0
+    - input: |
+        {"item": [{"menu": "sate ayam", "jumlah": 1, "harga": 25000}, {"menu": "nasi rendang", "jumlah": 1, "harga": 28000}, {"menu": "es teh manis", "jumlah": 4, "harga": 6000}], "pelanggan": {"kota": "Lembang", "nama": "Agus"}, "id": "AM-1024"}
+      output: |
+        Pelanggan: Agus (Lembang)
+        - sate ayam x1 = Rp25000
+        - nasi rendang x1 = Rp28000
+        - es teh manis x4 = Rp24000
+        Total: Rp77000
+  solution: |
+    import json
+
+    pesanan = json.loads(input())
+    p = pesanan["pelanggan"]
+    print(f"Pelanggan: {p['nama']} ({p['kota']})")
+    total = 0
+    for item in pesanan["item"]:
+        subtotal = item["jumlah"] * item["harga"]
+        total += subtotal
+        print(f"- {item['menu']} x{item['jumlah']} = Rp{subtotal}")
+    print(f"Total: Rp{total}")
+
+- slug: safe-delivery-info
+  type: code
+  title: Info pengiriman yang aman
+  prompt: |
+    Satu baris masukan berisi pesanan dengan kunci `id`. Kunci lainnya **belum tentu ada**:
+
+    - `pengiriman`: objek yang bisa berisi `kurir` (nama) dan `ongkir` (angka), bisa salah satunya saja, bisa juga kosong
+    - `catatan`: teks
+
+    Cetak empat baris:
+
+    ```
+    Pesanan <id>
+    Kurir: <kurir>
+    Ongkir: Rp<ongkir>
+    Catatan: <catatan>
+    ```
+
+    Pakai nilai cadangan untuk yang tidak ada: `belum ada` untuk kurir, `0` untuk ongkir, dan `-` untuk catatan.
+  starter: |
+    import json
+
+    pesanan = json.loads(input())
+    print(f"Pesanan {pesanan['id']}")
+    print(f"Kurir: {pesanan['pengiriman']['kurir']}")
+    print(f"Ongkir: Rp{pesanan['pengiriman']['ongkir']}")
+    print(f"Catatan: {pesanan['catatan']}")
+  hints:
+    - >-
+      Kode awal hanya berjalan kalau semua kunci ada. Ganti setiap kurung siku yang berisiko dengan `.get` dan nilai cadangannya.
+    - >-
+      Mulai dari lapis luar: `pengiriman = pesanan.get("pengiriman", {})`. Dengan cadangan `{}`, baris berikutnya tetap bisa memakai `.get` walaupun `pengiriman` tidak dikirim.
+    - >-
+      Lanjutkan dengan `kurir = pengiriman.get("kurir", "belum ada")`, `ongkir = pengiriman.get("ongkir", 0)`, dan `catatan = pesanan.get("catatan", "-")`, lalu cetak ketiganya.
+  tests:
+    - input: |
+        {"id": "AM-1021", "pengiriman": {"kurir": "Joko", "ongkir": 8000}, "catatan": "tanpa sambal"}
+      output: |
+        Pesanan AM-1021
+        Kurir: Joko
+        Ongkir: Rp8000
+        Catatan: tanpa sambal
+    - input: |
+        {"id": "AM-1022", "pengiriman": {"ongkir": 5000}}
+      output: |
+        Pesanan AM-1022
+        Kurir: belum ada
+        Ongkir: Rp5000
+        Catatan: -
+    - input: |
+        {"id": "AM-1023"}
+      output: |
+        Pesanan AM-1023
+        Kurir: belum ada
+        Ongkir: Rp0
+        Catatan: -
+    - input: |
+        {"id": "AM-1024", "pengiriman": {}, "catatan": "telepon dulu"}
+      output: |
+        Pesanan AM-1024
+        Kurir: belum ada
+        Ongkir: Rp0
+        Catatan: telepon dulu
+    - input: |
+        {"id": "AM-1025", "pengiriman": {"kurir": "Sinta"}}
+      output: |
+        Pesanan AM-1025
+        Kurir: Sinta
+        Ongkir: Rp0
+        Catatan: -
+  solution: |
+    import json
+
+    pesanan = json.loads(input())
+    pengiriman = pesanan.get("pengiriman", {})
+    kurir = pengiriman.get("kurir", "belum ada")
+    ongkir = pengiriman.get("ongkir", 0)
+    catatan = pesanan.get("catatan", "-")
+    print(f"Pesanan {pesanan['id']}")
+    print(f"Kurir: {kurir}")
+    print(f"Ongkir: Rp{ongkir}")
+    print(f"Catatan: {catatan}")
+
+- slug: get-on-nested-data
+  type: choice
+  title: .get pada data bersarang
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```python
+    pesanan = {"id": "AM-1023"}
+    kurir = pesanan.get("pengiriman", {}).get("kurir", "belum ada")
+    print(kurir)
+    ```
+  options:
+    - "Program berhenti dengan `KeyError`"
+    - "`None`"
+    - "`{}`"
+    - "`belum ada`"
+  correct: [3]
+  hint: Kerjakan dari kiri. Apa hasil `.get` yang pertama, dan apa yang kemudian dicari di dalamnya?
+  explanation: 'Kunci `pengiriman` tidak ada, jadi `.get` yang pertama mengembalikan cadangannya, yaitu dictionary kosong `{}`. Lalu `.get("kurir", "belum ada")` dijalankan pada dictionary kosong itu. Kunci `kurir` juga tidak ada, sehingga hasilnya cadangan kedua: `belum ada`. Tidak ada `KeyError`, karena tidak ada kurung siku yang dipakai.'

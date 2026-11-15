@@ -1,0 +1,144 @@
+- slug: the-number-of-delivery-orders
+  type: code
+  title: The number of delivery orders
+  prompt: |
+    The input is one number `n`, the number of parcels the courier carries. Write a **recursive** function `orders(n)` that returns in how many orders `n` parcels can be delivered: `n` times the number of orders for `n - 1` parcels.
+
+    For 1 parcel, and also for 0 parcels, the result is 1. The program below it already prints the result:
+
+    ```
+    Delivery orders for n=3: 6
+    ```
+  language: python
+  starter: |
+    def orders(n):
+        # base case: n <= 1
+        # recursive step: n times the orders for n - 1 parcels
+        pass
+
+
+    n = int(input())
+    print(f"Delivery orders for n={n}: {orders(n)}")
+  hints:
+    - "This function needs two parts: a direct answer for the smallest problem, and a call to itself for a smaller problem."
+    - "The base case: `if n <= 1:` then `return 1`. Write this first, so the chain of calls has a place to stop."
+    - "After the base case, one line is enough: `return n * orders(n - 1)`. Remove `pass`."
+  tests:
+    - input: "3"
+      output: "Delivery orders for n=3: 6"
+    - input: "1"
+      output: "Delivery orders for n=1: 1"
+    - input: "0"
+      output: "Delivery orders for n=0: 1"
+    - input: "5"
+      output: "Delivery orders for n=5: 120"
+    - input: "10"
+      output: "Delivery orders for n=10: 3628800"
+  solution: |
+    def orders(n):
+        if n <= 1:
+            return 1
+        return n * orders(n - 1)
+
+
+    n = int(input())
+    print(f"Delivery orders for n={n}: {orders(n)}")
+
+- slug: count-what-is-in-nested-boxes
+  type: code
+  title: Count what is in nested boxes
+  prompt: |
+    The first line holds `n` (at least 1), then `n` lines that each describe one box in the format `name:contents`. The contents are separated by spaces: a **number** means that many loose items, **any other text** is the name of a box inside it. A box can also be empty.
+
+    ```
+    4
+    A:3 B C
+    B:2 D
+    C:5
+    D:1
+    ```
+
+    Write a recursive function `count(name)` that returns the number of all items inside a box, including the items in the boxes inside it. The program prints the count for the box on the **first line**:
+
+    ```
+    Total items: 11
+    ```
+
+    Boxes that are not inside the first box are not counted.
+  language: python
+  starter: |
+    n = int(input())
+    contents = {}
+    first = ""
+    for i in range(n):
+        name, rest = input().split(":")
+        contents[name] = rest.split()
+        if i == 0:
+            first = name
+
+
+    def count(name):
+        # add up the loose items, and call count again
+        # for every box inside this box
+        pass
+
+
+    print(f"Total items: {count(first)}")
+  hints:
+    - "`contents[name]` is a list of texts, for example `[\"3\", \"B\", \"C\"]`. Go through that list one by one, carrying a `total` that starts at 0."
+    - "For each `thing`: if `thing.isdigit()`, it is loose items, so `total += int(thing)`. If not, it is the name of a box."
+    - "For a box name: `total += count(thing)`. The same function counts what is in the box inside. End the function with `return total`. An empty box gives 0 automatically."
+  tests:
+    - input: "4\nA:3 B C\nB:2 D\nC:5\nD:1"
+      output: "Total items: 11"
+    - input: "1\nA:4 6"
+      output: "Total items: 10"
+    - input: "3\nA:B\nB:C\nC:"
+      output: "Total items: 0"
+    - input: "4\nX:1 Y\nY:2 2\nZ:100\nW:Z 7"
+      output: "Total items: 5"
+    - input: "5\nK1:1 K2\nK2:1 K3\nK3:1 K4\nK4:1 K5\nK5:1"
+      output: "Total items: 5"
+  solution: |
+    n = int(input())
+    contents = {}
+    first = ""
+    for i in range(n):
+        name, rest = input().split(":")
+        contents[name] = rest.split()
+        if i == 0:
+            first = name
+
+
+    def count(name):
+        total = 0
+        for thing in contents[name]:
+            if thing.isdigit():
+                total += int(thing)
+            else:
+                total += count(thing)
+        return total
+
+
+    print(f"Total items: {count(first)}")
+
+- slug: without-a-base-case
+  type: choice
+  title: Without a base case
+  prompt: |
+    What happens when this code runs?
+
+    ```python
+    def orders(n):
+        return n * orders(n - 1)
+
+    print(orders(3))
+    ```
+  options:
+    - "It prints `6`"
+    - "It prints `0`, because in the end it is multiplied by 0"
+    - "The program stops with a `RecursionError`, because the function never stops calling itself"
+    - "It prints `3`, because the function is only called once"
+  correct: [2]
+  hint: Look for the line that stops the chain of calls.
+  explanation: "There is no base case, so `orders(3)` calls `orders(2)`, then `orders(1)`, `orders(0)`, `orders(-1)`, and on without end. The multiplication never gets worked out, because every call is still waiting for the next one. Python stops it with a `RecursionError`."

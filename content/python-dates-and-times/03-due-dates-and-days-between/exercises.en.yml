@@ -1,0 +1,118 @@
+- slug: work-out-the-due-date
+  type: code
+  title: Work out the due date
+  prompt: |
+    The first line holds the invoice date as `year-month-day`, the second line the payment term in days.
+
+    Ms. Rina wants to know when the invoice is due, and when she should be reminded, which is 3 days before the due date. Print two lines:
+
+    ```
+    Due: <date>
+    Reminder: <date>
+    ```
+  language: python
+  starter: |
+    from datetime import datetime, timedelta
+
+    invoice = datetime.strptime(input(), "%Y-%m-%d").date()
+    term = int(input())
+
+    # work out the due date and the reminder date
+    print(f"Due: {invoice}")
+  hints:
+    - "A date plus a `timedelta` gives a new date. The number of days goes in through `timedelta(days=...)`."
+    - "`due = invoice + timedelta(days=term)`. The reminder goes three days back from there."
+    - "`reminder = due - timedelta(days=3)`, then print `f\"Due: {due}\"` and `f\"Reminder: {reminder}\"`."
+  tests:
+    - input: "2025-01-20\n30"
+      output: "Due: 2025-02-19\nReminder: 2025-02-16"
+    - input: "2024-02-15\n14"
+      output: "Due: 2024-02-29\nReminder: 2024-02-26"
+    - input: "2024-12-20\n14"
+      output: "Due: 2025-01-03\nReminder: 2024-12-31"
+    - input: "2025-02-01\n30"
+      output: "Due: 2025-03-03\nReminder: 2025-02-28"
+    - input: "2025-03-14\n0"
+      output: "Due: 2025-03-14\nReminder: 2025-03-11"
+  solution: |
+    from datetime import datetime, timedelta
+
+    invoice = datetime.strptime(input(), "%Y-%m-%d").date()
+    term = int(input())
+
+    due = invoice + timedelta(days=term)
+    reminder = due - timedelta(days=3)
+    print(f"Due: {due}")
+    print(f"Reminder: {reminder}")
+
+- slug: invoice-status
+  type: code
+  title: Invoice status
+  prompt: |
+    The first line holds **today's** date, the second line the due date of an invoice. Both are written as `year-month-day`.
+
+    Print one line that fits the situation:
+
+    - the due date has passed: `Overdue by <n> days`
+    - the due date is exactly today: `Due today`
+    - the due date is still ahead: `<n> days left`
+
+    Always write `days`, also when the number is 1.
+  language: python
+  starter: |
+    from datetime import datetime
+
+    today = datetime.strptime(input(), "%Y-%m-%d").date()
+    due = datetime.strptime(input(), "%Y-%m-%d").date()
+
+    # work out the difference in days, then print the status
+    print("Due today")
+  hints:
+    - "A date minus a date gives a `timedelta`. Take the number of days from `.days`."
+    - "`left = (due - today).days`. It is negative when the invoice is overdue, 0 when it is due today, positive when there is still time."
+    - "`if left < 0:` print `f\"Overdue by {-left} days\"`; `elif left == 0:` print `Due today`; otherwise print `f\"{left} days left\"`."
+  tests:
+    - input: "2025-03-14\n2025-03-10"
+      output: "Overdue by 4 days"
+    - input: "2025-03-14\n2025-03-14"
+      output: "Due today"
+    - input: "2025-03-14\n2025-03-20"
+      output: "6 days left"
+    - input: "2025-01-02\n2024-12-30"
+      output: "Overdue by 3 days"
+    - input: "2024-02-27\n2024-03-01"
+      output: "3 days left"
+  solution: |
+    from datetime import datetime
+
+    today = datetime.strptime(input(), "%Y-%m-%d").date()
+    due = datetime.strptime(input(), "%Y-%m-%d").date()
+
+    left = (due - today).days
+    if left < 0:
+        print(f"Overdue by {-left} days")
+    elif left == 0:
+        print("Due today")
+    else:
+        print(f"{left} days left")
+
+- slug: a-difference-in-a-leap-year
+  type: choice
+  title: A difference in a leap year
+  prompt: |
+    2024 is a leap year. What does this code show?
+
+    ```python
+    from datetime import date
+
+    gap = date(2024, 3, 1) - date(2024, 2, 28)
+    print(gap.days)
+    ```
+  options:
+    - "`1`"
+    - "`2`"
+    - "`3`"
+    - "`-2`"
+  correct: [1]
+  hint: Name the dates after 28 February 2024 one by one until you reach 1 March.
+  explanation: "In a leap year February has 29 days. From 28 February to 29 February is one day, then one more to 1 March, so the difference is 2. Python already accounts for leap years, so we do not have to work them out ourselves."

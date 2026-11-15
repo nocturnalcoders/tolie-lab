@@ -1,0 +1,136 @@
+- slug: a-subtotal-from-the-object
+  type: code
+  title: Subtotal dari objek
+  prompt: |
+    Tambahkan isi metode `subtotal(jumlah)` di kelas `ItemMenu`. Metode ini mengembalikan harga menu dikali `jumlah`.
+
+    Kode di bawah kelas membaca baris `nama,harga`, lalu satu baris berisi jumlah, dan mencetak `<jumlah> x <nama> = Rp<subtotal>`.
+  language: python
+  starter: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+        def subtotal(self, jumlah):
+            # kembalikan harga dikali jumlah
+            pass
+
+
+    nama, harga = input().split(",")
+    item = ItemMenu(nama, int(harga))
+    jumlah = int(input())
+    print(f"{jumlah} x {item.nama} = Rp{item.subtotal(jumlah)}")
+  hints:
+    - "Metode ini sudah menerima `jumlah`. Harga tidak dikirim sebagai parameter, karena sudah tersimpan di dalam objek."
+    - "Harga objek dibaca lewat `self`: `self.harga`."
+    - "Ganti `pass` dengan `return self.harga * jumlah`. Jangan lupa `return`, karena hasilnya dipakai oleh `print` di bawah."
+  tests:
+    - input: "kopi susu,15000\n2"
+      output: "2 x kopi susu = Rp30000"
+    - input: "roti bakar,18000\n1"
+      output: "1 x roti bakar = Rp18000"
+    - input: "teh tarik,12000\n5"
+      output: "5 x teh tarik = Rp60000"
+    - input: "es jeruk,10000\n0"
+      output: "0 x es jeruk = Rp0"
+  solution: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+        def subtotal(self, jumlah):
+            return self.harga * jumlah
+
+
+    nama, harga = input().split(",")
+    item = ItemMenu(nama, int(harga))
+    jumlah = int(input())
+    print(f"{jumlah} x {item.nama} = Rp{item.subtotal(jumlah)}")
+
+- slug: a-label-and-a-discount
+  type: code
+  title: Label dan diskon
+  prompt: |
+    Bu Rina sering memberi diskon pada satu menu, lalu ingin melihat labelnya sebelum dan sesudah. Tulis dua metode di kelas `ItemMenu`:
+
+    - `__str__` mengembalikan teks `<nama> (Rp<harga>)`
+    - `diskon(persen)` menurunkan `harga` sebesar `harga * persen // 100`
+
+    Kode di bawah kelas membaca baris `nama,harga`, lalu satu baris berisi persen diskon. Ia mencetak objeknya, memberi diskon, lalu mencetaknya sekali lagi.
+  language: python
+  starter: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+        # tulis metode __str__ dan diskon di sini
+
+
+    nama, harga = input().split(",")
+    item = ItemMenu(nama, int(harga))
+    persen = int(input())
+    print(item)
+    item.diskon(persen)
+    print(item)
+  hints:
+    - "Kedua metode ditulis menjorok di dalam kelas, sejajar dengan `def __init__`, dan parameter pertamanya `self`."
+    - "`__str__` hanya butuh satu baris: `return f\"{self.nama} (Rp{self.harga})\"`. Ia mengembalikan teks, bukan mencetak."
+    - "`def diskon(self, persen):` lalu `self.harga = self.harga - self.harga * persen // 100`. Metode ini mengubah atribut dan tidak perlu `return`."
+  tests:
+    - input: "kopi susu,15000\n20"
+      output: "kopi susu (Rp15000)\nkopi susu (Rp12000)"
+    - input: "roti bakar,18000\n15"
+      output: "roti bakar (Rp18000)\nroti bakar (Rp15300)"
+    - input: "teh tarik,12000\n0"
+      output: "teh tarik (Rp12000)\nteh tarik (Rp12000)"
+    - input: "es jeruk,10000\n100"
+      output: "es jeruk (Rp10000)\nes jeruk (Rp0)"
+  solution: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+        def __str__(self):
+            return f"{self.nama} (Rp{self.harga})"
+
+        def diskon(self, persen):
+            self.harga = self.harga - self.harga * persen // 100
+
+
+    nama, harga = input().split(",")
+    item = ItemMenu(nama, int(harga))
+    persen = int(input())
+    print(item)
+    item.diskon(persen)
+    print(item)
+
+- slug: a-method-without-self
+  type: choice
+  title: Metode tanpa self
+  prompt: |
+    Apa yang terjadi saat baris terakhir dijalankan?
+
+    ```python
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+        def subtotal(jumlah):
+            return self.harga * jumlah
+
+    kopi = ItemMenu("kopi susu", 15000)
+    print(kopi.subtotal(2))
+    ```
+  options:
+    - "Tampil `30000`"
+    - "Tampil `None`"
+    - "Error `TypeError`, karena `subtotal` menerima dua argumen padahal hanya punya satu parameter"
+    - "Error `ValueError`, karena `2` bukan harga"
+  correct: [2]
+  hint: Python selalu mengirim objeknya sendiri sebagai argumen pertama sebuah metode.
+  explanation: "`kopi.subtotal(2)` mengirim dua argumen: objek `kopi` dan angka `2`. Metode itu hanya menulis satu parameter, `jumlah`, jadi Python berhenti dengan `TypeError`. Perbaikannya: `def subtotal(self, jumlah):`."

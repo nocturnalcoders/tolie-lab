@@ -1,0 +1,189 @@
+- slug: parcel-summary-per-city
+  type: code
+  title: Rekap paket per kota
+  prompt: |
+    Baris pertama berisi `n`, lalu `n` baris berformat `resi,kota,berat` (berat dalam kg, bilangan bulat). Cetak rekap seperti ini:
+
+    ```
+    Jumlah paket: 5
+    Total berat: 23 kg
+    Bandung: 3 paket
+    Medan: 1 paket
+    Surabaya: 1 paket
+    Terberat: 1042 (9 kg)
+    ```
+
+    Kota diurutkan dari jumlah paket terbanyak. Jika jumlahnya sama, urut menurut abjad. `Terberat` adalah resi paket terberat. Jika ada berat yang sama, pilih yang lebih dulu masuk.
+
+    Jika `n` adalah 0, tidak ada baris kota dan baris terakhir menjadi `Terberat: -`.
+  language: python
+  starter: |
+    n = int(input())
+    paket = []
+    for _ in range(n):
+        resi, kota, berat = input().split(",")
+        paket.append({"resi": resi, "kota": kota, "berat": int(berat)})
+
+    per_kota = {}
+    total_berat = 0
+    terberat = None
+    # satu kali jalan: hitung paket per kota, jumlahkan berat,
+    # dan lacak paket terberat
+
+    print(f"Jumlah paket: {n}")
+    print(f"Total berat: {total_berat} kg")
+    # cetak kota dari yang terbanyak, lalu baris Terberat
+  hints:
+    - "Kerjakan tiga catatan dalam satu `for p in paket:`. Jumlah per kota: `per_kota[p[\"kota\"]] = per_kota.get(p[\"kota\"], 0) + 1`. Total berat: `total_berat += p[\"berat\"]`."
+    - "Paket terberat: `if terberat is None or p[\"berat\"] > terberat[\"berat\"]:` lalu `terberat = p`. Tanda `>` membuat paket yang lebih dulu masuk bertahan saat beratnya sama."
+    - "Untuk kota: buat fungsi `urutan(pasangan)` yang mengembalikan `(-jumlah, kota)`, lalu `for kota, jumlah in sorted(per_kota.items(), key=urutan):`. Baris terakhir: jika `terberat is None` cetak `Terberat: -`, selain itu `f\"Terberat: {terberat['resi']} ({terberat['berat']} kg)\"`."
+  tests:
+    - input: "5\n1042,Bandung,9\n1007,Surabaya,4\n1100,Bandung,2\n1015,Medan,5\n1063,Bandung,3"
+      output: "Jumlah paket: 5\nTotal berat: 23 kg\nBandung: 3 paket\nMedan: 1 paket\nSurabaya: 1 paket\nTerberat: 1042 (9 kg)"
+    - input: "0"
+      output: "Jumlah paket: 0\nTotal berat: 0 kg\nTerberat: -"
+    - input: "4\n2001,Solo,2\n2002,Medan,7\n2003,Solo,7\n2004,Medan,1"
+      output: "Jumlah paket: 4\nTotal berat: 17 kg\nMedan: 2 paket\nSolo: 2 paket\nTerberat: 2002 (7 kg)"
+    - input: "1\n3001,Jakarta,1"
+      output: "Jumlah paket: 1\nTotal berat: 1 kg\nJakarta: 1 paket\nTerberat: 3001 (1 kg)"
+  solution: |
+    def urutan(pasangan):
+        kota, jumlah = pasangan
+        return (-jumlah, kota)
+
+
+    n = int(input())
+    paket = []
+    for _ in range(n):
+        resi, kota, berat = input().split(",")
+        paket.append({"resi": resi, "kota": kota, "berat": int(berat)})
+
+    per_kota = {}
+    total_berat = 0
+    terberat = None
+    for p in paket:
+        per_kota[p["kota"]] = per_kota.get(p["kota"], 0) + 1
+        total_berat += p["berat"]
+        if terberat is None or p["berat"] > terberat["berat"]:
+            terberat = p
+
+    print(f"Jumlah paket: {n}")
+    print(f"Total berat: {total_berat} kg")
+    for kota, jumlah in sorted(per_kota.items(), key=urutan):
+        print(f"{kota}: {jumlah} paket")
+    if terberat is None:
+        print("Terberat: -")
+    else:
+        print(f"Terberat: {terberat['resi']} ({terberat['berat']} kg)")
+
+- slug: track-many-parcels
+  type: code
+  title: Lacak banyak resi
+  prompt: |
+    Baris pertama berisi `n`, lalu `n` baris berformat `resi,kota` dalam urutan **acak** (resi berupa angka). Setelah itu ada `q`, lalu `q` baris resi yang ditanyakan pelanggan.
+
+    Urutkan paket menurut resi **sekali** dengan `sorted`, lalu jawab setiap pertanyaan dengan pencarian biner (`kiri = 0`, `kanan = n - 1`, `tengah = (kiri + kanan) // 2`). Untuk setiap pertanyaan cetak kota tujuannya dan jumlah langkah, yaitu berapa kali isi `tengah` diperiksa. Di akhir, cetak jumlah seluruh langkah:
+
+    ```
+    1042: Bandung (1 langkah)
+    1100: Bandung (3 langkah)
+    1050: tidak ada (2 langkah)
+    Total langkah: 6
+    ```
+
+    Lengkapi fungsi `cari(data, dicari)` supaya mengembalikan `[kota, langkah]`, dengan `kota` berisi `"tidak ada"` jika resinya tidak ditemukan.
+  language: python
+  starter: |
+    def ambil_resi(p):
+        return p["resi"]
+
+
+    def cari(data, dicari):
+        kota = "tidak ada"
+        langkah = 0
+        # pencarian biner pada data yang sudah terurut menurut resi
+        return [kota, langkah]
+
+
+    n = int(input())
+    paket = []
+    for _ in range(n):
+        resi, kota = input().split(",")
+        paket.append({"resi": int(resi), "kota": kota})
+
+    # urutkan paket menurut resi sebelum mencari
+    data = paket
+
+    q = int(input())
+    total = 0
+    for _ in range(q):
+        dicari = int(input())
+        kota, langkah = cari(data, dicari)
+        total += langkah
+        print(f"{dicari}: {kota} ({langkah} langkah)")
+    print(f"Total langkah: {total}")
+  hints:
+    - "Ada dua tempat yang perlu diisi. Yang mudah dulu: ganti `data = paket` menjadi `data = sorted(paket, key=ambil_resi)`."
+    - "Di dalam `cari`, mulai dengan `kiri = 0` dan `kanan = len(data) - 1`, lalu `while kiri <= kanan:`. Hitung `tengah`, tambah `langkah`, dan bandingkan `data[tengah][\"resi\"]` dengan `dicari`."
+    - "Jika sama: `kota = data[tengah][\"kota\"]` lalu `break`. Jika `data[tengah][\"resi\"] < dicari`: `kiri = tengah + 1`. Selain itu: `kanan = tengah - 1`. Baris `return` yang sudah ada tidak perlu diubah."
+  tests:
+    - input: "5\n1042,Bandung\n1007,Surabaya\n1100,Bandung\n1015,Medan\n1063,Solo\n3\n1042\n1100\n1050"
+      output: "1042: Bandung (1 langkah)\n1100: Bandung (3 langkah)\n1050: tidak ada (2 langkah)\nTotal langkah: 6"
+    - input: "0\n2\n1001\n1002"
+      output: "1001: tidak ada (0 langkah)\n1002: tidak ada (0 langkah)\nTotal langkah: 0"
+    - input: "2\n1002,Medan\n1001,Solo\n0"
+      output: "Total langkah: 0"
+    - input: "8\n2080,Medan\n2070,Solo\n2060,Bandung\n2050,Jakarta\n2040,Medan\n2030,Solo\n2020,Bandung\n2010,Jakarta\n4\n2010\n2080\n2040\n2005"
+      output: "2010: Jakarta (3 langkah)\n2080: Medan (4 langkah)\n2040: Medan (1 langkah)\n2005: tidak ada (3 langkah)\nTotal langkah: 11"
+  solution: |
+    def ambil_resi(p):
+        return p["resi"]
+
+
+    def cari(data, dicari):
+        kota = "tidak ada"
+        langkah = 0
+        kiri = 0
+        kanan = len(data) - 1
+        while kiri <= kanan:
+            tengah = (kiri + kanan) // 2
+            langkah += 1
+            if data[tengah]["resi"] == dicari:
+                kota = data[tengah]["kota"]
+                break
+            elif data[tengah]["resi"] < dicari:
+                kiri = tengah + 1
+            else:
+                kanan = tengah - 1
+        return [kota, langkah]
+
+
+    n = int(input())
+    paket = []
+    for _ in range(n):
+        resi, kota = input().split(",")
+        paket.append({"resi": int(resi), "kota": kota})
+
+    data = sorted(paket, key=ambil_resi)
+
+    q = int(input())
+    total = 0
+    for _ in range(q):
+        dicari = int(input())
+        kota, langkah = cari(data, dicari)
+        total += langkah
+        print(f"{dicari}: {kota} ({langkah} langkah)")
+    print(f"Total langkah: {total}")
+
+- slug: choosing-the-right-method
+  type: choice
+  title: Memilih cara yang tepat
+  prompt: Gudang menyimpan 1.000 paket dalam urutan acak, dan dalam sehari ada ratusan pelanggan yang menanyakan resinya. Pernyataan mana yang **benar**?
+  options:
+    - "Pencarian linear selalu lebih cepat, karena tidak perlu mengurutkan"
+    - "Mengurutkan sekali lalu memakai pencarian biner lebih hemat: tiap pertanyaan paling banyak sekitar 10 langkah, bukan sampai 1.000"
+    - "Pencarian biner boleh langsung dipakai pada data acak, hasilnya sama saja"
+    - "Data harus diurutkan ulang sebelum setiap pertanyaan"
+  correct: [1]
+  hint: Bandingkan biaya mengurutkan satu kali dengan biaya ratusan pencarian satu per satu.
+  explanation: Mengurutkan memang ada biayanya, tetapi cukup dibayar sekali. Setelah itu setiap pencarian biner pada 1.000 paket paling banyak sekitar 10 langkah, sedangkan pencarian linear bisa sampai 1.000 langkah per pertanyaan. Makin sering pekerjaannya diulang, makin terasa bedanya. Pencarian biner pada data acak bisa memberi jawaban yang salah.

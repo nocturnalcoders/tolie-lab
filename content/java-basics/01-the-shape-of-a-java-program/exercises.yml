@@ -1,0 +1,152 @@
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang tercetak?
+  prompt: |
+    Apa yang tampil di layar setelah program ini dijalankan?
+
+    ```java
+    public class Toko {
+        public static void main(String[] args) {
+            System.out.print("Toko Buku ");
+            System.out.println("Lentera");
+            System.out.println("Buka pukul 9");
+        }
+    }
+    ```
+  options:
+    - "Tiga baris: `Toko Buku`, `Lentera`, `Buka pukul 9`"
+    - "Dua baris: `Toko Buku Lentera`, lalu `Buka pukul 9`"
+    - "Satu baris: `Toko Buku Lentera Buka pukul 9`"
+    - "Dua baris: `Toko Buku`, lalu `LenteraBuka pukul 9`"
+  correct: [1]
+  hint: Perhatikan perintah pertama. Itu `print`, bukan `println`. Mana yang pindah baris setelah mencetak?
+  explanation: >-
+    `print` mencetak `Toko Buku ` tanpa pindah baris, jadi `Lentera` menyambung di baris yang sama.
+    `println` yang kedua baru pindah baris, lalu `Buka pukul 9` tercetak di baris berikutnya.
+    Jawaban tiga baris menggoda kalau kamu menganggap setiap perintah cetak selalu membuat baris baru
+    seperti `print()` di Python; di Java hanya `println` yang begitu.
+
+- slug: which-line-does-the-compiler-reject
+  type: choice
+  title: Baris mana yang ditolak compiler?
+  prompt: |
+    `javac` menolak program ini. Baris mana penyebabnya, dan mengapa?
+
+    ```java
+    public class Sapa {                                  // baris 1
+        public static void main(String[] args) {         // baris 2
+            System.out.println("Selamat datang");        // baris 3
+            System.out.println("di Toko Buku Lentera")   // baris 4
+            System.out.println("Silakan lihat-lihat");   // baris 5
+        }
+    }
+    ```
+  options:
+    - "Baris 1, karena nama class harus diawali huruf kecil"
+    - "Baris 2, karena `args` tidak pernah dipakai"
+    - "Baris 4, karena perintahnya tidak diakhiri titik koma"
+    - "Tidak ada; titik koma di akhir baris boleh dihilangkan, seperti di Python"
+  correct: [2]
+  hint: Bandingkan ujung baris 3, 4, dan 5 sebelum komentarnya.
+  explanation: >-
+    Baris 4 tidak diakhiri `;`, dan compiler melaporkan `';' expected`. Karena kompilasi gagal,
+    tidak ada satu baris pun yang dijalankan, termasuk baris 3 yang sebenarnya benar.
+    Di Python baris baru sudah cukup untuk mengakhiri perintah, tetapi di Java tidak: titik koma wajib.
+    `args` yang tidak dipakai bukan kesalahan, dan nama class justru lazim diawali huruf besar.
+
+- slug: which-line-fills-the-blank
+  type: choice
+  title: Baris mana yang mengisi bagian kosong?
+  prompt: |
+    Program ini harus mencetak `Stok: 12 buku`. Baris mana yang benar untuk mengisi `_____`?
+
+    ```java
+    public class Label {
+        public static void main(String[] args) {
+            _____
+        }
+    }
+    ```
+  options:
+    - '`print("Stok: 12 buku")`'
+    - '`system.out.println("Stok: 12 buku");`'
+    - "`System.out.println('Stok: 12 buku');`"
+    - '`System.out.println("Stok: 12 buku");`'
+  correct: [3]
+  hint: "Periksa tiga hal: huruf besar pada `System`, jenis tanda kutip, dan titik koma."
+  explanation: >-
+    Yang benar adalah `System.out.println("Stok: 12 buku");`: `System` dengan S besar, teks dalam kutip
+    ganda, diakhiri titik koma. `print(...)` saja adalah cara Python; di Java tidak ada `print` yang
+    berdiri sendiri. `system` dengan huruf kecil tidak dikenal karena Java membedakan huruf besar dan
+    kecil. Kutip tunggal hanya untuk satu karakter seperti `'A'`, bukan untuk teks.
+
+- slug: compiling-and-running
+  type: choice
+  multiple: true
+  title: Kompilasi dan menjalankan
+  prompt: |
+    Sari menyimpan program pertamanya lalu mengetik `javac Toko.java` dan `java Toko`.
+    Pernyataan mana saja yang **benar**? (Bisa lebih dari satu.)
+  options:
+    - "`javac Toko.java` memeriksa kode dan menghasilkan berkas `Toko.class`"
+    - "Titik koma yang hilang baru ketahuan ketika program berjalan sampai ke baris itu"
+    - "`java Toko` menjalankan hasil kompilasi, mulai dari method `main`"
+    - "Class `public class Toko` harus disimpan di berkas bernama `Toko.java`"
+  correct: [0, 2, 3]
+  hint: Pikirkan urutannya. Siapa yang memeriksa kesalahan tulis, dan kapan?
+  explanation: >-
+    `javac` memeriksa seluruh berkas lalu menghasilkan `Toko.class`; `java Toko` menjalankannya mulai
+    dari `main`; dan class `public` harus berada di berkas dengan nama yang sama. Pernyataan tentang
+    titik koma salah: kesalahan tulis seperti itu ditemukan compiler **sebelum** program berjalan, jadi
+    programnya tidak pernah sampai mulai. Ini berbeda dari kebiasaan di Python, tempat banyak kesalahan
+    baru muncul ketika baris yang salah dijalankan.
+
+- slug: practice-book-label
+  type: code
+  required: false
+  title: "Latihan: label buku"
+  prompt: |
+    Program sudah membaca judul dan harga sebuah buku. Cetak **satu baris** berbentuk `<judul> - Rp<harga>`, misalnya `Laskar Pelangi - Rp85000`.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            String title = in.nextLine();
+            int price = in.nextInt();
+            // print: <title> - Rp<price>
+        }
+    }
+  hints:
+    - "Satu `System.out.println(...)` cukup."
+    - "Sambung teks dan variabel dengan `+`: `title + \" - Rp\" + price`."
+  tests:
+    - input: |
+        Laskar Pelangi
+        85000
+      output: |
+        Laskar Pelangi - Rp85000
+    - input: |
+        Bumi
+        99000
+      output: |
+        Bumi - Rp99000
+    - input: |
+        Atlas Dunia Edisi 2
+        150000
+      output: |
+        Atlas Dunia Edisi 2 - Rp150000
+  solution: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            String title = in.nextLine();
+            int price = in.nextInt();
+            System.out.println(title + " - Rp" + price);
+        }
+    }

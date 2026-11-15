@@ -1,0 +1,85 @@
+- slug: cart-total
+  type: code
+  title: Total belanja keranjang
+  prompt: |
+    Buat fungsi `totalBelanja(keranjang)` yang menerima array objek `{ nama, harga, jumlah }` dan mengembalikan total belanja sebagai **angka**: jumlah dari `harga * jumlah` setiap barang.
+
+    Contoh: Lampu Meja Rp85000 sebanyak 1 dan Lilin Aroma Rp30000 sebanyak 2 menghasilkan `145000`.
+
+    Keranjang kosong menghasilkan `0`.
+  language: javascript
+  starter: |
+    const totalBelanja = (keranjang) => {
+      // saat ini hanya menjumlahkan harga, jumlah barangnya belum dihitung
+      return keranjang.reduce((total, b) => total + b.harga, 0);
+    };
+  hints:
+    - 'Kode awal sudah memakai `reduce` dengan nilai awal `0`. Yang kurang hanya apa yang ditambahkan untuk setiap barang.'
+    - 'Satu barang menyumbang `b.harga * b.jumlah`, bukan `b.harga` saja.'
+    - 'Hasil akhirnya: `keranjang.reduce((total, b) => total + b.harga * b.jumlah, 0)`. Nilai awal `0` membuat keranjang kosong otomatis menghasilkan `0`.'
+  tests:
+    - input: 'console.log(totalBelanja([{ nama: "Lampu Meja", harga: 85000, jumlah: 1 }, { nama: "Lilin Aroma", harga: 30000, jumlah: 2 }]))'
+      output: "145000"
+    - input: 'console.log(totalBelanja([{ nama: "Lampu Tumblr", harga: 25000, jumlah: 4 }]))'
+      output: "100000"
+    - input: 'console.log(totalBelanja([]))'
+      output: "0"
+    - input: 'console.log(totalBelanja([{ nama: "Lampion Kertas", harga: 45000, jumlah: 3 }, { nama: "Kap Lampu Rotan", harga: 120000, jumlah: 0 }, { nama: "Lilin Aroma", harga: 30000, jumlah: 1 }]))'
+      output: "165000"
+  solution: |
+    const totalBelanja = (keranjang) =>
+      keranjang.reduce((total, b) => total + b.harga * b.jumlah, 0);
+
+- slug: stock-per-category
+  type: code
+  title: Stok per kategori
+  prompt: |
+    Mbak Laras ingin tahu jumlah stok untuk setiap kategori. Buat fungsi `stokPerKategori(produk)` yang menerima array objek `{ nama, kategori, stok }` dan mengembalikan **objek**: kuncinya nama kategori, nilainya jumlah `stok` semua produk di kategori itu.
+
+    Contoh: dua produk `lampu` dengan stok 4 dan 7, serta satu produk `lilin` dengan stok 5, menghasilkan `{"lampu":11,"lilin":5}`.
+
+    Urutan kunci mengikuti kategori yang lebih dulu muncul. Kategori yang stoknya 0 tetap dicantumkan. Array kosong menghasilkan `{}`.
+  language: javascript
+  starter: |
+    const stokPerKategori = (produk) => {
+      // pakai reduce dengan nilai awal objek kosong
+      return {};
+    };
+  hints:
+    - 'Polanya sama dengan menghitung kemunculan kategori di pelajaran: `reduce` dengan nilai awal `{}`. Bedanya, yang ditambahkan bukan 1 melainkan stok produknya.'
+    - 'Di dalam fungsinya, kunci yang dipakai adalah `p.kategori`: `catatan[p.kategori] = (catatan[p.kategori] || 0) + p.stok;`.'
+    - 'Lengkapnya: `produk.reduce((catatan, p) => { ...; return catatan; }, {})`. Tanpa `return catatan` di dalam, hasil berikutnya menjadi `undefined`.'
+  tests:
+    - input: 'console.log(stokPerKategori([{ nama: "Lampu Meja", kategori: "lampu", stok: 4 }, { nama: "Lilin Aroma", kategori: "lilin", stok: 5 }, { nama: "Lampu Tumblr", kategori: "lampu", stok: 7 }]))'
+      output: '{"lampu":11,"lilin":5}'
+    - input: 'console.log(stokPerKategori([{ nama: "Lilin Aroma", kategori: "lilin", stok: 5 }, { nama: "Lilin Batang", kategori: "lilin", stok: 12 }]))'
+      output: '{"lilin":17}'
+    - input: 'console.log(stokPerKategori([]))'
+      output: '{}'
+    - input: 'console.log(stokPerKategori([{ nama: "Lampion Kertas", kategori: "lampion", stok: 0 }, { nama: "Lampu Meja", kategori: "lampu", stok: 3 }, { nama: "Lampion Bambu", kategori: "lampion", stok: 0 }]))'
+      output: '{"lampion":0,"lampu":3}'
+  solution: |
+    const stokPerKategori = (produk) =>
+      produk.reduce((catatan, p) => {
+        catatan[p.kategori] = (catatan[p.kategori] || 0) + p.stok;
+        return catatan;
+      }, {});
+
+- slug: the-starting-value-of-reduce
+  type: choice
+  title: Nilai awal reduce
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```javascript
+    const terjual = [1, 2, 3];
+    console.log(terjual.reduce((jumlah, n) => jumlah + n, 10));
+    ```
+  options:
+    - "`6`"
+    - "`10`"
+    - "`60`"
+    - "`16`"
+  correct: [3]
+  hint: Dari angka berapa penjumlahannya dimulai?
+  explanation: 'Argumen kedua `reduce` adalah nilai awal, jadi penjumlahan dimulai dari `10`, bukan dari `0`: `10 + 1 = 11`, `11 + 2 = 13`, `13 + 3 = 16`.'

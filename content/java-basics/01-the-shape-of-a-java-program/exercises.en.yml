@@ -1,0 +1,152 @@
+- slug: what-does-it-print
+  type: choice
+  title: What does it print?
+  prompt: |
+    What appears on the screen when this program runs?
+
+    ```java
+    public class Shop {
+        public static void main(String[] args) {
+            System.out.print("Lentera ");
+            System.out.println("Bookshop");
+            System.out.println("Opens at 9");
+        }
+    }
+    ```
+  options:
+    - "Three lines: `Lentera`, `Bookshop`, `Opens at 9`"
+    - "Two lines: `Lentera Bookshop`, then `Opens at 9`"
+    - "One line: `Lentera Bookshop Opens at 9`"
+    - "Two lines: `Lentera`, then `BookshopOpens at 9`"
+  correct: [1]
+  hint: Look at the first statement. It is `print`, not `println`. Which one moves to a new line after printing?
+  explanation: >-
+    `print` writes `Lentera ` without moving to a new line, so `Bookshop` continues on the same line.
+    The second statement is `println`, which then ends the line, and `Opens at 9` goes on the next one.
+    The three-line answer is tempting if you assume every print statement starts a new line, the way
+    `print()` does in Python; in Java only `println` does that.
+
+- slug: which-line-does-the-compiler-reject
+  type: choice
+  title: Which line does the compiler reject?
+  prompt: |
+    `javac` refuses this program. Which line is the cause, and why?
+
+    ```java
+    public class Greeting {                              // line 1
+        public static void main(String[] args) {         // line 2
+            System.out.println("Welcome");               // line 3
+            System.out.println("to Lentera Bookshop")    // line 4
+            System.out.println("Have a look around");    // line 5
+        }
+    }
+    ```
+  options:
+    - "Line 1, because a class name must start with a lowercase letter"
+    - "Line 2, because `args` is never used"
+    - "Line 4, because the statement does not end with a semicolon"
+    - "None; the semicolon at the end of a line can be left out, as in Python"
+  correct: [2]
+  hint: Compare the ends of lines 3, 4 and 5, just before the comments.
+  explanation: >-
+    Line 4 does not end with `;`, and the compiler reports `';' expected`. Because compiling fails,
+    not a single line runs, including line 3, which is fine on its own. In Python a new line is enough
+    to end a statement, but not in Java: the semicolon is required. An unused `args` is not an error,
+    and class names normally do start with a capital letter.
+
+- slug: which-line-fills-the-blank
+  type: choice
+  title: Which line fills the blank?
+  prompt: |
+    This program must print `Stock: 12 books`. Which line correctly fills `_____`?
+
+    ```java
+    public class Label {
+        public static void main(String[] args) {
+            _____
+        }
+    }
+    ```
+  options:
+    - '`print("Stock: 12 books")`'
+    - '`system.out.println("Stock: 12 books");`'
+    - "`System.out.println('Stock: 12 books');`"
+    - '`System.out.println("Stock: 12 books");`'
+  correct: [3]
+  hint: "Check three things: the capital letter in `System`, the kind of quotes, and the semicolon."
+  explanation: >-
+    The right line is `System.out.println("Stock: 12 books");`: `System` with a capital S, the text in
+    double quotes, a semicolon at the end. A bare `print(...)` is the Python way; Java has no
+    stand-alone `print`. Lowercase `system` is unknown because Java is case-sensitive. Single quotes
+    are only for one character such as `'A'`, not for text.
+
+- slug: compiling-and-running
+  type: choice
+  multiple: true
+  title: Compiling and running
+  prompt: |
+    Sari saves her first program and types `javac Shop.java` and then `java Shop`.
+    Which statements are **true**? (There may be more than one.)
+  options:
+    - "`javac Shop.java` checks the code and produces the file `Shop.class`"
+    - "A missing semicolon is only discovered when the running program reaches that line"
+    - "`java Shop` runs the compiled result, starting at the `main` method"
+    - "The class `public class Shop` must be saved in a file named `Shop.java`"
+  correct: [0, 2, 3]
+  hint: Think about the order. Who checks for mistakes, and when?
+  explanation: >-
+    `javac` checks the whole file and produces `Shop.class`; `java Shop` runs it starting at `main`;
+    and a `public` class must live in a file with the same name. The statement about the semicolon is
+    false: a mistake like that is found by the compiler **before** the program runs, so the program
+    never even starts. That differs from what you are used to in Python, where many mistakes only
+    appear when the faulty line is executed.
+
+- slug: practice-book-label
+  type: code
+  required: false
+  title: "Practice: a book label"
+  prompt: |
+    The program already reads a book's title and price. Print **one line** shaped like `<title> - Rp<price>`, for example `Laskar Pelangi - Rp85000`.
+
+    This exercise is optional. Your code runs on the server, and the daily allowance is small.
+  starter: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            String title = in.nextLine();
+            int price = in.nextInt();
+            // print: <title> - Rp<price>
+        }
+    }
+  hints:
+    - "One `System.out.println(...)` is enough."
+    - "Join text and variables with `+`: `title + \" - Rp\" + price`."
+  tests:
+    - input: |
+        Laskar Pelangi
+        85000
+      output: |
+        Laskar Pelangi - Rp85000
+    - input: |
+        Bumi
+        99000
+      output: |
+        Bumi - Rp99000
+    - input: |
+        Atlas Dunia Edisi 2
+        150000
+      output: |
+        Atlas Dunia Edisi 2 - Rp150000
+  solution: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            String title = in.nextLine();
+            int price = in.nextInt();
+            System.out.println(title + " - Rp" + price);
+        }
+    }

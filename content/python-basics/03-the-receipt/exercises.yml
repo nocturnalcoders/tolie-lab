@@ -1,63 +1,63 @@
 - slug: print-the-receipt
   type: code
-  title: Print the receipt
+  title: Cetak struk
   prompt: |
-    Read the customer name, the item name, the price, and the quantity (four lines). Print a three-line receipt in exactly the format of the example in the lesson:
+    Baca nama pelanggan, nama item, harga, dan jumlah (empat baris). Cetak struk tiga baris dengan format persis seperti contoh di materi:
 
     ```
-    Receipt for Budi
-    2 x Milk Coffee @ Rp15000
+    Struk untuk Budi
+    2 x Kopi Susu @ Rp15000
     Total: Rp30000
     ```
   language: python
   starter: |
-    name = input()
+    nama = input()
     item = input()
-    price = int(input())
-    quantity = int(input())
-    # print the receipt below
-  hint: Use an f-string, and calculate the total inside the braces or store it in a variable first.
+    harga = int(input())
+    jumlah = int(input())
+    # cetak struk di bawah ini
+  hint: Pakai f-string, dan hitung total langsung di dalam kurung kurawal atau simpan dulu di variabel.
   tests:
-    - input: "Budi\nMilk Coffee\n15000\n2"
-      output: "Receipt for Budi\n2 x Milk Coffee @ Rp15000\nTotal: Rp30000"
-    - input: "Siti\nToast\n18000\n1"
-      output: "Receipt for Siti\n1 x Toast @ Rp18000\nTotal: Rp18000"
+    - input: "Budi\nKopi Susu\n15000\n2"
+      output: "Struk untuk Budi\n2 x Kopi Susu @ Rp15000\nTotal: Rp30000"
+    - input: "Siti\nRoti Bakar\n18000\n1"
+      output: "Struk untuk Siti\n1 x Roti Bakar @ Rp18000\nTotal: Rp18000"
   solution: |
-    name = input()
+    nama = input()
     item = input()
-    price = int(input())
-    quantity = int(input())
-    print(f"Receipt for {name}")
-    print(f"{quantity} x {item} @ Rp{price}")
-    print(f"Total: Rp{price * quantity}")
+    harga = int(input())
+    jumlah = int(input())
+    print(f"Struk untuk {nama}")
+    print(f"{jumlah} x {item} @ Rp{harga}")
+    print(f"Total: Rp{harga * jumlah}")
 
 - slug: quiz-fstring
   type: choice
-  title: What appears?
+  title: Apa yang tampil?
   prompt: |
-    What appears on the screen?
+    Apa yang tampil di layar?
 
     ```python
     x = 3
-    print(f"{x + 1} cups")
+    print(f"{x + 1} cangkir")
     ```
   options:
-    - "`{x + 1} cups`"
-    - "`4 cups`"
-    - "`3 cups`"
-    - "An error, because of the curly braces"
+    - "`{x + 1} cangkir`"
+    - "`4 cangkir`"
+    - "`3 cangkir`"
+    - "Error, karena ada kurung kurawal"
   correct: [1]
-  hint: What is inside the curly braces is calculated first.
-  explanation: Inside an f-string, the contents of the curly braces are calculated and put into the text. `3 + 1` gives `4`.
+  hint: Yang ada di dalam kurung kurawal dihitung dulu.
+  explanation: Di dalam f-string, isi kurung kurawal dihitung lalu dimasukkan ke teks. `3 + 1` hasilnya `4`.
 
 - slug: quiz-input-type
   type: choice
-  title: The type of input
-  prompt: What is the data type of the result of `input()`?
+  title: Tipe dari input
+  prompt: Apa tipe data hasil dari `input()`?
   options:
-    - "`str` (text), whatever was typed"
-    - "`int`, because the user typed a number"
-    - "`float`, because it can be decimal"
-    - "It depends on what the user types"
+    - "`str` (teks), apa pun yang diketik"
+    - "`int`, karena yang diketik angka"
+    - "`float`, karena bisa desimal"
+    - "Tergantung apa yang diketik pengguna"
   correct: [0]
-  explanation: "`input()` always gives text. That is why we use `int()` to turn it into a number."
+  explanation: "`input()` selalu menghasilkan teks. Itu sebabnya kita memakai `int()` untuk mengubahnya menjadi angka."

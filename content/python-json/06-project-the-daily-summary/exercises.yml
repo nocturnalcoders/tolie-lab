@@ -1,0 +1,294 @@
+- slug: the-daily-report-as-text
+  type: code
+  title: Laporan harian sebagai teks
+  prompt: |
+    Satu baris masukan berisi daftar pesanan hari itu. Setiap pesanan punya `id`, `pelanggan`, `status` (`selesai` atau `batal`), dan biasanya `item` (daftar objek dengan kunci `menu`, `jumlah`, dan `harga`). Sebagian pesanan datang **tanpa** kunci `item`. Anggap pesanan itu tidak berisi apa-apa.
+
+    Lengkapi fungsi `total_pesanan`, lalu cetak laporan empat baris. Omzet dan menu terlaris hanya dihitung dari pesanan yang selesai:
+
+    ```
+    Pesanan selesai: <banyaknya>
+    Pesanan batal: <banyaknya>
+    Omzet: <jumlah total pesanan selesai, format rupiah>
+    Terlaris: <menu dengan porsi terjual terbanyak> (<jumlahnya>)
+    ```
+
+    Jika ada menu yang sama banyak, pilih yang lebih awal menurut abjad. Jika tidak ada yang terjual, baris terakhir menjadi `Terlaris: -`.
+  starter: |
+    import json
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    def total_pesanan(pesanan):
+        # jumlahkan jumlah dikali harga dari setiap item; item bisa tidak ada
+        return 0
+
+
+    daftar = json.loads(input())
+    selesai = 0
+    batal = 0
+    omzet = 0
+    terjual = {}
+    for pesanan in daftar:
+        # hitung selesai dan batal, lalu kumpulkan omzet dan terjual
+        pass
+
+    terlaris = "-"
+    terbanyak = 0
+    # cari menu terlaris dari terjual
+
+    print(f"Pesanan selesai: {selesai}")
+    print(f"Pesanan batal: {batal}")
+    print(f"Omzet: {rupiah(omzet)}")
+    print(f"Terlaris: {terlaris}")
+  hints:
+    - >-
+      Kerjakan tiga bagian satu per satu. Pertama `total_pesanan`: ulang `pesanan.get("item", [])` dan jumlahkan `item["jumlah"] * item["harga"]`, seperti di materi.
+    - >-
+      Di perulangan utama: jika statusnya bukan `selesai`, tambah `batal`. Selain itu tambah `selesai`, tambahkan `total_pesanan(pesanan)` ke `omzet`, dan untuk setiap item tulis `terjual[item["menu"]] = terjual.get(item["menu"], 0) + item["jumlah"]`.
+    - >-
+      Untuk menu terlaris, ulang `for menu in sorted(terjual):` dan perbarui `terlaris` dan `terbanyak` hanya jika `terjual[menu] > terbanyak`. Baris terakhir menjadi `f"Terlaris: {terlaris} ({terbanyak})"` jika `terbanyak` lebih dari 0, selain itu `Terlaris: -`.
+  tests:
+    - input: |
+        [{"id": "AM-1021", "pelanggan": "Dewi", "status": "selesai", "item": [{"menu": "nasi rendang", "jumlah": 2, "harga": 28000}, {"menu": "es teh manis", "jumlah": 2, "harga": 6000}]}, {"id": "AM-1022", "pelanggan": "Budi", "status": "batal", "item": [{"menu": "ayam geprek", "jumlah": 3, "harga": 22000}]}, {"id": "AM-1023", "pelanggan": "André", "status": "selesai", "item": [{"menu": "nasi rendang", "jumlah": 3, "harga": 28000}, {"menu": "sate ayam", "jumlah": 1, "harga": 25000}]}, {"id": "AM-1024", "pelanggan": "Dewi", "status": "selesai", "item": [{"menu": "es teh manis", "jumlah": 4, "harga": 6000}]}]
+      output: |
+        Pesanan selesai: 3
+        Pesanan batal: 1
+        Omzet: Rp201.000
+        Terlaris: es teh manis (6)
+    - input: |
+        [{"id": "AM-1030", "pelanggan": "Tari", "status": "selesai", "item": [{"menu": "sate ayam", "jumlah": 2, "harga": 25000}]}, {"id": "AM-1031", "pelanggan": "Agus", "status": "selesai", "item": [{"menu": "ayam geprek", "jumlah": 2, "harga": 22000}]}]
+      output: |
+        Pesanan selesai: 2
+        Pesanan batal: 0
+        Omzet: Rp94.000
+        Terlaris: ayam geprek (2)
+    - input: |
+        []
+      output: |
+        Pesanan selesai: 0
+        Pesanan batal: 0
+        Omzet: Rp0
+        Terlaris: -
+    - input: |
+        [{"id": "AM-1040", "pelanggan": "Tari", "status": "selesai"}, {"id": "AM-1041", "pelanggan": "Agus", "status": "selesai", "item": [{"menu": "nasi rendang", "jumlah": 40, "harga": 28000}]}]
+      output: |
+        Pesanan selesai: 2
+        Pesanan batal: 0
+        Omzet: Rp1.120.000
+        Terlaris: nasi rendang (40)
+    - input: |
+        [{"id": "AM-1050", "pelanggan": "Budi", "status": "batal", "item": [{"menu": "sate ayam", "jumlah": 5, "harga": 25000}]}]
+      output: |
+        Pesanan selesai: 0
+        Pesanan batal: 1
+        Omzet: Rp0
+        Terlaris: -
+  solution: |
+    import json
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    def total_pesanan(pesanan):
+        total = 0
+        for item in pesanan.get("item", []):
+            total += item["jumlah"] * item["harga"]
+        return total
+
+
+    daftar = json.loads(input())
+    selesai = 0
+    batal = 0
+    omzet = 0
+    terjual = {}
+    for pesanan in daftar:
+        if pesanan["status"] != "selesai":
+            batal += 1
+            continue
+        selesai += 1
+        omzet += total_pesanan(pesanan)
+        for item in pesanan.get("item", []):
+            terjual[item["menu"]] = terjual.get(item["menu"], 0) + item["jumlah"]
+
+    terlaris = "-"
+    terbanyak = 0
+    for menu in sorted(terjual):
+        if terjual[menu] > terbanyak:
+            terbanyak = terjual[menu]
+            terlaris = menu
+
+    print(f"Pesanan selesai: {selesai}")
+    print(f"Pesanan batal: {batal}")
+    print(f"Omzet: {rupiah(omzet)}")
+    if terbanyak > 0:
+        print(f"Terlaris: {terlaris} ({terbanyak})")
+    else:
+        print("Terlaris: -")
+
+- slug: the-daily-report-as-json
+  type: code
+  title: Laporan harian sebagai JSON
+  prompt: |
+    Masukannya sama seperti latihan sebelumnya: satu baris berisi daftar pesanan, dan sebagian pesanan bisa datang tanpa kunci `item`. Fungsi `total_pesanan` sudah tersedia.
+
+    Kali ini susun ringkasan untuk aplikasi pembukuan, dihitung **hanya dari pesanan yang selesai** (kecuali `pesanan_batal`):
+
+    - `omzet`: jumlah total pesanan
+    - `pelanggan`: daftar nama pelanggan tanpa pengulangan, diurutkan menurut abjad
+    - `pesanan_batal` dan `pesanan_selesai`: banyaknya pesanan
+    - `terjual`: objek berisi porsi terjual untuk setiap menu
+
+    Cetak dengan `indent=2`, kunci berurutan menurut abjad, dan nama tampil apa adanya:
+
+    ```
+    {
+      "omzet": 56000,
+      "pelanggan": [
+        "Dewi"
+      ],
+      "pesanan_batal": 1,
+      "pesanan_selesai": 1,
+      "terjual": {
+        "nasi rendang": 2
+      }
+    }
+    ```
+  starter: |
+    import json
+
+
+    def total_pesanan(pesanan):
+        total = 0
+        for item in pesanan.get("item", []):
+            total += item["jumlah"] * item["harga"]
+        return total
+
+
+    daftar = json.loads(input())
+    ringkasan = {}
+    # kumpulkan omzet, pelanggan (set), jumlah pesanan, dan terjual,
+    # lalu masukkan ke ringkasan
+
+    print(json.dumps(ringkasan))
+  hints:
+    - >-
+      Siapkan wadahnya sebelum perulangan: `selesai = 0`, `batal = 0`, `omzet = 0`, `pelanggan = set()`, dan `terjual = {}`. Pengumpulannya sama seperti laporan teks, ditambah `pelanggan.add(pesanan["pelanggan"])` untuk pesanan yang selesai.
+    - >-
+      Setelah perulangan, susun `ringkasan = {"omzet": omzet, "pelanggan": sorted(pelanggan), "pesanan_batal": batal, "pesanan_selesai": selesai, "terjual": terjual}`. Set harus diubah dengan `sorted`, karena `json.dumps` tidak menerima set.
+    - >-
+      Cetak dengan `print(json.dumps(ringkasan, indent=2, sort_keys=True, ensure_ascii=False))`. Kunci di dalam `terjual` ikut diurutkan oleh `sort_keys`.
+  tests:
+    - input: |
+        [{"id": "AM-1021", "pelanggan": "Dewi", "status": "selesai", "item": [{"menu": "nasi rendang", "jumlah": 2, "harga": 28000}, {"menu": "es teh manis", "jumlah": 2, "harga": 6000}]}, {"id": "AM-1022", "pelanggan": "Budi", "status": "batal", "item": [{"menu": "ayam geprek", "jumlah": 3, "harga": 22000}]}, {"id": "AM-1023", "pelanggan": "André", "status": "selesai", "item": [{"menu": "nasi rendang", "jumlah": 3, "harga": 28000}, {"menu": "sate ayam", "jumlah": 1, "harga": 25000}]}, {"id": "AM-1024", "pelanggan": "Dewi", "status": "selesai", "item": [{"menu": "es teh manis", "jumlah": 4, "harga": 6000}]}]
+      output: |
+        {
+          "omzet": 201000,
+          "pelanggan": [
+            "André",
+            "Dewi"
+          ],
+          "pesanan_batal": 1,
+          "pesanan_selesai": 3,
+          "terjual": {
+            "es teh manis": 6,
+            "nasi rendang": 5,
+            "sate ayam": 1
+          }
+        }
+    - input: |
+        [{"id": "AM-1040", "pelanggan": "Tari", "status": "selesai"}, {"id": "AM-1041", "pelanggan": "Agus", "status": "selesai", "item": [{"menu": "nasi rendang", "jumlah": 40, "harga": 28000}]}]
+      output: |
+        {
+          "omzet": 1120000,
+          "pelanggan": [
+            "Agus",
+            "Tari"
+          ],
+          "pesanan_batal": 0,
+          "pesanan_selesai": 2,
+          "terjual": {
+            "nasi rendang": 40
+          }
+        }
+    - input: |
+        []
+      output: |
+        {
+          "omzet": 0,
+          "pelanggan": [],
+          "pesanan_batal": 0,
+          "pesanan_selesai": 0,
+          "terjual": {}
+        }
+    - input: |
+        [{"id": "AM-1050", "pelanggan": "Budi", "status": "batal", "item": [{"menu": "sate ayam", "jumlah": 5, "harga": 25000}]}]
+      output: |
+        {
+          "omzet": 0,
+          "pelanggan": [],
+          "pesanan_batal": 1,
+          "pesanan_selesai": 0,
+          "terjual": {}
+        }
+  solution: |
+    import json
+
+
+    def total_pesanan(pesanan):
+        total = 0
+        for item in pesanan.get("item", []):
+            total += item["jumlah"] * item["harga"]
+        return total
+
+
+    daftar = json.loads(input())
+    selesai = 0
+    batal = 0
+    omzet = 0
+    pelanggan = set()
+    terjual = {}
+    for pesanan in daftar:
+        if pesanan["status"] != "selesai":
+            batal += 1
+            continue
+        selesai += 1
+        omzet += total_pesanan(pesanan)
+        pelanggan.add(pesanan["pelanggan"])
+        for item in pesanan.get("item", []):
+            terjual[item["menu"]] = terjual.get(item["menu"], 0) + item["jumlah"]
+
+    ringkasan = {
+        "omzet": omzet,
+        "pelanggan": sorted(pelanggan),
+        "pesanan_batal": batal,
+        "pesanan_selesai": selesai,
+        "terjual": terjual,
+    }
+    print(json.dumps(ringkasan, indent=2, sort_keys=True, ensure_ascii=False))
+
+- slug: sets-and-json-dumps
+  type: choice
+  title: Set dan json.dumps
+  prompt: |
+    Apa yang terjadi saat kode ini dijalankan?
+
+    ```python
+    import json
+
+    pelanggan = {"Dewi", "Budi"}
+    print(json.dumps({"pelanggan": pelanggan}))
+    ```
+  options:
+    - 'Tampil `{"pelanggan": ["Budi", "Dewi"]}`'
+    - 'Tampil `{"pelanggan": {"Dewi", "Budi"}}`'
+    - "Program berhenti dengan `TypeError`, karena set tidak bisa dijadikan JSON"
+    - "Program berhenti dengan `json.JSONDecodeError`"
+  correct: [2]
+  hint: Kurung kurawal tanpa pasangan kunci dan nilai membuat set, bukan dictionary.
+  explanation: "`{\"Dewi\", \"Budi\"}` adalah set, dan JSON tidak punya jenis data untuk set. `json.dumps` berhenti dengan `TypeError`. Ubah dulu dengan `sorted(pelanggan)`: hasilnya list yang diterima `json.dumps`, dan urutannya pun pasti. `JSONDecodeError` hanya muncul saat membaca teks dengan `json.loads`."

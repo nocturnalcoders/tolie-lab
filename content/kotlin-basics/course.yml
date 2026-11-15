@@ -1,0 +1,29 @@
+slug: kotlin-basics
+title: "Kotlin Dasar: Membaca dan Memahami Kode"
+language: kotlin
+locale: id
+level: Pemula
+kind: course
+price_idr: 0
+status: published
+position: 19
+summary: >-
+  Belajar membaca Kotlin lewat aplikasi kasir Android pertama milik sebuah laundry kiloan:
+  val dan var, tipe data, if dan when, null safety, fungsi, koleksi, sampai data class.
+  Untuk kamu yang sudah mengenal dasar pemrograman, misalnya dari kursus Python dasar.
+perks:
+  - 6 pelajaran dan 24 soal pilihan ganda
+  - "Kursus membaca kode: Kotlin tidak dijalankan di browser, kamu menelusuri kode lalu menjawab soal"
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie
+translations:
+  en:
+    title: "Kotlin Basics: Reading and Understanding Code"
+    level: Beginner
+    summary: >-
+      Learn to read Kotlin through the first Android cashier app of a small laundry:
+      val and var, types, if and when, null safety, functions, collections and data classes.
+      For people who already know a little programming, for example from a Python basics course.
+    perks:
+      - 6 lessons and 24 multiple-choice questions
+      - "A code-reading course: Kotlin is not run in the browser, you trace the code and answer questions"
+      - A completion certificate from tolie.space, signed by Christianto Lie

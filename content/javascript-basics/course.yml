@@ -1,0 +1,31 @@
+slug: javascript-basics
+title: JavaScript Dasar untuk Toko Online
+language: javascript
+locale: id
+level: Pemula
+kind: course
+price_idr: 0
+status: published
+position: 10
+summary: >-
+  Belajar JavaScript dari nol sambil membantu Rajut Sekar, sebuah toko online
+  kecil yang menjual barang rajutan: menampilkan produk, menghitung harga dengan
+  fungsi, mengatur ongkos kirim, mengolah daftar pesanan, sampai menghitung total
+  keranjang belanja.
+perks:
+  - 6 pelajaran, 12 latihan kode, dan 6 soal pilihan ganda
+  - Semua latihan dijalankan langsung di browser
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie
+translations:
+  en:
+    title: JavaScript Basics for an Online Shop
+    level: Beginner
+    summary: >-
+      Learn JavaScript from scratch while helping Sekar Knits, a small online
+      shop that sells knitted goods: showing products, working out prices with
+      functions, setting shipping fees, handling lists of orders, and finally
+      adding up the total of a shopping cart.
+    perks:
+      - 6 lessons, 12 coding exercises and 6 multiple-choice questions
+      - Every exercise runs right in your browser, nothing to install
+      - A completion certificate from tolie.space, signed by Christianto Lie

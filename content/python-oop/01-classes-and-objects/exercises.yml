@@ -1,0 +1,136 @@
+- slug: the-first-menu-item
+  type: code
+  title: Menu pertama
+  prompt: |
+    Bu Rina ingin setiap menu menjadi satu objek. Lengkapi `__init__` di kelas `ItemMenu` supaya setiap objek menyimpan atribut `nama` dan `harga`.
+
+    Kode di bawah kelas sudah membaca satu baris berformat `nama,harga`, membuat objeknya, lalu mencetak:
+
+    ```
+    Menu: <nama>
+    Harga: Rp<harga>
+    ```
+  language: python
+  starter: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            # simpan nama dan harga ke dalam objek
+            pass
+
+
+    nama, harga = input().split(",")
+    item = ItemMenu(nama, int(harga))
+    print(f"Menu: {item.nama}")
+    print(f"Harga: Rp{item.harga}")
+  hints:
+    - "Saat ini `__init__` menerima `nama` dan `harga`, tetapi tidak menyimpannya di mana pun. Karena itu `item.nama` belum ada."
+    - "Atribut dibuat dengan menulis ke `self`: `self.nama = nama`."
+    - "Ganti `pass` dengan dua baris: `self.nama = nama` dan `self.harga = harga`."
+  tests:
+    - input: "kopi susu,15000"
+      output: "Menu: kopi susu\nHarga: Rp15000"
+    - input: "roti bakar,18000"
+      output: "Menu: roti bakar\nHarga: Rp18000"
+    - input: "es jeruk,10000"
+      output: "Menu: es jeruk\nHarga: Rp10000"
+    - input: "air putih,0"
+      output: "Menu: air putih\nHarga: Rp0"
+  solution: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+
+    nama, harga = input().split(",")
+    item = ItemMenu(nama, int(harga))
+    print(f"Menu: {item.nama}")
+    print(f"Harga: Rp{item.harga}")
+
+- slug: the-most-expensive-item
+  type: code
+  title: Menu termahal
+  prompt: |
+    Baris pertama berisi `n` (paling sedikit 1), lalu `n` baris berformat `nama,harga`.
+
+    Buat satu objek `ItemMenu` untuk setiap baris dan kumpulkan di list `daftar`. Kode awal sudah mencetak semua menu. Tugasmu yang kedua: cari objek dengan harga tertinggi supaya baris terakhir menampilkan `Termahal: <nama>`. Jika ada harga tertinggi yang sama, pilih yang lebih dulu masuk.
+  language: python
+  starter: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+
+    n = int(input())
+    daftar = []
+    for _ in range(n):
+        nama, harga = input().split(",")
+        # buat objek ItemMenu, lalu tambahkan ke daftar
+
+    for m in daftar:
+        print(f"{m.nama} - Rp{m.harga}")
+
+    termahal = daftar[0]
+    # periksa setiap objek di daftar; simpan yang harganya lebih tinggi
+    print(f"Termahal: {termahal.nama}")
+  hints:
+    - "Ada dua bagian yang kosong: mengisi `daftar` dengan objek, lalu membandingkan harga setiap objek dengan `termahal`."
+    - "Bagian pertama: `daftar.append(ItemMenu(nama, int(harga)))`. Harga harus diubah ke angka supaya bisa dibandingkan."
+    - "Bagian kedua: `for m in daftar:` lalu `if m.harga > termahal.harga:` isi `termahal = m`. Pakai `>` (bukan `>=`) supaya yang lebih dulu masuk tetap terpilih saat harganya sama."
+  tests:
+    - input: "3\nkopi susu,15000\nroti bakar,18000\nes jeruk,10000"
+      output: "kopi susu - Rp15000\nroti bakar - Rp18000\nes jeruk - Rp10000\nTermahal: roti bakar"
+    - input: "1\nteh tarik,12000"
+      output: "teh tarik - Rp12000\nTermahal: teh tarik"
+    - input: "3\nteh tarik,12000\nkopi susu,15000\nkopi hitam,15000"
+      output: "teh tarik - Rp12000\nkopi susu - Rp15000\nkopi hitam - Rp15000\nTermahal: kopi susu"
+    - input: "2\nes jeruk,10000\nteh tarik,9000"
+      output: "es jeruk - Rp10000\nteh tarik - Rp9000\nTermahal: es jeruk"
+  solution: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+
+    n = int(input())
+    daftar = []
+    for _ in range(n):
+        nama, harga = input().split(",")
+        daftar.append(ItemMenu(nama, int(harga)))
+
+    for m in daftar:
+        print(f"{m.nama} - Rp{m.harga}")
+
+    termahal = daftar[0]
+    for m in daftar:
+        if m.harga > termahal.harga:
+            termahal = m
+    print(f"Termahal: {termahal.nama}")
+
+- slug: two-objects-two-sets-of-data
+  type: choice
+  title: Dua objek, dua data
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```python
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+    a = ItemMenu("kopi susu", 15000)
+    b = ItemMenu("kopi susu", 15000)
+    b.harga = 17000
+    print(a.harga)
+    ```
+  options:
+    - "`15000`"
+    - "`17000`"
+    - "`32000`"
+    - "Error `AttributeError`"
+  correct: [0]
+  hint: "`a` dan `b` dibuat dengan dua pemanggilan `ItemMenu(...)` yang terpisah."
+  explanation: "Setiap pemanggilan `ItemMenu(...)` membuat objek baru dengan atributnya sendiri. Isi `a` dan `b` memang sama di awal, tetapi keduanya objek yang berbeda, jadi mengubah `b.harga` tidak mengubah `a.harga`."

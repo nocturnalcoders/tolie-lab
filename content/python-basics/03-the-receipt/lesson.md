@@ -1,47 +1,47 @@
 ---
-title: The receipt
+title: Struk belanja
 ---
-Every customer wants a receipt. We need to combine text and numbers into one tidy sentence.
+Setiap pembeli minta struk. Kita perlu menggabungkan teks dan angka menjadi satu kalimat yang rapi.
 
-## Data types
+## Tipe data
 
-| Type | Example | Used for |
+| Tipe | Contoh | Dipakai untuk |
 | --- | --- | --- |
-| `str` | `"Milk Coffee"` | text |
-| `int` | `15000` | whole numbers |
-| `float` | `4.5` | decimal numbers |
+| `str` | `"Kopi Susu"` | teks |
+| `int` | `15000` | angka bulat |
+| `float` | `4.5` | angka desimal |
 
-Ask Python for the type with `type`:
-
-```python
-print(type("Coffee"))   # <class 'str'>
-print(type(15000))      # <class 'int'>
-```
-
-## f-strings
-
-Start the text with `f` and put values inside curly braces:
+Tanya Python tipenya dengan `type`:
 
 ```python
-name = "Budi"
-quantity = 2
-print(f"{name} bought {quantity} cups")
+print(type("Kopi"))   # <class 'str'>
+print(type(15000))    # <class 'int'>
 ```
 
-The result:
+## f-string
+
+Awali teks dengan `f` dan taruh nilai di dalam kurung kurawal:
+
+```python
+nama = "Budi"
+jumlah = 2
+print(f"{nama} membeli {jumlah} cangkir")
+```
+
+Hasilnya:
 
 ```
-Budi bought 2 cups
+Budi membeli 2 cangkir
 ```
 
-You can even calculate inside the braces, for example `{price * quantity}`.
+Di dalam kurung kurawal boleh ada hitungan, misalnya `{harga * jumlah}`.
 
-## The receipt
+## Struk
 
-The receipt we want looks like this:
+Struk yang kita mau terlihat seperti ini:
 
 ```
-Receipt for Budi
-2 x Milk Coffee @ Rp15000
+Struk untuk Budi
+2 x Kopi Susu @ Rp15000
 Total: Rp30000
 ```

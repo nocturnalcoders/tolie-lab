@@ -1,0 +1,158 @@
+- slug: a-one-line-function
+  type: choice
+  title: Fungsi satu baris
+  prompt: |
+    Dimas menulis fungsi ini:
+
+    ```kotlin
+    fun hitungTotal(berat: Int, tarif: Int = 7000) = berat * tarif
+    ```
+
+    Pilih **semua** pernyataan yang benar.
+  multiple: true
+  options:
+    - "`hitungTotal(3)` menghasilkan `21000`, karena `tarif` memakai nilai bawaannya"
+    - "`hitungTotal(3, 12000)` menghasilkan `36000`"
+    - "`tarif` selalu `7000` dan tidak bisa diganti saat fungsi dipanggil"
+    - "Tipe hasilnya `Int`, disimpulkan Kotlin dari `berat * tarif`"
+    - "Fungsi ini tidak sah, karena tidak punya `{ }` dan `return`"
+  correct: [0, 1, 3]
+  hint: Nilai bawaan hanya dipakai kalau pemanggil tidak mengisi parameternya.
+  explanation: >-
+    `tarif: Int = 7000` adalah nilai bawaan: `hitungTotal(3)` memakai 7000 dan menghasilkan
+    21000, sedangkan `hitungTotal(3, 12000)` memakai 12000 dan menghasilkan 36000. Jadi `tarif`
+    bisa diganti. Fungsi dengan satu ekspresi boleh ditulis dengan `=` tanpa `{ }` dan `return`,
+    dan tipe hasilnya disimpulkan: `Int` dikali `Int` adalah `Int`.
+
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang dicetak?
+  prompt: |
+    Apa yang dicetak program ini?
+
+    ```kotlin
+    fun main() {
+        val berat = listOf(2, 6, 3, 8)
+        val besar = berat.filter { it >= 5 }
+        val total = besar.sumOf { it * 7000 }
+        println("$besar $total")
+    }
+    ```
+  options:
+    - "`[2, 6, 3, 8] 133000`"
+    - "`[6, 8] 14`"
+    - "`[6, 8] 98000`"
+    - "`[2, 3] 35000`"
+  correct: [2]
+  hint: Tentukan dulu isi `besar`, lalu hitung `it * 7000` untuk tiap isinya dan jumlahkan.
+  explanation: >-
+    `filter { it >= 5 }` menyimpan elemen yang 5 atau lebih, jadi `besar` berisi `[6, 8]`.
+    `sumOf { it * 7000 }` menjumlahkan 42000 + 56000 = 98000. Jawaban `[2, 3] 35000` membalik
+    arti `filter` (ia menyimpan yang cocok, bukan membuangnya), dan `[2, 6, 3, 8] 133000`
+    menjumlahkan `berat`, padahal yang dijumlahkan adalah `besar`.
+
+- slug: which-line-is-rejected
+  type: choice
+  title: Baris mana yang ditolak?
+  prompt: |
+    Satu baris membuat program ini gagal dikompilasi. Baris mana, dan mengapa?
+
+    ```kotlin
+    fun main() {
+        val layanan = listOf("cuci", "setrika")    // baris 1
+        val antrean = mutableListOf("Bu Wati")     // baris 2
+        antrean.add("Pak Joko")                    // baris 3
+        layanan.add("lipat")                       // baris 4
+        println(antrean.size)                      // baris 5
+    }
+    ```
+  options:
+    - "Baris 3: `antrean` adalah `val`, jadi isinya tidak boleh ditambah"
+    - "Baris 4: list dari `listOf` hanya bisa dibaca dan tidak punya `add`"
+    - "Baris 2: `mutableListOf` harus disimpan di `var`"
+    - "Baris 5: `size` harus ditulis `size()`"
+  correct: [1]
+  hint: Yang menentukan boleh tidaknya menambah isi adalah cara list dibuat, bukan `val` atau `var`.
+  explanation: >-
+    `listOf` membuat list yang hanya bisa dibaca, jadi `layanan.add(...)` tidak ada dan baris 4
+    ditolak. Baris 3 sah: `val` hanya mengunci variabel `antrean` agar tidak diganti list lain,
+    sedangkan isi sebuah `mutableListOf` tetap boleh berubah. `size` adalah properti, jadi
+    ditulis tanpa kurung.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Lengkapi baris yang kosong
+  prompt: |
+    Program ini harus mencetak `[14000, 35000]`. Apa yang mengisi bagian `____`?
+
+    ```kotlin
+    fun main() {
+        val berat = listOf(2, 5)
+        val harga = ____
+        println(harga)
+    }
+    ```
+  options:
+    - "`berat.map { it * 7000 }`"
+    - "`berat.filter { it * 7000 }`"
+    - "`berat.sumOf { it * 7000 }`"
+    - "`berat * 7000`"
+  correct: [0]
+  hint: Hasilnya list dengan jumlah elemen yang sama, tetapi tiap elemen sudah diubah.
+  explanation: >-
+    `map` mengubah tiap elemen dan menghasilkan list baru: 2 menjadi 14000 dan 5 menjadi 35000.
+    `sumOf` menjumlahkan semuanya menjadi satu angka, `49000`. `filter` membutuhkan lambda yang
+    bernilai `true` atau `false`, bukan angka, jadi ditolak. `berat * 7000` juga ditolak:
+    sebuah list tidak bisa dikalikan dengan angka.
+
+- slug: practice-big-orders
+  type: code
+  required: false
+  title: "Latihan: jumlah pesanan besar"
+  prompt: |
+    Program membaca `n`, lalu `n` nilai pesanan ke dalam `orders` (sebuah `List<Int>`). Cetak `Rp<jumlah>` dari pesanan yang nilainya `20000` atau lebih saja. Pakai `filter` dan `sum`.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    fun main() {
+        val n = readln().toInt()
+        val orders = List(n) { readln().toInt() }
+        // keep the orders of 20000 or more, then add them up
+        val total = orders.sum()
+        println("Rp$total")
+    }
+  hints:
+    - "`filter { ... }` menghasilkan list baru berisi elemen yang lolos syarat. Di dalam kurung kurawal, elemennya bernama `it`."
+    - "`val total = orders.filter { it >= 20000 }.sum()`"
+  tests:
+    - input: |
+        3
+        21000
+        14000
+        30000
+      output: |
+        Rp51000
+    - input: |
+        2
+        20000
+        19999
+      output: |
+        Rp20000
+    - input: |
+        0
+      output: |
+        Rp0
+    - input: |
+        3
+        5000
+        7000
+        12000
+      output: |
+        Rp0
+  solution: |
+    fun main() {
+        val n = readln().toInt()
+        val orders = List(n) { readln().toInt() }
+        val total = orders.filter { it >= 20000 }.sum()
+        println("Rp$total")
+    }

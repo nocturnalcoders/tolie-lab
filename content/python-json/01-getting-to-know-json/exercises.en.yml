@@ -1,0 +1,154 @@
+- slug: read-one-order
+  type: code
+  title: Read one order
+  prompt: |
+    One line of input holds one order as JSON, with the keys `id`, `customer`, `dish`, `qty` and `price` (the price of one). The keys may come in a different order and there may be other keys.
+
+    Print four lines:
+
+    ```
+    Order <id>
+    Customer: <customer>
+    Dish: <dish> x<qty>
+    Total: Rp<qty times price>
+    ```
+  starter: |
+    import json
+
+    text = input()
+    # turn the text into a dictionary with json.loads, then print four lines
+    print(text)
+  hints:
+    - >-
+      The text from `input()` cannot be read key by key yet. Turn it into a dictionary with `json.loads` first.
+    - >-
+      Write `order = json.loads(text)`. After that `order["id"]`, `order["customer"]` and the other keys work just like in any dictionary.
+    - >-
+      `qty` and `price` are already numbers, so the total is `order["qty"] * order["price"]`. The third line: `print(f"Dish: {order['dish']} x{order['qty']}")`.
+  tests:
+    - input: |
+        {"id": "AM-1021", "customer": "Dewi", "dish": "beef rendang rice", "qty": 2, "price": 28000}
+      output: |
+        Order AM-1021
+        Customer: Dewi
+        Dish: beef rendang rice x2
+        Total: Rp56000
+    - input: |
+        {"id": "AM-1022", "customer": "Budi Santoso", "dish": "sweet iced tea", "qty": 5, "price": 6000}
+      output: |
+        Order AM-1022
+        Customer: Budi Santoso
+        Dish: sweet iced tea x5
+        Total: Rp30000
+    - input: |
+        {"price": 22000, "qty": 1, "dish": "smashed chicken", "customer": "Tari", "id": "AM-1030", "note": "spicy"}
+      output: |
+        Order AM-1030
+        Customer: Tari
+        Dish: smashed chicken x1
+        Total: Rp22000
+    - input: |
+        {"id":"AM-1","customer":"Agus","dish":"chicken satay","qty":10,"price":25000}
+      output: |
+        Order AM-1
+        Customer: Agus
+        Dish: chicken satay x10
+        Total: Rp250000
+  solution: |
+    import json
+
+    text = input()
+    order = json.loads(text)
+    print(f"Order {order['id']}")
+    print(f"Customer: {order['customer']}")
+    print(f"Dish: {order['dish']} x{order['qty']}")
+    print(f"Total: Rp{order['qty'] * order['price']}")
+
+- slug: payment-status
+  type: code
+  title: Payment status
+  prompt: |
+    One line of input holds JSON with the keys `id`, `paid` (`true` or `false`) and `note` (text or `null`).
+
+    Print three lines:
+
+    ```
+    Order <id>
+    Status: paid
+    Note: <note>
+    ```
+
+    If `paid` is `false`, the second line becomes `Status: not paid yet`. If `note` is `null`, the third line becomes `Note: -`.
+  starter: |
+    import json
+
+    order = json.loads(input())
+    print(f"Order {order['id']}")
+    print(f"Status: {order['paid']}")
+    print(f"Note: {order['note']}")
+  hints:
+    - >-
+      The starter code prints `True`, `False` and `None` as they are. The task asks for words, so you need an `if` to pick the text.
+    - >-
+      `order["paid"]` is already `True` or `False`, so `if order["paid"]:` is enough: print `Status: paid` there, and `Status: not paid yet` in the `else:`.
+    - >-
+      For the note: `if order["note"] is None:` print `Note: -`, and in the `else:` print `f"Note: {order['note']}"`.
+  tests:
+    - input: |
+        {"id": "AM-1021", "paid": true, "note": "no chili sauce"}
+      output: |
+        Order AM-1021
+        Status: paid
+        Note: no chili sauce
+    - input: |
+        {"id": "AM-1022", "paid": false, "note": null}
+      output: |
+        Order AM-1022
+        Status: not paid yet
+        Note: -
+    - input: |
+        {"id": "AM-1023", "paid": true, "note": null}
+      output: |
+        Order AM-1023
+        Status: paid
+        Note: -
+    - input: |
+        {"note": "leave it at the guard post", "id": "AM-1024", "paid": false}
+      output: |
+        Order AM-1024
+        Status: not paid yet
+        Note: leave it at the guard post
+  solution: |
+    import json
+
+    order = json.loads(input())
+    print(f"Order {order['id']}")
+    if order["paid"]:
+        print("Status: paid")
+    else:
+        print("Status: not paid yet")
+    if order["note"] is None:
+        print("Note: -")
+    else:
+        print(f"Note: {order['note']}")
+
+- slug: number-or-text
+  type: choice
+  title: Number or text?
+  prompt: |
+    What is shown after this code runs?
+
+    ```python
+    import json
+
+    data = json.loads('{"qty": "2", "price": 28000}')
+    print(data["qty"] * 2)
+    ```
+  options:
+    - "`4`"
+    - "`22`"
+    - "`56000`"
+    - "The program stops with an error"
+  correct: [1]
+  hint: Look at the quotes around the value of `qty` inside the JSON text.
+  explanation: 'In that JSON, `"2"` is written with quotes, so after `json.loads` it is still text. Text times 2 means it is repeated twice, so `22` is shown. If the app had sent `"qty": 2` without quotes, the result would be `4`.'

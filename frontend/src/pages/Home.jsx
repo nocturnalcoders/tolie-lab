@@ -30,7 +30,7 @@ function CourseCard({ c, showLocale }) {
 
 function Plans() {
   const { lang, t } = useLang();
-  const { data } = useApi('/api/plans', lang);
+  const { data } = useApi('/api/plans');
   if (!data || data.plans.length === 0) return null;
   return (
     <section className="plans" aria-labelledby="plans-title">
@@ -58,6 +58,10 @@ export default function Home() {
   const [showAll, setShowAll] = useState(false);
   const filter = showAll ? 'all' : lang;
   const { data, error, loading } = useApi(ready ? `/api/courses?lang=${filter}` : null, user ? user.id : 0);
+  // The catalog can be narrowed to one programming language once there are several.
+  const [tech, setTech] = useState('');
+  const techs = data ? [...new Set(data.courses.map((c) => c.language))] : [];
+  const shown = data ? data.courses.filter((c) => !tech || !techs.includes(tech) || c.language === tech) : [];
 
   return (
     <Layout>
@@ -70,7 +74,15 @@ export default function Home() {
       {loading && <p className="note">{t('Memuat kursus…')}</p>}
       {error && <p className="flash err" role="alert">{error.message}</p>}
       {data && data.courses.length === 0 && <section className="card empty"><p>{t('Belum ada kursus yang terbit.')}</p></section>}
-      {data && data.courses.map((c) => <CourseCard key={c.slug} c={c} showLocale={showAll} />)}
+      {techs.length > 1 && (
+        <div className="tech-filter" role="group" aria-label={t('Saring menurut bahasa pemrograman')}>
+          <button type="button" aria-pressed={!tech || !techs.includes(tech)} onClick={() => setTech('')}>{t('Semua')}</button>
+          {techs.map((x) => (
+            <button type="button" key={x} aria-pressed={tech === x} onClick={() => setTech(x)}>{LANGUAGE_LABEL[x] || x}</button>
+          ))}
+        </div>
+      )}
+      {shown.map((c) => <CourseCard key={c.slug} c={c} showLocale={showAll} />)}
       <p className="lang-filter">
         <button type="button" className="link" onClick={() => setShowAll((v) => !v)} aria-pressed={showAll}>
           {showAll ? t('Tampilkan hanya kursus dalam bahasa pilihanmu') : t('Tampilkan juga kursus dalam bahasa lain')}

@@ -571,3 +571,8 @@ table.posts a { color: var(--link); }
 .bar { display: block; height: 8px; min-width: 2px; border-radius: 4px; background: var(--amber); }
 .bar.low { background: var(--coral); }
 .streak-week .lamp:not(.on) { background: #efe4cc; border-color: #c9b58f; }
+
+/* catalog: narrow to one programming language */
+.tech-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 -8px; }
+.tech-filter button { padding: 5px 16px; border-radius: 999px; border: 2px solid rgba(255, 214, 150, .55); background: transparent; color: var(--text); font: 500 14px var(--font-ui); box-shadow: none; cursor: pointer; }
+.tech-filter button[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: #2a1a10; }

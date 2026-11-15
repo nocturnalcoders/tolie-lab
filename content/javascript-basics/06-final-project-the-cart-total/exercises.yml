@@ -1,0 +1,126 @@
+- slug: cart-subtotal
+  type: code
+  title: Subtotal keranjang
+  prompt: |
+    Keranjang adalah array berisi objek dengan properti `nama`, `harga`, dan `jumlah`.
+
+    Buat fungsi `hitungSubtotal(keranjang)` yang mengembalikan jumlah dari `harga * jumlah` untuk semua isi keranjang. Keranjang kosong menghasilkan `0`.
+
+    Contoh: 2 tas rajut seharga 85000 dan 1 topi rajut seharga 45000 menghasilkan `215000`.
+  starter: |
+    function hitungSubtotal(keranjang) {
+      let subtotal = 0;
+      // tambahkan harga * jumlah dari setiap item
+
+    }
+  hints:
+    - "Ini pola menjumlahkan dari pelajaran 4, hanya saja setiap isi array sekarang berupa objek."
+    - "Di dalam `for (const item of keranjang) { ... }`, yang ditambahkan ke penampung adalah `item.harga * item.jumlah`."
+    - "Di dalam perulangan: `subtotal = subtotal + item.harga * item.jumlah;`. Setelah perulangan: `return subtotal;`"
+  tests:
+    - input: "console.log(hitungSubtotal([{ nama: 'Tas rajut', harga: 85000, jumlah: 2 }, { nama: 'Topi rajut', harga: 45000, jumlah: 1 }]))"
+      output: "215000"
+    - input: "console.log(hitungSubtotal([{ nama: 'Syal', harga: 60000, jumlah: 1 }]))"
+      output: "60000"
+    - input: "console.log(hitungSubtotal([{ nama: 'Gantungan kunci', harga: 12000, jumlah: 3 }, { nama: 'Syal', harga: 60000, jumlah: 2 }, { nama: 'Topi rajut', harga: 45000, jumlah: 0 }]))"
+      output: "156000"
+    - input: "console.log(hitungSubtotal([]))"
+      output: "0"
+  solution: |
+    function hitungSubtotal(keranjang) {
+      let subtotal = 0;
+      for (const item of keranjang) {
+        subtotal = subtotal + item.harga * item.jumlah;
+      }
+      return subtotal;
+    }
+
+- slug: total-to-pay
+  type: code
+  title: Total bayar
+  prompt: |
+    Lengkapi empat fungsi kecil sesuai aturan Rajut Sekar:
+
+    - `hitungSubtotal(keranjang)`: sama seperti latihan sebelumnya, boleh kamu salin.
+    - `hitungDiskon(subtotal)`: 10% dari subtotal jika subtotal **300000 atau lebih**, selain itu `0`.
+    - `hitungOngkir(subtotal)`: `0` jika subtotal **200000 atau lebih**, selain itu `15000`.
+    - `totalBayar(keranjang)`: subtotal dikurangi diskon, ditambah ongkir. Kalau keranjang kosong tidak ada yang dikirim, jadi kembalikan `0`.
+
+    Contoh: 4 tas rajut seharga 85000 punya subtotal 340000, diskon 34000, ongkir 0, sehingga total bayarnya `306000`.
+  starter: |
+    function hitungSubtotal(keranjang) {
+      // salin dari latihan sebelumnya
+    }
+
+    function hitungDiskon(subtotal) {
+      // 10% jika subtotal 300000 atau lebih, selain itu 0
+    }
+
+    function hitungOngkir(subtotal) {
+      // 0 jika subtotal 200000 atau lebih, selain itu 15000
+    }
+
+    function totalBayar(keranjang) {
+      // pakai tiga fungsi di atas
+    }
+  hints:
+    - "Kerjakan satu fungsi kecil dulu sampai benar. `hitungDiskon` dan `hitungOngkir` masing-masing hanya satu `if` dan `else`, seperti di pelajaran 3. Sepuluh persen ditulis `subtotal * 10 / 100`."
+    - "Di `totalBayar`, simpan dulu hasilnya: `const subtotal = hitungSubtotal(keranjang);`. Diskon dan ongkir dihitung dari subtotal itu, bukan dari keranjang."
+    - "Di `totalBayar`, setelah menghitung subtotal: `if (subtotal === 0) { return 0; }`, lalu `return subtotal - hitungDiskon(subtotal) + hitungOngkir(subtotal);`"
+  tests:
+    - input: "console.log(totalBayar([{ nama: 'Syal', harga: 60000, jumlah: 1 }]))"
+      output: "75000"
+    - input: "console.log(totalBayar([{ nama: 'Tas rajut', harga: 85000, jumlah: 2 }, { nama: 'Topi rajut', harga: 45000, jumlah: 1 }]))"
+      output: "215000"
+    - input: "console.log(totalBayar([{ nama: 'Tas rajut', harga: 85000, jumlah: 4 }]))"
+      output: "306000"
+    - input: "console.log(hitungDiskon(300000)); console.log(hitungDiskon(299000)); console.log(hitungOngkir(200000)); console.log(hitungOngkir(199000))"
+      output: "30000\n0\n0\n15000"
+    - input: "console.log(totalBayar([]))"
+      output: "0"
+  solution: |
+    function hitungSubtotal(keranjang) {
+      let subtotal = 0;
+      for (const item of keranjang) {
+        subtotal = subtotal + item.harga * item.jumlah;
+      }
+      return subtotal;
+    }
+
+    function hitungDiskon(subtotal) {
+      if (subtotal >= 300000) {
+        return subtotal * 10 / 100;
+      } else {
+        return 0;
+      }
+    }
+
+    function hitungOngkir(subtotal) {
+      if (subtotal >= 200000) {
+        return 0;
+      } else {
+        return 15000;
+      }
+    }
+
+    function totalBayar(keranjang) {
+      const subtotal = hitungSubtotal(keranjang);
+      if (subtotal === 0) {
+        return 0;
+      }
+      return subtotal - hitungDiskon(subtotal) + hitungOngkir(subtotal);
+    }
+
+- slug: apply-the-shop-rules
+  type: choice
+  title: Hitung dengan aturan toko
+  prompt: |
+    Seorang pembeli memasukkan 3 tas rajut seharga Rp85.000 ke keranjang, jadi subtotalnya Rp255.000. Dengan aturan Rajut Sekar, berapa total bayarnya?
+  options:
+    - "Rp229.500"
+    - "Rp244.500"
+    - "Rp255.000"
+    - "Rp270.000"
+  correct: [2]
+  hint: Periksa dua aturan secara terpisah. Apakah subtotalnya mencapai batas diskon? Apakah mencapai batas gratis ongkir?
+  explanation: "Subtotal Rp255.000 belum mencapai Rp300.000, jadi diskonnya 0. Tetapi sudah melewati Rp200.000, jadi ongkirnya gratis. Total bayar: 255000 - 0 + 0 = Rp255.000."

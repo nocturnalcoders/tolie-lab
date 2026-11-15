@@ -1,0 +1,196 @@
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang tercetak?
+  prompt: |
+    Buku tulis laku 8 buah per hari. Apa yang dicetak program ini?
+
+    ```java
+    public class Persediaan {
+        public static void main(String[] args) {
+            int stok = 30;
+            int hari = 0;
+            while (stok >= 10) {
+                stok -= 8;
+                hari++;
+            }
+            System.out.println(hari + " hari, sisa " + stok);
+        }
+    }
+    ```
+  options:
+    - "`2 hari, sisa 14`"
+    - "`4 hari, sisa -2`"
+    - "`3 hari, sisa 14`"
+    - "`3 hari, sisa 6`"
+  correct: [3]
+  hint: "Buat tabel kecil: nilai `stok` dan `hari` setelah tiap putaran. Sebelum tiap putaran, periksa dulu apakah `stok >= 10`."
+  explanation: >-
+    Putaran 1: stok 30 menjadi 22, hari 1. Putaran 2: 22 menjadi 14, hari 2. Karena `14 >= 10` masih
+    benar, ada putaran 3: 14 menjadi 6, hari 3. Sekarang `6 >= 10` salah, loop berhenti, dan tercetak
+    `3 hari, sisa 6`. `2 hari, sisa 14` adalah berhenti satu putaran terlalu cepat: 14 masih memenuhi
+    syarat. `4 hari, sisa -2` adalah satu putaran terlalu banyak: syarat diperiksa sebelum tiap
+    putaran, jadi dengan stok 6 isi loop tidak dijalankan lagi.
+
+- slug: which-line-does-the-compiler-reject
+  type: choice
+  title: Baris mana yang ditolak compiler?
+  prompt: |
+    Program ini ditolak `javac`. Baris mana penyebabnya, dan mengapa?
+
+    ```java
+    public class DaftarStok {
+        public static void main(String[] args) {
+            int[] stok = {12, 0, 7};           // baris 3
+            for (int s : stok) {               // baris 4
+                System.out.println(s);         // baris 5
+            }
+            System.out.println(s);             // baris 7
+        }
+    }
+    ```
+  options:
+    - "Baris 3, karena isi array harus ditulis dengan kurung siku: `[12, 0, 7]`"
+    - "Baris 7, karena `s` hanya hidup di dalam loop"
+    - "Baris 4, karena for-each harus memakai kata `in`"
+    - "Tidak ada; baris 7 mencetak nilai terakhir `s`, yaitu `7`"
+  correct: [1]
+  hint: Di mana `s` dibuat, dan di mana kurung kurawal penutup bloknya?
+  explanation: >-
+    `s` dibuat di kepala loop pada baris 4, jadi ia hanya dikenal sampai kurung kurawal penutup loop
+    itu. Di baris 7 compiler melaporkan `cannot find symbol`. Pilihan "mencetak `7`" menggambarkan
+    perilaku Python, tempat variabel loop masih hidup setelah loop selesai; di Java tidak. Baris 3
+    dan 4 benar: isi array Java ditulis dengan `{ }`, dan for-each memakai titik dua, bukan `in`.
+
+- slug: which-line-fills-the-blank
+  type: choice
+  title: Baris mana yang mengisi bagian kosong?
+  prompt: |
+    Program ini harus menjumlahkan **semua** elemen dan mencetak `18`. Kepala loop mana yang benar untuk `_____`?
+
+    ```java
+    public class Rekap {
+        public static void main(String[] args) {
+            int[] terjual = {4, 7, 2, 5};
+            int total = 0;
+            _____ {
+                total += terjual[i];
+            }
+            System.out.println(total);
+        }
+    }
+    ```
+  options:
+    - "`for (int i = 0; i <= terjual.length; i++)`"
+    - "`for (int i = 1; i < terjual.length; i++)`"
+    - "`for (int i = 0; i < terjual.length; i++)`"
+    - "`for (int i = 0; i < terjual.length(); i++)`"
+  correct: [2]
+  hint: Array ini punya 4 elemen. Indeks berapa yang pertama, dan indeks berapa yang terakhir?
+  explanation: >-
+    Indeks yang sah adalah 0 sampai 3, jadi `i` harus mulai dari `0` dan berhenti sebelum
+    `terjual.length` (4). Dengan `i <= terjual.length`, loop mencoba `terjual[4]` dan program berhenti
+    dengan `ArrayIndexOutOfBoundsException`: kesalahan geser satu yang klasik. Mulai dari `i = 1`
+    melewatkan elemen pertama, sehingga yang tercetak `14`. `terjual.length()` ditolak compiler:
+    pada array, `length` ditulis tanpa kurung.
+
+- slug: arrays-and-loops
+  type: choice
+  multiple: true
+  title: Array dan perulangan
+  prompt: |
+    Pernyataan mana saja yang **benar**? (Bisa lebih dari satu.)
+  options:
+    - "Elemen pertama array ada di indeks `0`, dan elemen terakhir di indeks `length - 1`"
+    - "`for (int jumlah : terjual)` memberi setiap elemen satu per satu, tanpa nomor indeksnya"
+    - "Mengakses `terjual[4]` pada array berisi 4 elemen lolos kompilasi, tetapi program berhenti dengan error saat dijalankan"
+    - "Loop `while` selalu menjalankan isinya paling sedikit satu kali"
+  correct: [0, 1, 2]
+  hint: Kapan syarat sebuah `while` diperiksa, sebelum atau sesudah isinya dijalankan?
+  explanation: >-
+    Indeks array mulai dari `0`, jadi yang terakhir adalah `length - 1`. For-each menyerahkan
+    elemennya langsung; kalau butuh nomor urut, pakai `for` biasa. Compiler tidak memeriksa nilai
+    indeks, sehingga `terjual[4]` baru gagal saat program berjalan, dengan
+    `ArrayIndexOutOfBoundsException`. Pernyataan tentang `while` salah: syaratnya diperiksa
+    **sebelum** putaran pertama, jadi kalau sejak awal sudah `false`, isinya tidak pernah dijalankan.
+
+- slug: practice-sum-and-max
+  type: code
+  required: false
+  title: "Latihan: jumlah dan harga tertinggi"
+  prompt: |
+    Program membaca `n`, lalu `n` harga ke dalam array `prices`. Cetak dua baris: `Sum: Rp<jumlah semua harga>` dan `Max: Rp<harga tertinggi>`. Kalau `n` adalah 0, keduanya `Rp0`.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            int n = in.nextInt();
+            int[] prices = new int[n];
+            for (int i = 0; i < n; i++) {
+                prices[i] = in.nextInt();
+            }
+            int sum = 0;
+            int max = 0;
+            // loop over prices: add each one to sum, and keep the highest in max
+            System.out.println("Sum: Rp" + sum);
+            System.out.println("Max: Rp" + max);
+        }
+    }
+  hints:
+    - "Pakai for-each: `for (int price : prices) { ... }`."
+    - "Di dalam perulangan: `sum += price;` lalu `if (price > max) { max = price; }`."
+  tests:
+    - input: |
+        3
+        85000
+        45000
+        99000
+      output: |
+        Sum: Rp229000
+        Max: Rp99000
+    - input: |
+        1
+        12000
+      output: |
+        Sum: Rp12000
+        Max: Rp12000
+    - input: |
+        0
+      output: |
+        Sum: Rp0
+        Max: Rp0
+    - input: |
+        4
+        5000
+        5000
+        7000
+        1000
+      output: |
+        Sum: Rp18000
+        Max: Rp7000
+  solution: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            int n = in.nextInt();
+            int[] prices = new int[n];
+            for (int i = 0; i < n; i++) {
+                prices[i] = in.nextInt();
+            }
+            int sum = 0;
+            int max = 0;
+            for (int price : prices) {
+                sum += price;
+                if (price > max) {
+                    max = price;
+                }
+            }
+            System.out.println("Sum: Rp" + sum);
+            System.out.println("Max: Rp" + max);
+        }
+    }

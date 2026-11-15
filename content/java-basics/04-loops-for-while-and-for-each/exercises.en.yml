@@ -1,0 +1,196 @@
+- slug: what-does-it-print
+  type: choice
+  title: What does it print?
+  prompt: |
+    Notebooks sell at 8 a day. What does this program print?
+
+    ```java
+    public class Inventory {
+        public static void main(String[] args) {
+            int stock = 30;
+            int days = 0;
+            while (stock >= 10) {
+                stock -= 8;
+                days++;
+            }
+            System.out.println(days + " days, " + stock + " left");
+        }
+    }
+    ```
+  options:
+    - "`2 days, 14 left`"
+    - "`4 days, -2 left`"
+    - "`3 days, 14 left`"
+    - "`3 days, 6 left`"
+  correct: [3]
+  hint: "Make a small table: the values of `stock` and `days` after each round. Before each round, first check whether `stock >= 10`."
+  explanation: >-
+    Round 1: stock 30 becomes 22, days 1. Round 2: 22 becomes 14, days 2. Because `14 >= 10` is still
+    true, there is a round 3: 14 becomes 6, days 3. Now `6 >= 10` is false, the loop stops, and
+    `3 days, 6 left` is printed. `2 days, 14 left` stops one round too early: 14 still meets the
+    condition. `4 days, -2 left` is one round too many: the condition is checked before every round,
+    so with a stock of 6 the body does not run again.
+
+- slug: which-line-does-the-compiler-reject
+  type: choice
+  title: Which line does the compiler reject?
+  prompt: |
+    `javac` refuses this program. Which line is the cause, and why?
+
+    ```java
+    public class StockList {
+        public static void main(String[] args) {
+            int[] stock = {12, 0, 7};          // line 3
+            for (int s : stock) {              // line 4
+                System.out.println(s);         // line 5
+            }
+            System.out.println(s);             // line 7
+        }
+    }
+    ```
+  options:
+    - "Line 3, because array contents must be written in square brackets: `[12, 0, 7]`"
+    - "Line 7, because `s` only lives inside the loop"
+    - "Line 4, because for-each must use the word `in`"
+    - "None; line 7 prints the last value of `s`, which is `7`"
+  correct: [1]
+  hint: Where is `s` created, and where is the closing curly brace of its block?
+  explanation: >-
+    `s` is created in the loop header on line 4, so it is only known up to that loop's closing curly
+    brace. On line 7 the compiler reports `cannot find symbol`. The option "prints `7`" describes
+    Python, where the loop variable is still alive after the loop ends; in Java it is not. Lines 3
+    and 4 are fine: Java array contents are written with `{ }`, and for-each uses a colon, not `in`.
+
+- slug: which-line-fills-the-blank
+  type: choice
+  title: Which line fills the blank?
+  prompt: |
+    This program must add up **all** the elements and print `18`. Which loop header is right for `_____`?
+
+    ```java
+    public class Summary {
+        public static void main(String[] args) {
+            int[] sold = {4, 7, 2, 5};
+            int total = 0;
+            _____ {
+                total += sold[i];
+            }
+            System.out.println(total);
+        }
+    }
+    ```
+  options:
+    - "`for (int i = 0; i <= sold.length; i++)`"
+    - "`for (int i = 1; i < sold.length; i++)`"
+    - "`for (int i = 0; i < sold.length; i++)`"
+    - "`for (int i = 0; i < sold.length(); i++)`"
+  correct: [2]
+  hint: This array has 4 elements. Which index is the first, and which is the last?
+  explanation: >-
+    The valid indexes are 0 to 3, so `i` must start at `0` and stop before `sold.length` (4). With
+    `i <= sold.length` the loop tries `sold[4]` and the program stops with an
+    `ArrayIndexOutOfBoundsException`: the classic off-by-one mistake. Starting at `i = 1` skips the
+    first element, so `14` is printed. `sold.length()` is rejected by the compiler: on an array,
+    `length` is written without parentheses.
+
+- slug: arrays-and-loops
+  type: choice
+  multiple: true
+  title: Arrays and loops
+  prompt: |
+    Which statements are **true**? (There may be more than one.)
+  options:
+    - "The first element of an array is at index `0`, and the last at index `length - 1`"
+    - "`for (int count : sold)` hands you each element in turn, without its index number"
+    - "Reading `sold[4]` from an array of 4 elements compiles, but the program stops with an error when it runs"
+    - "A `while` loop always runs its body at least once"
+  correct: [0, 1, 2]
+  hint: When is a `while` condition checked, before or after its body runs?
+  explanation: >-
+    Array indexes start at `0`, so the last one is `length - 1`. For-each hands you the element
+    itself; if you need the position, use a plain `for`. The compiler does not check index values, so
+    `sold[4]` only fails while the program runs, with an `ArrayIndexOutOfBoundsException`. The
+    statement about `while` is false: its condition is checked **before** the first round, so if it
+    is `false` from the start, the body never runs.
+
+- slug: practice-sum-and-max
+  type: code
+  required: false
+  title: "Practice: the sum and the highest price"
+  prompt: |
+    The program reads `n`, then `n` prices into the array `prices`. Print two lines: `Sum: Rp<sum of all prices>` and `Max: Rp<highest price>`. When `n` is 0, both are `Rp0`.
+
+    This exercise is optional. Your code runs on the server, and the daily allowance is small.
+  starter: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            int n = in.nextInt();
+            int[] prices = new int[n];
+            for (int i = 0; i < n; i++) {
+                prices[i] = in.nextInt();
+            }
+            int sum = 0;
+            int max = 0;
+            // loop over prices: add each one to sum, and keep the highest in max
+            System.out.println("Sum: Rp" + sum);
+            System.out.println("Max: Rp" + max);
+        }
+    }
+  hints:
+    - "Use a for-each loop: `for (int price : prices) { ... }`."
+    - "Inside the loop: `sum += price;` then `if (price > max) { max = price; }`."
+  tests:
+    - input: |
+        3
+        85000
+        45000
+        99000
+      output: |
+        Sum: Rp229000
+        Max: Rp99000
+    - input: |
+        1
+        12000
+      output: |
+        Sum: Rp12000
+        Max: Rp12000
+    - input: |
+        0
+      output: |
+        Sum: Rp0
+        Max: Rp0
+    - input: |
+        4
+        5000
+        5000
+        7000
+        1000
+      output: |
+        Sum: Rp18000
+        Max: Rp7000
+  solution: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            int n = in.nextInt();
+            int[] prices = new int[n];
+            for (int i = 0; i < n; i++) {
+                prices[i] = in.nextInt();
+            }
+            int sum = 0;
+            int max = 0;
+            for (int price : prices) {
+                sum += price;
+                if (price > max) {
+                    max = price;
+                }
+            }
+            System.out.println("Sum: Rp" + sum);
+            System.out.println("Max: Rp" + max);
+        }
+    }

@@ -4,18 +4,18 @@ import { api, setCsrf } from './api.js';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [state, setState] = useState({ ready: false, user: null, verification: false, payments: false });
+  const [state, setState] = useState({ ready: false, user: null, verification: false, payments: false, judge: false });
 
   const apply = useCallback((s) => {
     setCsrf(s.csrf);
-    setState((prev) => ({ ready: true, user: s.user ?? null, verification: s.verification ?? prev.verification, payments: s.payments ?? prev.payments }));
+    setState((prev) => ({ ready: true, user: s.user ?? null, verification: s.verification ?? prev.verification, payments: s.payments ?? prev.payments, judge: s.judge ?? prev.judge }));
   }, []);
 
   useEffect(() => {
     let alive = true;
     api('/api/session')
       .then((s) => alive && apply(s))
-      .catch(() => alive && setState({ ready: true, user: null, verification: false, payments: false }));
+      .catch(() => alive && setState({ ready: true, user: null, verification: false, payments: false, judge: false }));
     return () => {
       alive = false;
     };

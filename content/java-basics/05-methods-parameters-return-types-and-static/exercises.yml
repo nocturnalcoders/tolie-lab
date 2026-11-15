@@ -1,0 +1,188 @@
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang tercetak?
+  prompt: |
+    Pak Bayu ingin menaikkan harga sebuah buku Rp5.000, lalu menghitung harga 3 buku. Apa yang dicetak program ini?
+
+    ```java
+    public class Kasir {
+        static void naikkan(int harga) {
+            harga = harga + 5000;
+        }
+
+        static int hitungTotal(int harga, int jumlah) {
+            return harga * jumlah;
+        }
+
+        public static void main(String[] args) {
+            int harga = 40000;
+            naikkan(harga);
+            System.out.println(hitungTotal(harga, 3));
+        }
+    }
+    ```
+  options:
+    - "`135000`"
+    - "`125000`"
+    - "`120000`"
+    - "`45000`"
+  correct: [2]
+  hint: "`harga` di dalam `naikkan` dan `harga` di dalam `main` adalah dua variabel berbeda. Yang mana yang berubah?"
+  explanation: >-
+    Saat `naikkan(harga)` dipanggil, parameter `harga` menerima **salinan** nilai `40000`. Method itu
+    mengubah salinannya menjadi 45000, lalu selesai tanpa mengembalikan apa pun (`void`). `harga`
+    milik `main` tetap 40000, sehingga `hitungTotal(40000, 3)` menghasilkan `120000`. Jawaban
+    `135000` menggoda karena namanya sama-sama `harga`, tetapi nama yang sama di dua method tidak
+    berarti variabel yang sama. Supaya kenaikannya terpakai, method harus mengembalikan nilai baru:
+    `harga = naikkan(harga);` dengan tipe balik `int`.
+
+- slug: which-line-does-the-compiler-reject
+  type: choice
+  title: Baris mana yang ditolak compiler?
+  prompt: |
+    Satu baris membuat `javac` menolak program ini. Baris mana, dan mengapa?
+
+    ```java
+    public class Struk {
+        static int hitungTotal(int harga, int jumlah) {   // baris 2
+            return harga * jumlah;                        // baris 3
+        }
+
+        static void cetakTotal(int total) {               // baris 6
+            System.out.println("Total: Rp" + total);      // baris 7
+            return total;                                 // baris 8
+        }
+
+        public static void main(String[] args) {
+            cetakTotal(hitungTotal(48000, 2));
+        }
+    }
+    ```
+  options:
+    - "Baris 3, karena hasil perkalian harus disimpan ke variabel dulu sebelum di-`return`"
+    - "Baris 6, karena method `void` tidak boleh punya parameter"
+    - "Baris 7, karena teks tidak bisa disambung dengan `int`"
+    - "Baris 8, karena method `void` tidak boleh mengembalikan nilai"
+  correct: [3]
+  hint: Cocokkan setiap `return` dengan tipe balik yang tertulis di kepala method-nya.
+  explanation: >-
+    `cetakTotal` dideklarasikan `void`, artinya tidak mengembalikan apa-apa, tetapi baris 8 mencoba
+    `return total;`. Compiler menolaknya (`incompatible types: unexpected return value`). Baris 3
+    benar: `return` boleh langsung diikuti sebuah hitungan, dan hasilnya `int`, cocok dengan tipe
+    balik. `void` hanya mengatur nilai balik, bukan parameter, jadi baris 6 tidak bermasalah. Baris 7
+    juga benar karena `+` otomatis menyambung `String` dengan `int`.
+
+- slug: which-line-fills-the-blank
+  type: choice
+  title: Baris mana yang mengisi bagian kosong?
+  prompt: |
+    Program ini harus mencetak `25000.0`. Kepala method mana yang benar untuk `_____`?
+
+    ```java
+    public class Promo {
+        _____ {
+            return total * 0.1;
+        }
+
+        public static void main(String[] args) {
+            double potongan = hitungDiskon(250000);
+            System.out.println(potongan);
+        }
+    }
+    ```
+  options:
+    - "`static int hitungDiskon(int total)`"
+    - "`static double hitungDiskon(int total)`"
+    - "`static void hitungDiskon(int total)`"
+    - "`static double hitungDiskon(total)`"
+  correct: [1]
+  hint: Apa tipe dari `total * 0.1`? Tipe balik harus bisa menampungnya, dan setiap parameter harus punya tipe.
+  explanation: >-
+    `total * 0.1` adalah `int` dikali `double`, hasilnya `double`, jadi tipe baliknya harus `double`.
+    Dengan tipe balik `int`, baris `return` ditolak karena pecahannya bisa hilang (`possible lossy
+    conversion`); pilihan ini menggoda karena `total` sendiri memang `int`. Dengan `void`, method
+    tidak boleh mengembalikan nilai, dan `double potongan = ...` tidak punya apa pun untuk disimpan.
+    `hitungDiskon(total)` tanpa tipe adalah gaya Python: di Java setiap parameter wajib ditulis
+    bersama tipenya.
+
+- slug: why-can-it-be-called-directly
+  type: choice
+  title: Mengapa bisa dipanggil langsung?
+  prompt: |
+    Di class `Kasir`, `main` memanggil `hitungTotal(harga, 3)` begitu saja, tanpa membuat objek apa pun.
+    Mengapa itu boleh?
+  options:
+    - "Karena `hitungTotal` bertanda `static`: ia milik class `Kasir`, bukan milik sebuah objek"
+    - "Karena `hitungTotal` ditulis di atas `main`"
+    - "Karena `hitungTotal` mengembalikan `int`"
+    - "Karena semua method di Java bisa dipanggil tanpa objek"
+  correct: [0]
+  hint: Lihat kata pertama di kepala method `hitungTotal`, dan bandingkan dengan kepala `main`.
+  explanation: >-
+    `static` membuat sebuah method menjadi milik class, sehingga bisa dipanggil tanpa objek. `main`
+    juga `static`, dan sesama method `static` di class yang sama bisa saling memanggil langsung.
+    Urutan penulisan tidak berpengaruh: berbeda dari skrip Python yang harus mendefinisikan fungsi
+    sebelum memanggilnya, method Java boleh ditulis di bawah `main`. Tipe balik juga tidak ada
+    hubungannya. Dan tidak semua method bisa dipanggil tanpa objek: method tanpa `static` butuh
+    objek, seperti yang kamu lihat di pelajaran berikutnya.
+
+- slug: practice-shipping-method
+  type: code
+  required: false
+  title: "Latihan: method ongkos kirim"
+  prompt: |
+    Lengkapi method `shipping`: belanja `200000` atau lebih gratis ongkos kirim (`0`), selain itu ongkosnya `15000`. `main` sudah memanggilnya dan mencetak `Rp<total + ongkos>`.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    import java.util.Scanner;
+
+    public class Main {
+        static int shipping(int total) {
+            // 0 from 200000 up, otherwise 15000
+            return 0;
+        }
+
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            int total = in.nextInt();
+            System.out.println("Rp" + (total + shipping(total)));
+        }
+    }
+  hints:
+    - "Method ini harus mengembalikan salah satu dari dua angka, tergantung `total`."
+    - "`if (total >= 200000) { return 0; }` lalu `return 15000;`. Perhatikan `>=`: tepat 200000 sudah gratis."
+  tests:
+    - input: |
+        150000
+      output: |
+        Rp165000
+    - input: |
+        200000
+      output: |
+        Rp200000
+    - input: |
+        199999
+      output: |
+        Rp214999
+    - input: |
+        350000
+      output: |
+        Rp350000
+  solution: |
+    import java.util.Scanner;
+
+    public class Main {
+        static int shipping(int total) {
+            if (total >= 200000) {
+                return 0;
+            }
+            return 15000;
+        }
+
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            int total = in.nextInt();
+            System.out.println("Rp" + (total + shipping(total)));
+        }
+    }

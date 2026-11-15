@@ -1,0 +1,92 @@
+- slug: shipping-fee
+  type: code
+  title: Shipping fee
+  prompt: |
+    Write a function `shippingFee(total)` that returns the shipping fee as a number:
+
+    - `0` if the order total is **200000 or more**
+    - `15000` if it is less than that
+  starter: |
+    function shippingFee(total) {
+      // return 0 or 15000
+    }
+  hints:
+    - "You need one `if` with an `else`, each holding one `return`."
+    - "Exactly 200000 already ships for free, so use `>=`, not `>`."
+    - "The outline: `if (total >= 200000) { return 0; } else { return 15000; }`"
+  tests:
+    - input: "console.log(shippingFee(50000))"
+      output: "15000"
+    - input: "console.log(shippingFee(350000))"
+      output: "0"
+    - input: "console.log(shippingFee(200000))"
+      output: "0"
+    - input: "console.log(shippingFee(199999))"
+      output: "15000"
+  solution: |
+    function shippingFee(total) {
+      if (total >= 200000) {
+        return 0;
+      } else {
+        return 15000;
+      }
+    }
+
+- slug: stock-status
+  type: code
+  title: Stock status
+  prompt: |
+    The product page shows a stock status. Write a function `stockStatus(stock)` that returns:
+
+    - `Sold out` if the stock equals 0
+    - `Almost gone` if the stock is 1 to 5
+    - `In stock` if the stock is more than 5
+  starter: |
+    function stockStatus(stock) {
+      // return one of the three texts
+    }
+  hints:
+    - "There are three choices, so you need `if`, `else if` and `else`."
+    - "Check `stock === 0` first. After that, whatever is left must be 1 or more, so checking `stock <= 5` is enough."
+    - "In order: `if (stock === 0) { return \"Sold out\"; } else if (stock <= 5) { return \"Almost gone\"; } else { return \"In stock\"; }`"
+  tests:
+    - input: "console.log(stockStatus(0))"
+      output: "Sold out"
+    - input: "console.log(stockStatus(1))"
+      output: "Almost gone"
+    - input: "console.log(stockStatus(5))"
+      output: "Almost gone"
+    - input: "console.log(stockStatus(6))"
+      output: "In stock"
+    - input: "console.log(stockStatus(40))"
+      output: "In stock"
+  solution: |
+    function stockStatus(stock) {
+      if (stock === 0) {
+        return "Sold out";
+      } else if (stock <= 5) {
+        return "Almost gone";
+      } else {
+        return "In stock";
+      }
+    }
+
+- slug: two-or-three-equals-signs
+  type: choice
+  title: Two or three equals signs?
+  prompt: |
+    The quantity from an order form often arrives as text. What appears?
+
+    ```javascript
+    const quantity = "3";
+    console.log(quantity == 3);
+    console.log(quantity === 3);
+    ```
+  options:
+    - "`true` then `true`"
+    - "`true` then `false`"
+    - "`false` then `true`"
+    - "`false` then `false`"
+  correct: [1]
+  hint: One of the two changes the type of a value before comparing.
+  explanation: "`==` first turns the text `\"3\"` into a number, so the result is `true`. `===` also compares the types: text is not the same as a number, so the result is `false`. That is why `===` is the safer choice."

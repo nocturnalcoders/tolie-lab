@@ -1,0 +1,252 @@
+- slug: the-order-total
+  type: code
+  title: The order total
+  prompt: |
+    The classes `MenuItem` and `OrderLine` are complete. Fill in two methods in the `Order` class:
+
+    - `add(item, quantity)` creates one `OrderLine` and adds it to `self.lines`
+    - `total()` returns the sum of every line's subtotal (0 if there are no lines yet)
+
+    The program below reads the customer's name, then `n`, then `n` lines in the format `name,price,quantity`, and prints the customer's name, the number of lines, and the total.
+  language: python
+  starter: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+
+    class OrderLine:
+        def __init__(self, item, quantity):
+            self.item = item
+            self.quantity = quantity
+
+        def subtotal(self):
+            return self.item.price * self.quantity
+
+
+    class Order:
+        def __init__(self, customer):
+            self.customer = customer
+            self.lines = []
+
+        def add(self, item, quantity):
+            # create an OrderLine, then add it to self.lines
+            pass
+
+        def total(self):
+            # add up the subtotal of every line
+            pass
+
+
+    order = Order(input())
+    n = int(input())
+    for _ in range(n):
+        name, price, quantity = input().split(",")
+        order.add(MenuItem(name, int(price)), int(quantity))
+
+    print(f"Customer: {order.customer}")
+    print(f"Lines: {len(order.lines)}")
+    print(f"Total: Rp{order.total()}")
+  hints:
+    - "`add` fills the list that belongs to this object, `self.lines`. `total` loops over that same list."
+    - "The body of `add`: `self.lines.append(OrderLine(item, quantity))`."
+    - "The body of `total`: start with `result = 0`, then `for line in self.lines:` add `line.subtotal()` to `result`, and finish with `return result`."
+  tests:
+    - input: "Siti\n2\nmilk coffee,15000,2\ntoast,18000,1"
+      output: "Customer: Siti\nLines: 2\nTotal: Rp48000"
+    - input: "Budi\n1\norange juice,10000,4"
+      output: "Customer: Budi\nLines: 1\nTotal: Rp40000"
+    - input: "Dewi\n3\npulled tea,12000,1\nmilk coffee,15000,1\npulled tea,12000,2"
+      output: "Customer: Dewi\nLines: 3\nTotal: Rp51000"
+    - input: "Agus\n0"
+      output: "Customer: Agus\nLines: 0\nTotal: Rp0"
+  solution: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+
+    class OrderLine:
+        def __init__(self, item, quantity):
+            self.item = item
+            self.quantity = quantity
+
+        def subtotal(self):
+            return self.item.price * self.quantity
+
+
+    class Order:
+        def __init__(self, customer):
+            self.customer = customer
+            self.lines = []
+
+        def add(self, item, quantity):
+            self.lines.append(OrderLine(item, quantity))
+
+        def total(self):
+            result = 0
+            for line in self.lines:
+                result += line.subtotal()
+            return result
+
+
+    order = Order(input())
+    n = int(input())
+    for _ in range(n):
+        name, price, quantity = input().split(",")
+        order.add(MenuItem(name, int(price)), int(quantity))
+
+    print(f"Customer: {order.customer}")
+    print(f"Lines: {len(order.lines)}")
+    print(f"Total: Rp{order.total()}")
+
+- slug: the-order-in-detail
+  type: code
+  title: The order in detail
+  prompt: |
+    Now an order needs to be able to show its own details. Add two methods to the `Order` class:
+
+    - `item_count()` returns the sum of the `quantity` of every line
+    - `show()` prints the details like the example below
+
+    ```
+    Order for Siti
+    2 x milk coffee = Rp30000
+    1 x toast = Rp18000
+    Items: 3
+    Total: Rp48000
+    ```
+
+    The first line carries the customer's name, then one line for each order line in the order they were added, then `Items:` and `Total:`.
+  language: python
+  starter: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+
+    class OrderLine:
+        def __init__(self, item, quantity):
+            self.item = item
+            self.quantity = quantity
+
+        def subtotal(self):
+            return self.item.price * self.quantity
+
+
+    class Order:
+        def __init__(self, customer):
+            self.customer = customer
+            self.lines = []
+
+        def add(self, item, quantity):
+            self.lines.append(OrderLine(item, quantity))
+
+        def total(self):
+            result = 0
+            for line in self.lines:
+                result += line.subtotal()
+            return result
+
+        def item_count(self):
+            # add up line.quantity over every line
+            pass
+
+        def show(self):
+            # print the heading, every line, the item count and the total
+            pass
+
+
+    order = Order(input())
+    n = int(input())
+    for _ in range(n):
+        name, price, quantity = input().split(",")
+        order.add(MenuItem(name, int(price)), int(quantity))
+    order.show()
+  hints:
+    - "`item_count` is very close to `total`, only it adds up `line.quantity`. Inside `show`, call the object's other methods through `self`, for example `self.total()`."
+    - "Inside `show`, for each `line` in `self.lines`, the item's name is `line.item.name` and its value is `line.subtotal()`."
+    - "`show`: `print(f\"Order for {self.customer}\")`, then inside the loop `print(f\"{line.quantity} x {line.item.name} = Rp{line.subtotal()}\")`, then `print(f\"Items: {self.item_count()}\")` and `print(f\"Total: Rp{self.total()}\")`."
+  tests:
+    - input: "Siti\n2\nmilk coffee,15000,2\ntoast,18000,1"
+      output: "Order for Siti\n2 x milk coffee = Rp30000\n1 x toast = Rp18000\nItems: 3\nTotal: Rp48000"
+    - input: "Budi\n1\norange juice,10000,4"
+      output: "Order for Budi\n4 x orange juice = Rp40000\nItems: 4\nTotal: Rp40000"
+    - input: "Dewi\n3\npulled tea,12000,1\nmilk coffee,15000,1\npulled tea,12000,2"
+      output: "Order for Dewi\n1 x pulled tea = Rp12000\n1 x milk coffee = Rp15000\n2 x pulled tea = Rp24000\nItems: 4\nTotal: Rp51000"
+    - input: "Agus\n0"
+      output: "Order for Agus\nItems: 0\nTotal: Rp0"
+  solution: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+
+    class OrderLine:
+        def __init__(self, item, quantity):
+            self.item = item
+            self.quantity = quantity
+
+        def subtotal(self):
+            return self.item.price * self.quantity
+
+
+    class Order:
+        def __init__(self, customer):
+            self.customer = customer
+            self.lines = []
+
+        def add(self, item, quantity):
+            self.lines.append(OrderLine(item, quantity))
+
+        def total(self):
+            result = 0
+            for line in self.lines:
+                result += line.subtotal()
+            return result
+
+        def item_count(self):
+            result = 0
+            for line in self.lines:
+                result += line.quantity
+            return result
+
+        def show(self):
+            print(f"Order for {self.customer}")
+            for line in self.lines:
+                print(f"{line.quantity} x {line.item.name} = Rp{line.subtotal()}")
+            print(f"Items: {self.item_count()}")
+            print(f"Total: Rp{self.total()}")
+
+
+    order = Order(input())
+    n = int(input())
+    for _ in range(n):
+        name, price, quantity = input().split(",")
+        order.add(MenuItem(name, int(price)), int(quantity))
+    order.show()
+
+- slug: reading-a-chain-of-dots
+  type: choice
+  title: Reading a chain of dots
+  prompt: |
+    With the classes `MenuItem`, `OrderLine` and `Order` from this lesson, what is shown?
+
+    ```python
+    o = Order("Budi")
+    o.add(MenuItem("pulled tea", 12000), 3)
+    o.add(MenuItem("orange juice", 10000), 2)
+    print(o.lines[1].item.name)
+    ```
+  options:
+    - "`pulled tea`"
+    - "`orange juice`"
+    - "`2`"
+    - "`Budi`"
+  correct: [1]
+  hint: Read from left to right, one dot at a time. List positions start at 0.
+  explanation: "`o.lines[1]` is the second order line. `.item` takes the `MenuItem` object that line holds, and `.name` takes its name: `orange juice`."

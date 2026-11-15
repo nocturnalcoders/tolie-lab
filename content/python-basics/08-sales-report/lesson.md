@@ -1,35 +1,35 @@
 ---
-title: Functions and the sales report
+title: Fungsi dan laporan penjualan
 ---
-In the last lesson we put everything together. First, tidying code up with **functions**. Then building the sales report Ms. Rina really uses.
+Di pelajaran terakhir kita menggabungkan semuanya. Pertama, merapikan kode dengan **fungsi**. Lalu membuat laporan penjualan yang benar-benar dipakai Bu Rina.
 
-## Functions
+## Fungsi
 
-A function is a named block of code that can be called again and again:
+Fungsi adalah blok kode bernama yang bisa dipanggil berulang kali:
 
 ```python
-def amount_to_pay(total):
+def hitung_bayar(total):
     if total >= 100000:
         return total * 90 // 100
     return total
 
-print(amount_to_pay(250000))   # 225000
+print(hitung_bayar(250000))   # 225000
 ```
 
-- `def` creates the function, and `total` is a **parameter** (data going in).
-- `return` sends the result back to the caller. Code after `return` does not run.
-- Unlike `print`, `return` shows nothing. The result is used by the code that called the function.
+- `def` membuat fungsi, `total` adalah **parameter** (data yang masuk).
+- `return` mengirim hasil ke pemanggil. Kode setelah `return` tidak dijalankan.
+- Berbeda dengan `print`, `return` tidak menampilkan apa pun. Hasilnya dipakai oleh kode yang memanggil.
 
-## Reading formatted lines
+## Membaca baris berformat
 
-Sales data arrives as lines like `name,quantity,price`. Split them, then turn the numbers into numbers:
+Data penjualan datang sebagai baris `nama,jumlah,harga`. Pecah, lalu ubah angkanya:
 
 ```python
-name, quantity, price = "milk coffee,10,15000".split(",")
-quantity = int(quantity)
-price = int(price)
+nama, jumlah, harga = "kopi susu,10,15000".split(",")
+jumlah = int(jumlah)
+harga = int(harga)
 ```
 
-## Project: the sales report
+## Proyek: laporan penjualan
 
-The first line holds the number of data lines. Each line after it is `name,quantity,price`. The report must show the **total sales** and the **best seller** (the most units sold).
+Baris pertama berisi banyaknya baris data. Tiap baris berikutnya `nama,jumlah,harga`. Laporan harus menunjukkan **total penjualan** dan **menu terlaris** (jumlah terjual terbanyak).

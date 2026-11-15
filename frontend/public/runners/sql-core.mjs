@@ -1,10 +1,12 @@
 // Runs one SQL script in a fresh in-memory SQLite database and returns the result tables as text.
 // Used by sql-worker.mjs in the browser and by the Node tests (same code, real SQLite).
 //
-// run(SQL, code, input, setup) -> { stdout, stderr, error, exitCode, truncated }
+// run(SQL, code, input, setup, check) -> { stdout, stderr, error, exitCode, truncated }
 //   SQL      the module that initSqlJs() resolves to
 //   setup    SQL from the exercise: the tables and rows every test starts with
 //   input    SQL from one test: extra rows, so an answer cannot be a hard-coded table
+//   check    SQL from the exercise, for exercises that change data (INSERT, UPDATE, CREATE TABLE):
+//            it runs after the learner's script, and then only its result tables are the output
 //   stdout   every result table, sqlite3 style: a header line, then one line per row, values split by |
 
 export const MAX_OUTPUT = 64 * 1024;
@@ -21,7 +23,7 @@ export function formatResults(results) {
     .join('\n\n');
 }
 
-export function run(SQL, code, input = '', setup = '') {
+export function run(SQL, code, input = '', setup = '', check = '') {
   const db = new SQL.Database();
   let stdout = '';
   let error = '';
@@ -34,11 +36,23 @@ export function run(SQL, code, input = '', setup = '') {
       // Not the learner's fault: the exercise itself is broken.
       return { stdout: '', stderr: '', error: `Setup error: ${(e && e.message) || e}`, exitCode: 1, truncated: false };
     }
+    let results = [];
     try {
-      stdout = formatResults(db.exec(String(code)));
-      if (stdout) stdout += '\n';
+      results = db.exec(String(code));
     } catch (e) {
       error = `Error: ${(e && e.message) || e}`;
+    }
+    if (!error && String(check).trim()) {
+      try {
+        results = db.exec(String(check));
+      } catch (e) {
+        // The check reads what the learner was asked to create, so say what it could not find.
+        error = `Error: ${(e && e.message) || e}`;
+      }
+    }
+    if (!error) {
+      stdout = formatResults(results);
+      if (stdout) stdout += '\n';
     }
   } finally {
     db.close();

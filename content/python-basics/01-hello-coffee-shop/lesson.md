@@ -1,36 +1,36 @@
 ---
-title: Hello, Coffee Shop!
+title: Halo, Warung!
 ---
-You just started working at **Senja Coffee Shop**. The owner, Ms. Rina, wants all the shop's number work moved onto a computer. We start with the simplest thing there is: making the computer **show some text**.
+Kamu baru bekerja di **Warung Kopi Senja**. Pemiliknya, Bu Rina, ingin semua hitung-hitungan warung pindah ke komputer. Kita mulai dari hal paling sederhana: membuat komputer **menampilkan teks**.
 
-## Showing text with `print`
+## Menampilkan teks dengan `print`
 
-The `print` command shows something on the screen:
-
-```python
-print("Good morning!")
-```
-
-The result:
-
-```
-Good morning!
-```
-
-Text must be wrapped in quotes, either `"..."` or `'...'`. Every `print` writes one new line, so two `print` commands give two lines:
+Perintah `print` menampilkan sesuatu di layar:
 
 ```python
-print("Milk coffee")
-print("Pulled tea")
+print("Selamat pagi!")
 ```
 
-## Comments
+Hasilnya:
 
-A line that starts with `#` is ignored by Python. Use it for notes to yourself or your teammates:
+```
+Selamat pagi!
+```
+
+Teks harus diapit tanda kutip, boleh `"..."` atau `'...'`. Setiap `print` menulis satu baris baru, jadi dua `print` menghasilkan dua baris:
 
 ```python
-# today's menu
-print("Toast")
+print("Kopi susu")
+print("Teh tarik")
 ```
 
-In the editor next to this text, write the code and press **Check answer**. When every test is green, the exercise is done.
+## Komentar
+
+Baris yang diawali `#` diabaikan Python. Pakai untuk catatan bagi dirimu sendiri atau rekan kerja:
+
+```python
+# menu hari ini
+print("Roti bakar")
+```
+
+Di editor sebelah, tulis kodenya lalu tekan **Periksa jawaban**. Kalau semua tes hijau, latihan itu selesai.

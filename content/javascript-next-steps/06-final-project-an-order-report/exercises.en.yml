@@ -1,0 +1,189 @@
+- slug: order-total-and-revenue
+  type: code
+  title: Order total and revenue
+  prompt: |
+    Every order looks like this:
+
+    ```javascript
+    { id: "L-101", buyer: "Dimas", status: "done",
+      items: [{ name: "Desk Lamp", price: 85000, quantity: 1 }] }
+    ```
+
+    `status` holds `"done"` or `"cancelled"`. Write two functions:
+
+    - `orderTotal(order)` returns the total of **one** order: the sum of `price * quantity` over all its items.
+    - `revenue(orders)` takes an array of orders and returns the sum of the totals of all orders whose status is `"done"`. Cancelled orders do not count.
+
+    Both return a number. An order without items has a total of `0`, and an empty array of orders has a revenue of `0`.
+  language: javascript
+  starter: |
+    const orderTotal = (order) => {
+      // add up price * quantity for every item in order.items
+      return 0;
+    };
+
+    const revenue = (orders) => {
+      // right now every order is counted, also the cancelled ones
+      return orders.reduce((t, o) => t + orderTotal(o), 0);
+    };
+  hints:
+    - 'Do `orderTotal` first. The pattern is the same as the cart total: `reduce` on `order.items` with a starting value of `0`.'
+    - '`orderTotal` becomes `order.items.reduce((t, item) => t + item.price * item.quantity, 0)`. For `revenue`, the cancelled orders have to be removed before adding up.'
+    - 'Put a `filter` before the `reduce` in `revenue`: `orders.filter((o) => o.status === "done").reduce((t, o) => t + orderTotal(o), 0)`.'
+  tests:
+    - input: 'console.log(orderTotal({ id: "L-101", buyer: "Dimas", status: "done", items: [{ name: "Desk Lamp", price: 85000, quantity: 1 }, { name: "Scented Candle", price: 30000, quantity: 2 }] }))'
+      output: "145000"
+    - input: |
+        {
+          const data = [
+            { id: "L-101", buyer: "Dimas", status: "done", items: [{ name: "Desk Lamp", price: 85000, quantity: 1 }, { name: "Scented Candle", price: 30000, quantity: 2 }] },
+            { id: "L-102", buyer: "Sari", status: "cancelled", items: [{ name: "Rattan Lampshade", price: 120000, quantity: 3 }] },
+            { id: "L-103", buyer: "Wulan", status: "done", items: [{ name: "String Lights", price: 25000, quantity: 4 }] },
+          ];
+          console.log(revenue(data));
+        }
+      output: "245000"
+    - input: 'console.log(revenue([]))'
+      output: "0"
+    - input: |
+        {
+          const data = [
+            { id: "L-201", buyer: "Bayu", status: "cancelled", items: [{ name: "Paper Lantern", price: 45000, quantity: 2 }] },
+            { id: "L-202", buyer: "Sari", status: "cancelled", items: [{ name: "Scented Candle", price: 30000, quantity: 1 }] },
+          ];
+          console.log(revenue(data));
+        }
+      output: "0"
+    - input: 'console.log(orderTotal({ id: "L-301", buyer: "Wulan", status: "done", items: [] }))'
+      output: "0"
+  solution: |
+    const orderTotal = (order) =>
+      order.items.reduce((t, item) => t + item.price * item.quantity, 0);
+
+    const revenue = (orders) =>
+      orders
+        .filter((o) => o.status === "done")
+        .reduce((t, o) => t + orderTotal(o), 0);
+
+- slug: daily-order-report
+  type: code
+  title: Daily order report
+  prompt: |
+    Build the evening report for Laras. Write a function `report(orders)` that takes an array of orders (the same shape as in the previous exercise) and returns **one text** of four lines:
+
+    ```
+    Completed orders: 3
+    Cancelled orders: 1
+    Revenue: Rp510000
+    Biggest order: L-103 (Bayu) Rp265000
+    ```
+
+    - Revenue and the biggest order only look at orders with the status `"done"`.
+    - The biggest order is the one with the highest total, written as `<id> (<buyer>) Rp<total>`. If two totals are the same, use the one that comes first in the array.
+    - If no order was completed, the last line becomes `Biggest order: -`.
+
+    The function `orderTotal` is already given in the starter code.
+  language: javascript
+  starter: |
+    const orderTotal = (order) =>
+      order.items.reduce((t, item) => t + item.price * item.quantity, 0);
+
+    const report = (orders) => {
+      const done = orders.filter((o) => o.status === "done");
+
+      const lines = [
+        `Completed orders: ${done.length}`,
+        // add the other three lines
+      ];
+      return lines.join("\n");
+    };
+  hints:
+    - 'Work line by line. The number of cancelled orders is `orders.length - done.length`. Revenue is a `reduce` on `done` that adds up `orderTotal(o)`.'
+    - 'For the biggest order, sort a copy: `const biggest = [...done].sort((a, b) => orderTotal(b) - orderTotal(a))[0];`. Equal totals keep their original order, so the earlier one is picked by itself.'
+    - 'If `biggest === undefined`, the text is `-`. Otherwise the text is built from `biggest.id`, then `biggest.buyer` in brackets, then `Rp` and `orderTotal(biggest)`. Put all four lines in the `lines` array in the order shown in the task.'
+  tests:
+    - input: |
+        {
+          const data = [
+            { id: "L-101", buyer: "Dimas", status: "done", items: [{ name: "Desk Lamp", price: 85000, quantity: 1 }, { name: "Scented Candle", price: 30000, quantity: 2 }] },
+            { id: "L-102", buyer: "Sari", status: "cancelled", items: [{ name: "Rattan Lampshade", price: 120000, quantity: 3 }] },
+            { id: "L-103", buyer: "Bayu", status: "done", items: [{ name: "Paper Lantern", price: 45000, quantity: 4 }, { name: "Desk Lamp", price: 85000, quantity: 1 }] },
+            { id: "L-104", buyer: "Wulan", status: "done", items: [{ name: "String Lights", price: 25000, quantity: 4 }] },
+          ];
+          console.log(report(data));
+        }
+      output: |
+        Completed orders: 3
+        Cancelled orders: 1
+        Revenue: Rp510000
+        Biggest order: L-103 (Bayu) Rp265000
+    - input: |
+        {
+          const data = [
+            { id: "L-201", buyer: "Sari", status: "done", items: [{ name: "Scented Candle", price: 30000, quantity: 3 }] },
+            { id: "L-202", buyer: "Dimas", status: "done", items: [{ name: "Paper Lantern", price: 45000, quantity: 2 }] },
+            { id: "L-203", buyer: "Wulan", status: "done", items: [{ name: "String Lights", price: 25000, quantity: 1 }] },
+          ];
+          console.log(report(data));
+        }
+      output: |
+        Completed orders: 3
+        Cancelled orders: 0
+        Revenue: Rp205000
+        Biggest order: L-201 (Sari) Rp90000
+    - input: 'console.log(report([]))'
+      output: |
+        Completed orders: 0
+        Cancelled orders: 0
+        Revenue: Rp0
+        Biggest order: -
+    - input: |
+        {
+          const data = [
+            { id: "L-301", buyer: "Bayu", status: "cancelled", items: [{ name: "Desk Lamp", price: 85000, quantity: 2 }] },
+            { id: "L-302", buyer: "Sari", status: "cancelled", items: [{ name: "Scented Candle", price: 30000, quantity: 1 }] },
+          ];
+          console.log(report(data));
+        }
+      output: |
+        Completed orders: 0
+        Cancelled orders: 2
+        Revenue: Rp0
+        Biggest order: -
+  solution: |
+    const orderTotal = (order) =>
+      order.items.reduce((t, item) => t + item.price * item.quantity, 0);
+
+    const report = (orders) => {
+      const done = orders.filter((o) => o.status === "done");
+      const revenue = done.reduce((t, o) => t + orderTotal(o), 0);
+      const biggest = [...done].sort(
+        (a, b) => orderTotal(b) - orderTotal(a)
+      )[0];
+      const biggestText =
+        biggest === undefined
+          ? "-"
+          : `${biggest.id} (${biggest.buyer}) Rp${orderTotal(biggest)}`;
+
+      const lines = [
+        `Completed orders: ${done.length}`,
+        `Cancelled orders: ${orders.length - done.length}`,
+        `Revenue: Rp${revenue}`,
+        `Biggest order: ${biggestText}`,
+      ];
+      return lines.join("\n");
+    };
+
+- slug: the-right-chain
+  type: choice
+  title: The right chain
+  prompt: |
+    `orders` is an array of orders and `orderTotal(o)` returns the total of one order. Which code works out the revenue from only the orders with the status `"done"`?
+  options:
+    - "`orders.map((o) => o.status === \"done\").reduce((t, o) => t + orderTotal(o), 0)`"
+    - "`orders.filter((o) => o.status === \"done\").reduce((t, o) => t + orderTotal(o), 0)`"
+    - "`orders.reduce((t, o) => t + orderTotal(o), 0).filter((o) => o.status === \"done\")`"
+    - "`orders.find((o) => o.status === \"done\").reduce((t, o) => t + orderTotal(o), 0)`"
+  correct: [1]
+  hint: Look at what each method gives back before the next one is called, an array of orders, some other array, one object, or a number?
+  explanation: '`filter` gives back an array of the completed orders, so `reduce` can add up their totals. `map` with a condition gives an array of `true`/`false`, not orders. `reduce` gives a number, and a number has no `filter`. `find` gives back just one order, which has no `reduce`.'

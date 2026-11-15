@@ -1,0 +1,90 @@
+- slug: add-up-the-prices
+  type: code
+  title: Add up the prices
+  prompt: |
+    Write a function `sumPrices(prices)` that takes an array of prices and returns the sum of all of them.
+
+    Example: `sumPrices([85000, 45000])` gives `130000`. An empty array gives `0`.
+  starter: |
+    function sumPrices(prices) {
+      let total = 0;
+      // add every price to total
+
+    }
+  hints:
+    - "Visit every price with `for (const price of prices) { ... }`."
+    - "Inside the loop, add the price to the holder: `total = total + price;`"
+    - "After the loop has finished (outside its curly braces), write `return total;`. If the `return` sits inside the loop, the function stops at the first price."
+  tests:
+    - input: "console.log(sumPrices([85000, 45000]))"
+      output: "130000"
+    - input: "console.log(sumPrices([12000, 12000, 12000, 60000]))"
+      output: "96000"
+    - input: "console.log(sumPrices([60000]))"
+      output: "60000"
+    - input: "console.log(sumPrices([]))"
+      output: "0"
+  solution: |
+    function sumPrices(prices) {
+      let total = 0;
+      for (const price of prices) {
+        total = total + price;
+      }
+      return total;
+    }
+
+- slug: affordable-prices
+  type: code
+  title: Affordable prices
+  prompt: |
+    Shoppers want to filter products to fit their budget. Write a function `affordablePrices(prices, limit)` that returns a **new array** holding the prices that are **less than or equal to** `limit`, in the same order.
+
+    Example: `affordablePrices([85000, 45000, 12000], 50000)` gives `[45000,12000]`. If nothing matches, return an empty array `[]`.
+  starter: |
+    function affordablePrices(prices, limit) {
+      const result = [];
+      // put the matching prices into result
+
+    }
+  hints:
+    - "The pattern is the same as adding up, but the holder is an array: visit every price, then decide with an `if` whether it goes in."
+    - "A matching price is added with `result.push(price);`. A price equal to the limit also goes in, so use `<=`."
+    - "Inside the loop: `if (price <= limit) { result.push(price); }`. After the loop: `return result;`"
+  tests:
+    - input: "console.log(affordablePrices([85000, 45000, 12000], 50000))"
+      output: "[45000,12000]"
+    - input: "console.log(affordablePrices([85000, 45000, 60000, 12000], 60000))"
+      output: "[45000,60000,12000]"
+    - input: "console.log(affordablePrices([85000, 60000], 10000))"
+      output: "[]"
+    - input: "console.log(affordablePrices([], 100000))"
+      output: "[]"
+  solution: |
+    function affordablePrices(prices, limit) {
+      const result = [];
+      for (const price of prices) {
+        if (price <= limit) {
+          result.push(price);
+        }
+      }
+      return result;
+    }
+
+- slug: positions-in-an-array
+  type: choice
+  title: Positions in an array
+  prompt: |
+    What appears?
+
+    ```javascript
+    const products = ["Knit bag", "Knit hat", "Scarf"];
+    console.log(products[1]);
+    ```
+  options:
+    - "`Knit bag`"
+    - "`Knit hat`"
+    - "`Scarf`"
+    - "`undefined`"
+  correct: [1]
+  hint: Positions in an array are counted from 0.
+  explanation: "Positions are counted from 0, so `products[0]` is `Knit bag` and `products[1]` is `Knit hat`. There is nothing at `products[3]`, so that gives `undefined`."

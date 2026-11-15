@@ -1,0 +1,202 @@
+- slug: skip-lines-that-are-not-json
+  type: code
+  title: Lewati baris yang bukan JSON
+  prompt: |
+    Baris pertama berisi `n`, lalu `n` baris. Setiap baris seharusnya berisi satu pesanan JSON dengan kunci `id` dan `total`, tetapi sebagian baris rusak dan bukan JSON yang sah.
+
+    Jumlahkan `total` dari baris yang sah, lewati yang rusak, lalu cetak:
+
+    ```
+    Total: Rp<jumlah total dari baris yang sah>
+    Baris rusak: <banyaknya baris rusak>
+    ```
+  starter: |
+    import json
+
+    n = int(input())
+    total = 0
+    rusak = 0
+    for _ in range(n):
+        pesanan = json.loads(input())
+        total += pesanan["total"]
+    print(f"Total: Rp{total}")
+    print(f"Baris rusak: {rusak}")
+  hints:
+    - >-
+      Kode awal sudah benar untuk data yang rapi. Ia berhenti begitu `json.loads` menemui baris yang bukan JSON.
+    - >-
+      Bungkus dua baris di dalam perulangan dengan `try:`. Error yang ditimbulkan `json.loads` bernama `json.JSONDecodeError`.
+    - >-
+      Di bawah `try`, sejajar dengannya, tulis `except json.JSONDecodeError:` lalu `rusak += 1`. Total hanya bertambah jika barisnya berhasil dibaca.
+  tests:
+    - input: |
+        4
+        {"id": "AM-1021", "total": 68000}
+        {"id": "AM-1022", "total": 22000
+        {'id': 'AM-1023', 'total': 50000}
+        {"id": "AM-1024", "total": 30000}
+      output: |
+        Total: Rp98000
+        Baris rusak: 2
+    - input: |
+        2
+        {"id": "AM-1030", "total": 25000}
+        {"id": "AM-1031", "total": 6000}
+      output: |
+        Total: Rp31000
+        Baris rusak: 0
+    - input: |
+        3
+        id=AM-1040,total=68000
+        <html>Server Error</html>
+        {"id": "AM-1042", "total": 12000,}
+      output: |
+        Total: Rp0
+        Baris rusak: 3
+    - input: |
+        0
+      output: |
+        Total: Rp0
+        Baris rusak: 0
+  solution: |
+    import json
+
+    n = int(input())
+    total = 0
+    rusak = 0
+    for _ in range(n):
+        try:
+            pesanan = json.loads(input())
+            total += pesanan["total"]
+        except json.JSONDecodeError:
+            rusak += 1
+    print(f"Total: Rp{total}")
+    print(f"Baris rusak: {rusak}")
+
+- slug: check-every-order
+  type: code
+  title: Periksa setiap pesanan
+  prompt: |
+    Lengkapi fungsi `periksa(teks)`. Fungsi ini menerima satu baris teks dan mengembalikan satu teks hasil pemeriksaan. Periksa dalam urutan ini, dan kembalikan hasil dari pemeriksaan pertama yang gagal:
+
+    1. `RUSAK: bukan JSON` jika teksnya bukan JSON yang sah
+    2. `RUSAK: bukan objek` jika hasilnya bukan dictionary
+    3. `RUSAK: kunci kurang` jika kunci `id`, `jumlah`, atau `harga` tidak ada
+    4. `RUSAK: angka tidak sah` jika `jumlah` atau `harga` tidak bisa diubah dengan `int()`, atau `jumlah` kurang dari 1
+
+    Jika semuanya lolos, kembalikan `OK <id> Rp<jumlah dikali harga>`. Angka di dalam tanda kutip seperti `"3"` tetap diterima.
+
+    Program di bawahnya sudah mencetak setiap hasil dan menghitung baris yang sah dan rusak.
+  starter: |
+    import json
+
+
+    def periksa(teks):
+        data = json.loads(teks)
+        # tambahkan empat pemeriksaan sebelum baris return ini
+        return f"OK {data['id']} Rp{data['jumlah'] * data['harga']}"
+
+
+    n = int(input())
+    sah = 0
+    rusak = 0
+    for _ in range(n):
+        hasil = periksa(input())
+        print(hasil)
+        if hasil.startswith("OK"):
+            sah += 1
+        else:
+            rusak += 1
+    print(f"Sah: {sah}, rusak: {rusak}")
+  hints:
+    - >-
+      Kerjakan dari luar ke dalam, seperti di materi. Mulai dengan memasukkan `json.loads(teks)` ke dalam `try`, dan di `except json.JSONDecodeError:` tulis `return "RUSAK: bukan JSON"`.
+    - >-
+      Lalu `if not isinstance(data, dict):` kembalikan `RUSAK: bukan objek`, dan `if "id" not in data or "jumlah" not in data or "harga" not in data:` kembalikan `RUSAK: kunci kurang`.
+    - >-
+      Terakhir, di dalam `try` kedua: `jumlah = int(data["jumlah"])` dan `harga = int(data["harga"])`, dengan `except (ValueError, TypeError):` yang mengembalikan `RUSAK: angka tidak sah`. Setelah itu `if jumlah < 1:` kembalikan teks yang sama, dan hitung totalnya dari `jumlah * harga`.
+  tests:
+    - input: |
+        5
+        {"id": "AM-1021", "jumlah": 2, "harga": 28000}
+        {"id": "AM-1022", "jumlah": "3", "harga": "22000"}
+        {"id": "AM-1023", "jumlah": 2
+        [1, 2, 3]
+        {"id": "AM-1025", "harga": 6000}
+      output: |
+        OK AM-1021 Rp56000
+        OK AM-1022 Rp66000
+        RUSAK: bukan JSON
+        RUSAK: bukan objek
+        RUSAK: kunci kurang
+        Sah: 2, rusak: 3
+    - input: |
+        3
+        {"id": "AM-1030", "jumlah": "dua", "harga": 25000}
+        {"id": "AM-1031", "jumlah": null, "harga": 25000}
+        {"id": "AM-1032", "jumlah": 0, "harga": 25000}
+      output: |
+        RUSAK: angka tidak sah
+        RUSAK: angka tidak sah
+        RUSAK: angka tidak sah
+        Sah: 0, rusak: 3
+    - input: |
+        2
+        "AM-1040"
+        {"harga": 6000, "jumlah": 4, "id": "AM-1041", "catatan": null}
+      output: |
+        RUSAK: bukan objek
+        OK AM-1041 Rp24000
+        Sah: 1, rusak: 1
+    - input: |
+        0
+      output: |
+        Sah: 0, rusak: 0
+  solution: |
+    import json
+
+
+    def periksa(teks):
+        try:
+            data = json.loads(teks)
+        except json.JSONDecodeError:
+            return "RUSAK: bukan JSON"
+        if not isinstance(data, dict):
+            return "RUSAK: bukan objek"
+        if "id" not in data or "jumlah" not in data or "harga" not in data:
+            return "RUSAK: kunci kurang"
+        try:
+            jumlah = int(data["jumlah"])
+            harga = int(data["harga"])
+        except (ValueError, TypeError):
+            return "RUSAK: angka tidak sah"
+        if jumlah < 1:
+            return "RUSAK: angka tidak sah"
+        return f"OK {data['id']} Rp{jumlah * harga}"
+
+
+    n = int(input())
+    sah = 0
+    rusak = 0
+    for _ in range(n):
+        hasil = periksa(input())
+        print(hasil)
+        if hasil.startswith("OK"):
+            sah += 1
+        else:
+            rusak += 1
+    print(f"Sah: {sah}, rusak: {rusak}")
+
+- slug: which-one-is-not-json
+  type: choice
+  title: Mana yang bukan JSON?
+  prompt: |
+    Teks mana yang membuat `json.loads` berhenti dengan `json.JSONDecodeError`?
+  options:
+    - '`{"menu": "sate ayam"}`'
+    - "`{'menu': 'sate ayam'}`"
+    - "`null`"
+    - "`[1, 2, 3]`"
+  correct: [1]
+  hint: JSON lebih ketat daripada Python soal tanda kutip.
+  explanation: "JSON hanya mengenal tanda kutip ganda, jadi teks dengan kutip tunggal ditolak walaupun di Python itu dictionary yang sah. Tiga lainnya JSON yang sah: sebuah objek, `null` (menjadi `None`), dan sebuah daftar. Sah sebagai JSON belum tentu berupa objek, dan itulah gunanya pemeriksaan `isinstance`."

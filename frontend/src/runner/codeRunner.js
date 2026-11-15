@@ -1,4 +1,4 @@
-// Talks to a language worker (Python or SQL). One worker is kept warm; if a program runs too long
+// Talks to a language worker (Python, SQL or JavaScript). One worker is kept warm; if a program runs too long
 // the worker is killed (the only way to stop an endless loop) and a fresh one starts on the next run.
 import { compareOutput } from '../grading.js';
 import { format } from '../i18n.js';
@@ -7,6 +7,7 @@ import { format } from '../i18n.js';
 export const RUNNERS = {
   python: { name: 'Python', workerUrl: '/runners/python-worker.mjs' },
   sql: { name: 'SQL', workerUrl: '/runners/sql-worker.mjs' },
+  javascript: { name: 'JavaScript', workerUrl: '/runners/js-worker.mjs' },
 };
 
 export const createPythonRunner = (options) => createRunner('python', options);

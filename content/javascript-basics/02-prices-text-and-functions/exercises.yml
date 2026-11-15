@@ -1,0 +1,79 @@
+- slug: work-out-the-subtotal
+  type: code
+  title: Hitung subtotal
+  prompt: |
+    Buat fungsi `hitungSubtotal(harga, jumlah)` yang **mengembalikan** harga dikali jumlah barang.
+
+    Contoh: `hitungSubtotal(85000, 2)` menghasilkan `170000`.
+
+    Kamu tidak perlu memanggil `console.log` sendiri. Tes yang akan memanggil fungsimu.
+  starter: |
+    function hitungSubtotal(harga, jumlah) {
+      // kembalikan harga dikali jumlah
+    }
+  hints:
+    - "Fungsi ini cukup satu baris: hitung hasilnya, lalu kirim keluar dengan `return`."
+    - "Kalau yang tampil `undefined`, fungsimu belum mengembalikan apa pun. Pakai `return`, bukan `console.log`."
+    - "Isi fungsinya: `return harga * jumlah;`"
+  tests:
+    - input: "console.log(hitungSubtotal(85000, 2))"
+      output: "170000"
+    - input: "console.log(hitungSubtotal(12000, 5))"
+      output: "60000"
+    - input: "console.log(hitungSubtotal(45000, 1))"
+      output: "45000"
+    - input: "console.log(hitungSubtotal(60000, 0))"
+      output: "0"
+  solution: |
+    function hitungSubtotal(harga, jumlah) {
+      return harga * jumlah;
+    }
+
+- slug: price-label
+  type: code
+  title: Label harga
+  prompt: |
+    Mbak Sekar ingin label harga dengan nama produk dalam huruf besar.
+
+    Buat fungsi `labelHarga(nama, harga)` yang mengembalikan teks dengan format `<NAMA> - Rp<harga>`.
+
+    Contoh: `labelHarga("Tas rajut", 85000)` menghasilkan `TAS RAJUT - Rp85000`.
+  starter: |
+    function labelHarga(nama, harga) {
+      // kembalikan teks label
+    }
+  hints:
+    - "`nama.toUpperCase()` menghasilkan nama dalam huruf besar."
+    - "Susun teksnya dengan template literal. Di dalam `${...}` kamu boleh menulis `nama.toUpperCase()`. Perhatikan spasi di kiri dan kanan tanda `-`."
+    - "Isi fungsinya: return `${nama.toUpperCase()} - Rp${harga}`;"
+  tests:
+    - input: "console.log(labelHarga('Tas rajut', 85000))"
+      output: "TAS RAJUT - Rp85000"
+    - input: "console.log(labelHarga('syal', 60000))"
+      output: "SYAL - Rp60000"
+    - input: "console.log(labelHarga('TOPI', 45000))"
+      output: "TOPI - Rp45000"
+    - input: "console.log(labelHarga('Gantungan kunci', 0))"
+      output: "GANTUNGAN KUNCI - Rp0"
+  solution: |
+    function labelHarga(nama, harga) {
+      return `${nama.toUpperCase()} - Rp${harga}`;
+    }
+
+- slug: adding-or-joining
+  type: choice
+  title: Menjumlah atau menyambung?
+  prompt: |
+    Apa yang tampil?
+
+    ```javascript
+    console.log("Rp" + 5000 + 500);
+    ```
+  options:
+    - "`Rp5500`"
+    - "`Rp5000500`"
+    - "`5500`"
+    - "Error, teks tidak bisa dijumlahkan dengan angka"
+  correct: [1]
+  hint: JavaScript menghitung dari kiri ke kanan. Apa hasil `"Rp" + 5000`?
+  explanation: "`\"Rp\" + 5000` menghasilkan string `Rp5000`. Setelah itu string ditambah `500` berarti disambung lagi, jadi hasilnya `Rp5000500`. Supaya dijumlahkan dulu, tulis `\"Rp\" + (5000 + 500)` atau pakai template literal."

@@ -1,0 +1,168 @@
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang dicetak?
+  prompt: |
+    Apa yang dicetak program ini?
+
+    ```kotlin
+    data class Pesanan(val pelanggan: String, val berat: Int, val lunas: Boolean = false)
+
+    fun main() {
+        val awal = Pesanan("Bu Wati", 3)
+        val baru = awal.copy(lunas = true)
+        println(baru)
+    }
+    ```
+  options:
+    - "`Pesanan(Bu Wati, 3, true)`"
+    - "`Pesanan(pelanggan=Bu Wati, berat=3, lunas=true)`"
+    - "`Pesanan(pelanggan=Bu Wati, berat=3, lunas=false)`"
+    - "`Pesanan(lunas=true)`"
+  correct: [1]
+  hint: "`copy` menyalin semua properti dan hanya mengganti yang disebutkan. `toString` data class menulis `nama=nilai`."
+  explanation: >-
+    `awal` dibuat tanpa `lunas`, jadi nilainya `false`. `copy(lunas = true)` membuat objek baru
+    yang menyalin `pelanggan` dan `berat`, dan hanya mengganti `lunas`. `toString` sebuah data
+    class menulis nama kelas lalu setiap properti sebagai `nama=nilai`, jadi hasilnya
+    `Pesanan(pelanggan=Bu Wati, berat=3, lunas=true)`. Bentuk tanpa nama properti tidak pernah
+    dipakai, dan `lunas=false` adalah isi `awal`, bukan `baru`.
+
+- slug: which-line-is-rejected
+  type: choice
+  title: Baris mana yang ditolak?
+  prompt: |
+    Satu baris membuat program ini gagal dikompilasi. Baris mana, dan mengapa?
+
+    ```kotlin
+    class Pesanan(val pelanggan: String, var berat: Int) {
+        fun total(tarif: Int) = berat * tarif
+    }
+
+    fun main() {
+        val pesanan = Pesanan("Bu Wati", 3)   // baris 1
+        pesanan.berat = 4                     // baris 2
+        println(pesanan.total(7000))          // baris 3
+        pesanan.pelanggan = "Bu Wati S."      // baris 4
+    }
+    ```
+  options:
+    - "Baris 1: objek harus dibuat dengan `new Pesanan(...)`"
+    - "Baris 2: `pesanan` adalah `val`, jadi tidak ada isinya yang boleh berubah"
+    - "Baris 3: `total` tidak menulis tipe hasilnya"
+    - "Baris 4: `pelanggan` adalah properti `val`, jadi tidak boleh diisi ulang"
+  correct: [3]
+  hint: Lihat kata di depan tiap parameter pada baris `class`.
+  explanation: >-
+    Di konstruktor, `pelanggan` ditulis dengan `val` dan `berat` dengan `var`. Karena itu baris 4
+    ditolak, sedangkan baris 2 sah. `val pesanan` hanya berarti variabel `pesanan` tidak bisa
+    diganti objek lain; properti `var` di dalam objeknya tetap boleh berubah. Kotlin tidak
+    memakai `new`, dan tipe hasil fungsi satu ekspresi boleh disimpulkan.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Lengkapi baris yang kosong
+  prompt: |
+    Program ini harus mencetak `28000`. Apa yang mengisi bagian `____`?
+
+    ```kotlin
+    class Pesanan(val pelanggan: String, val berat: Int) {
+        fun total(tarif: Int): Int = ____
+    }
+
+    fun main() {
+        val pesanan = Pesanan("Pak Joko", 4)
+        println(pesanan.total(7000))
+    }
+    ```
+  options:
+    - "`berat * tarif`"
+    - "`self.berat * tarif`"
+    - "`Pesanan.berat * tarif`"
+    - "`berat + tarif`"
+  correct: [0]
+  hint: Di dalam method, properti objek dipakai langsung dengan namanya.
+  explanation: >-
+    Di dalam method, properti `berat` bisa dipakai langsung, jadi `berat * tarif` menghasilkan
+    4 * 7000 = 28000. `self` adalah kebiasaan Python dan tidak dikenal Kotlin (padanannya `this`,
+    yang boleh tidak ditulis). `Pesanan.berat` ditolak karena `berat` milik sebuah objek, bukan
+    milik kelasnya. `berat + tarif` sah tetapi menghasilkan 7004.
+
+- slug: what-the-word-data-means
+  type: choice
+  title: Arti kata data
+  prompt: |
+    Dimas mengubah baris pertama menjadi baris kedua:
+
+    ```kotlin
+    class Pesanan(val pelanggan: String, val berat: Int)
+    data class Pesanan(val pelanggan: String, val berat: Int)
+    ```
+
+    Apa yang berubah?
+  options:
+    - "Semua properti menjadi bisa diisi ulang, walaupun ditulis `val`"
+    - "Kelas itu tidak boleh lagi mempunyai method"
+    - "Kelas itu mendapat `toString` yang menampilkan isinya, `==` yang membandingkan isi, dan `copy`"
+    - "Objeknya otomatis tersimpan dan tidak hilang saat aplikasi ditutup"
+  correct: [2]
+  hint: Ingat apa yang tercetak saat sebuah data class dimasukkan ke `println`.
+  explanation: >-
+    Kata `data` meminta Kotlin membuatkan `toString` yang rapi (`Pesanan(pelanggan=..., berat=...)`),
+    `==` yang membandingkan isi properti, dan fungsi `copy`. Properti `val` tetap tidak bisa
+    diisi ulang; untuk "mengubah" data, kamu membuat salinan dengan `copy`. Data class tetap
+    boleh punya method, dan kata `data` tidak ada hubungannya dengan menyimpan ke penyimpanan.
+
+- slug: practice-order-class
+  type: code
+  required: false
+  title: "Latihan: data class Order"
+  prompt: |
+    Lengkapi data class `Order`: tambahkan properti `kg` dan `pricePerKg` (keduanya `Int`) di constructor, dan buat method `total()` yang mengembalikan `kg` × `pricePerKg`. `main` sudah membuat objeknya dan mencetak `<name>: Rp<total>`.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    data class Order(val name: String) {
+        fun total(): Int = 0
+    }
+
+    fun main() {
+        val name = readln()
+        val kg = readln().toInt()
+        val pricePerKg = readln().toInt()
+        val order = Order(name)
+        println("${order.name}: Rp${order.total()}")
+    }
+  hints:
+    - "Properti ditulis di dalam kurung constructor, dipisah koma: `data class Order(val name: String, val kg: Int, ...)`."
+    - "Setelah properti ditambah, ubah `total()` menjadi `= kg * pricePerKg` dan buat objeknya dengan `Order(name, kg, pricePerKg)`."
+  tests:
+    - input: |
+        Bu Ani
+        3
+        7000
+      output: |
+        Bu Ani: Rp21000
+    - input: |
+        Dimas
+        10
+        6000
+      output: |
+        Dimas: Rp60000
+    - input: |
+        Pak Joko
+        0
+        7000
+      output: |
+        Pak Joko: Rp0
+  solution: |
+    data class Order(val name: String, val kg: Int, val pricePerKg: Int) {
+        fun total(): Int = kg * pricePerKg
+    }
+
+    fun main() {
+        val name = readln()
+        val kg = readln().toInt()
+        val pricePerKg = readln().toInt()
+        val order = Order(name, kg, pricePerKg)
+        println("${order.name}: Rp${order.total()}")
+    }

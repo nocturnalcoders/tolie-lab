@@ -1,0 +1,154 @@
+- slug: read-one-order
+  type: code
+  title: Baca satu pesanan
+  prompt: |
+    Satu baris masukan berisi satu pesanan dalam bentuk JSON, dengan kunci `id`, `pelanggan`, `menu`, `jumlah`, dan `harga` (harga satuan). Urutan kuncinya bisa berbeda dan bisa ada kunci lain.
+
+    Cetak empat baris:
+
+    ```
+    Pesanan <id>
+    Pelanggan: <pelanggan>
+    Menu: <menu> x<jumlah>
+    Total: Rp<jumlah dikali harga>
+    ```
+  starter: |
+    import json
+
+    teks = input()
+    # ubah teks menjadi dictionary dengan json.loads, lalu cetak empat baris
+    print(teks)
+  hints:
+    - >-
+      Teks dari `input()` belum bisa diambil per kunci. Ubah dulu menjadi dictionary dengan `json.loads`.
+    - >-
+      Tulis `pesanan = json.loads(teks)`. Setelah itu `pesanan["id"]`, `pesanan["pelanggan"]`, dan kunci lainnya bisa dipakai seperti dictionary biasa.
+    - >-
+      `jumlah` dan `harga` sudah berupa angka, jadi totalnya `pesanan["jumlah"] * pesanan["harga"]`. Baris ketiga: `print(f"Menu: {pesanan['menu']} x{pesanan['jumlah']}")`.
+  tests:
+    - input: |
+        {"id": "AM-1021", "pelanggan": "Dewi", "menu": "nasi rendang", "jumlah": 2, "harga": 28000}
+      output: |
+        Pesanan AM-1021
+        Pelanggan: Dewi
+        Menu: nasi rendang x2
+        Total: Rp56000
+    - input: |
+        {"id": "AM-1022", "pelanggan": "Budi Santoso", "menu": "es teh manis", "jumlah": 5, "harga": 6000}
+      output: |
+        Pesanan AM-1022
+        Pelanggan: Budi Santoso
+        Menu: es teh manis x5
+        Total: Rp30000
+    - input: |
+        {"harga": 22000, "jumlah": 1, "menu": "ayam geprek", "pelanggan": "Tari", "id": "AM-1030", "catatan": "pedas"}
+      output: |
+        Pesanan AM-1030
+        Pelanggan: Tari
+        Menu: ayam geprek x1
+        Total: Rp22000
+    - input: |
+        {"id":"AM-1","pelanggan":"Agus","menu":"sate ayam","jumlah":10,"harga":25000}
+      output: |
+        Pesanan AM-1
+        Pelanggan: Agus
+        Menu: sate ayam x10
+        Total: Rp250000
+  solution: |
+    import json
+
+    teks = input()
+    pesanan = json.loads(teks)
+    print(f"Pesanan {pesanan['id']}")
+    print(f"Pelanggan: {pesanan['pelanggan']}")
+    print(f"Menu: {pesanan['menu']} x{pesanan['jumlah']}")
+    print(f"Total: Rp{pesanan['jumlah'] * pesanan['harga']}")
+
+- slug: payment-status
+  type: code
+  title: Status pembayaran
+  prompt: |
+    Satu baris masukan berisi JSON dengan kunci `id`, `lunas` (`true` atau `false`), dan `catatan` (teks atau `null`).
+
+    Cetak tiga baris:
+
+    ```
+    Pesanan <id>
+    Status: lunas
+    Catatan: <catatan>
+    ```
+
+    Jika `lunas` bernilai `false`, baris kedua menjadi `Status: belum dibayar`. Jika `catatan` bernilai `null`, baris ketiga menjadi `Catatan: -`.
+  starter: |
+    import json
+
+    pesanan = json.loads(input())
+    print(f"Pesanan {pesanan['id']}")
+    print(f"Status: {pesanan['lunas']}")
+    print(f"Catatan: {pesanan['catatan']}")
+  hints:
+    - >-
+      Kode awal mencetak `True`, `False`, dan `None` apa adanya. Yang diminta adalah kata-kata, jadi kamu perlu `if` untuk memilih teksnya.
+    - >-
+      `pesanan["lunas"]` sudah berupa `True` atau `False`, jadi cukup `if pesanan["lunas"]:` lalu cetak `Status: lunas`, dan di `else:` cetak `Status: belum dibayar`.
+    - >-
+      Untuk catatan: `if pesanan["catatan"] is None:` cetak `Catatan: -`, dan di `else:` cetak `f"Catatan: {pesanan['catatan']}"`.
+  tests:
+    - input: |
+        {"id": "AM-1021", "lunas": true, "catatan": "tanpa sambal"}
+      output: |
+        Pesanan AM-1021
+        Status: lunas
+        Catatan: tanpa sambal
+    - input: |
+        {"id": "AM-1022", "lunas": false, "catatan": null}
+      output: |
+        Pesanan AM-1022
+        Status: belum dibayar
+        Catatan: -
+    - input: |
+        {"id": "AM-1023", "lunas": true, "catatan": null}
+      output: |
+        Pesanan AM-1023
+        Status: lunas
+        Catatan: -
+    - input: |
+        {"catatan": "titip di pos satpam", "id": "AM-1024", "lunas": false}
+      output: |
+        Pesanan AM-1024
+        Status: belum dibayar
+        Catatan: titip di pos satpam
+  solution: |
+    import json
+
+    pesanan = json.loads(input())
+    print(f"Pesanan {pesanan['id']}")
+    if pesanan["lunas"]:
+        print("Status: lunas")
+    else:
+        print("Status: belum dibayar")
+    if pesanan["catatan"] is None:
+        print("Catatan: -")
+    else:
+        print(f"Catatan: {pesanan['catatan']}")
+
+- slug: number-or-text
+  type: choice
+  title: Angka atau teks?
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```python
+    import json
+
+    data = json.loads('{"jumlah": "2", "harga": 28000}')
+    print(data["jumlah"] * 2)
+    ```
+  options:
+    - "`4`"
+    - "`22`"
+    - "`56000`"
+    - "Program berhenti dengan error"
+  correct: [1]
+  hint: Perhatikan tanda kutip di sekitar nilai `jumlah` di dalam teks JSON.
+  explanation: 'Di dalam JSON itu, `"2"` ditulis dengan tanda kutip, jadi setelah `json.loads` nilainya tetap teks. Teks dikali 2 berarti diulang dua kali, sehingga tampil `22`. Kalau aplikasi mengirim `"jumlah": 2` tanpa tanda kutip, hasilnya `4`.'

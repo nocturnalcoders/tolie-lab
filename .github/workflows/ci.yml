@@ -53,6 +53,7 @@ jobs:
       # the runners against real Pyodide and real SQLite
       - run: npm run test:python
       - run: npm run test:sql
+      - run: npm run test:js
       # every solution and starter of every course
       - run: npm run check-content
       - run: npm run build

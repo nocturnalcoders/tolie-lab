@@ -1,0 +1,86 @@
+- slug: cart-line
+  type: code
+  title: Cart line
+  prompt: |
+    Every cart item is an object with the properties `name`, `price` and `quantity`.
+
+    Write a function `cartLine(item)` that returns text in the format `<name> x<quantity> = Rp<subtotal>`, where the subtotal is the price times the quantity.
+
+    Example: for `{ name: "Knit bag", price: 85000, quantity: 2 }` the result is `Knit bag x2 = Rp170000`.
+  starter: |
+    function cartLine(item) {
+      // return the text of one cart line
+    }
+  hints:
+    - "Properties are read with a dot: `item.name`, `item.price`, `item.quantity`."
+    - "Work out the subtotal into a variable first: `const subtotal = item.price * item.quantity;`"
+    - "Then return a template literal: return `${item.name} x${item.quantity} = Rp${subtotal}`;"
+  tests:
+    - input: "console.log(cartLine({ name: 'Knit bag', price: 85000, quantity: 2 }))"
+      output: "Knit bag x2 = Rp170000"
+    - input: "console.log(cartLine({ name: 'Keychain', price: 12000, quantity: 5 }))"
+      output: "Keychain x5 = Rp60000"
+    - input: "console.log(cartLine({ name: 'Scarf', price: 60000, quantity: 1 }))"
+      output: "Scarf x1 = Rp60000"
+    - input: "console.log(cartLine({ name: 'Knit hat', price: 45000, quantity: 0 }))"
+      output: "Knit hat x0 = Rp0"
+  solution: |
+    function cartLine(item) {
+      const subtotal = item.price * item.quantity;
+      return `${item.name} x${item.quantity} = Rp${subtotal}`;
+    }
+
+- slug: make-a-cart-item
+  type: code
+  title: Make a cart item
+  prompt: |
+    When a shopper presses "Add to cart", the shop makes one new object.
+
+    Write a function `makeItem(name, price, quantity)` that returns an object with four properties, **in this order**: `name`, `price`, `quantity`, then `subtotal` (the price times the quantity).
+
+    Example: `makeItem("Scarf", 60000, 2)` gives
+
+    ```
+    {"name":"Scarf","price":60000,"quantity":2,"subtotal":120000}
+    ```
+  starter: |
+    function makeItem(name, price, quantity) {
+      // return an object with name, price, quantity, subtotal
+    }
+  hints:
+    - "An object is written inside curly braces as `property: value` pairs, for example `{ name: name, price: price }`."
+    - "The value of a property can be a calculation: `subtotal: price * quantity`. The order of the properties decides the order they are shown in."
+    - "The body of the function: `return { name: name, price: price, quantity: quantity, subtotal: price * quantity };`"
+  tests:
+    - input: "console.log(makeItem('Scarf', 60000, 2))"
+      output: '{"name":"Scarf","price":60000,"quantity":2,"subtotal":120000}'
+    - input: "console.log(makeItem('Knit bag', 85000, 1))"
+      output: '{"name":"Knit bag","price":85000,"quantity":1,"subtotal":85000}'
+    - input: "console.log(makeItem('Knit hat', 45000, 0))"
+      output: '{"name":"Knit hat","price":45000,"quantity":0,"subtotal":0}'
+    - input: "const item = makeItem('Keychain', 12000, 4); console.log(item.subtotal); console.log(item.name)"
+      output: "48000\nKeychain"
+  solution: |
+    function makeItem(name, price, quantity) {
+      return { name: name, price: price, quantity: quantity, subtotal: price * quantity };
+    }
+
+- slug: objects-and-const
+  type: choice
+  title: Objects and const
+  prompt: |
+    What appears?
+
+    ```javascript
+    const product = { name: "Scarf", stock: 10 };
+    product.stock = 9;
+    console.log(product.stock);
+    ```
+  options:
+    - "`10`, because a `const` cannot change"
+    - "`9`"
+    - "An error, because `product` was made with `const`"
+    - "`undefined`"
+  correct: [1]
+  hint: What `const` forbids is replacing `product` with another value, such as `product = ...`.
+  explanation: "`const` only forbids replacing `product` with a different object. The properties inside the object may still change, so `product.stock` is now `9`."

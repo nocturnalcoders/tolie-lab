@@ -1,0 +1,198 @@
+- slug: an-order-as-json
+  type: code
+  title: Pesanan menjadi JSON
+  prompt: |
+    Pesanan lewat telepon dicatat manual. Baca empat baris: nama pelanggan, nama menu, jumlah, dan harga satuan.
+
+    Susun dictionary dengan kunci `pelanggan`, `menu`, `jumlah` (angka), `harga` (angka), dan `total` (jumlah dikali harga). Cetak sebagai satu baris JSON dengan kunci berurutan menurut abjad, dan nama tampil apa adanya:
+
+    ```
+    {"harga": 28000, "jumlah": 2, "menu": "nasi rendang", "pelanggan": "André", "total": 56000}
+    ```
+  starter: |
+    import json
+
+    pelanggan = input()
+    menu = input()
+    jumlah = input()
+    harga = input()
+    pesanan = {"pelanggan": pelanggan, "menu": menu, "jumlah": jumlah, "harga": harga}
+    # jumlah dan harga harus angka, tambahkan "total", lalu cetak dengan json.dumps
+    print(pesanan)
+  hints:
+    - >-
+      Ada tiga hal yang kurang: `jumlah` dan `harga` masih teks, kunci `total` belum ada, dan `print(pesanan)` menghasilkan tulisan Python, bukan JSON.
+    - >-
+      Ubah dengan `jumlah = int(input())` dan `harga = int(input())`, lalu tambahkan `pesanan["total"] = jumlah * harga`.
+    - >-
+      Cetak dengan `print(json.dumps(pesanan, sort_keys=True, ensure_ascii=False))`. `sort_keys` mengurutkan kuncinya, dan `ensure_ascii=False` menjaga huruf seperti `é`.
+  tests:
+    - input: |
+        André
+        nasi rendang
+        2
+        28000
+      output: |
+        {"harga": 28000, "jumlah": 2, "menu": "nasi rendang", "pelanggan": "André", "total": 56000}
+    - input: |
+        Dewi
+        es teh manis
+        5
+        6000
+      output: |
+        {"harga": 6000, "jumlah": 5, "menu": "es teh manis", "pelanggan": "Dewi", "total": 30000}
+    - input: |
+        Zoë Putri
+        sate ayam
+        1
+        25000
+      output: |
+        {"harga": 25000, "jumlah": 1, "menu": "sate ayam", "pelanggan": "Zoë Putri", "total": 25000}
+    - input: |
+        Budi Santoso
+        ayam geprek
+        10
+        22000
+      output: |
+        {"harga": 22000, "jumlah": 10, "menu": "ayam geprek", "pelanggan": "Budi Santoso", "total": 220000}
+  solution: |
+    import json
+
+    pelanggan = input()
+    menu = input()
+    jumlah = int(input())
+    harga = int(input())
+    pesanan = {"pelanggan": pelanggan, "menu": menu, "jumlah": jumlah, "harga": harga}
+    pesanan["total"] = jumlah * harga
+    print(json.dumps(pesanan, sort_keys=True, ensure_ascii=False))
+
+- slug: a-tidy-order-summary
+  type: code
+  title: Ringkasan pesanan yang rapi
+  prompt: |
+    Satu baris masukan berisi pesanan dengan kunci `id`, `pelanggan` (nama), dan `item` (daftar objek dengan kunci `menu`, `jumlah`, dan `harga`).
+
+    Susun ringkasan dengan kunci:
+
+    - `id` dan `pelanggan`: sama seperti masukan
+    - `jumlah_item`: jumlah semua porsi
+    - `menu`: daftar nama menu, diurutkan menurut abjad
+    - `total`: jumlah dikali harga dari semua item
+
+    Cetak dengan `indent=2`, kunci berurutan menurut abjad, dan nama tampil apa adanya:
+
+    ```
+    {
+      "id": "AM-1021",
+      "jumlah_item": 4,
+      "menu": [
+        "es teh manis",
+        "nasi rendang"
+      ],
+      "pelanggan": "Dewi",
+      "total": 68000
+    }
+    ```
+
+    Daftar `item` bisa kosong.
+  starter: |
+    import json
+
+    pesanan = json.loads(input())
+    ringkasan = {"id": pesanan["id"], "pelanggan": pesanan["pelanggan"]}
+    # hitung jumlah_item, menu, dan total, lalu masukkan ke ringkasan
+    print(json.dumps(ringkasan))
+  hints:
+    - >-
+      Siapkan tiga wadah sebelum perulangan: `jumlah_item = 0`, `total = 0`, dan `menu = []`. Isi ketiganya sambil mengulang `pesanan["item"]`.
+    - >-
+      Di dalam perulangan: `jumlah_item += item["jumlah"]`, `total += item["jumlah"] * item["harga"]`, dan `menu.append(item["menu"])`. Setelahnya simpan ke ringkasan, dengan `ringkasan["menu"] = sorted(menu)`.
+    - >-
+      Baris terakhir menjadi `print(json.dumps(ringkasan, indent=2, sort_keys=True, ensure_ascii=False))`.
+  tests:
+    - input: |
+        {"id": "AM-1021", "pelanggan": "Dewi", "item": [{"menu": "nasi rendang", "jumlah": 2, "harga": 28000}, {"menu": "es teh manis", "jumlah": 2, "harga": 6000}]}
+      output: |
+        {
+          "id": "AM-1021",
+          "jumlah_item": 4,
+          "menu": [
+            "es teh manis",
+            "nasi rendang"
+          ],
+          "pelanggan": "Dewi",
+          "total": 68000
+        }
+    - input: |
+        {"id": "AM-1022", "pelanggan": "André", "item": [{"menu": "ayam geprek", "jumlah": 3, "harga": 22000}]}
+      output: |
+        {
+          "id": "AM-1022",
+          "jumlah_item": 3,
+          "menu": [
+            "ayam geprek"
+          ],
+          "pelanggan": "André",
+          "total": 66000
+        }
+    - input: |
+        {"id": "AM-1023", "pelanggan": "Tari", "item": []}
+      output: |
+        {
+          "id": "AM-1023",
+          "jumlah_item": 0,
+          "menu": [],
+          "pelanggan": "Tari",
+          "total": 0
+        }
+    - input: |
+        {"item": [{"menu": "sate ayam", "jumlah": 1, "harga": 25000}, {"menu": "nasi rendang", "jumlah": 1, "harga": 28000}, {"menu": "es teh manis", "jumlah": 4, "harga": 6000}], "pelanggan": "Agus", "id": "AM-1024"}
+      output: |
+        {
+          "id": "AM-1024",
+          "jumlah_item": 6,
+          "menu": [
+            "es teh manis",
+            "nasi rendang",
+            "sate ayam"
+          ],
+          "pelanggan": "Agus",
+          "total": 77000
+        }
+  solution: |
+    import json
+
+    pesanan = json.loads(input())
+    ringkasan = {"id": pesanan["id"], "pelanggan": pesanan["pelanggan"]}
+    jumlah_item = 0
+    total = 0
+    menu = []
+    for item in pesanan["item"]:
+        jumlah_item += item["jumlah"]
+        total += item["jumlah"] * item["harga"]
+        menu.append(item["menu"])
+    ringkasan["jumlah_item"] = jumlah_item
+    ringkasan["menu"] = sorted(menu)
+    ringkasan["total"] = total
+    print(json.dumps(ringkasan, indent=2, sort_keys=True, ensure_ascii=False))
+
+- slug: what-json-dumps-gives
+  type: choice
+  title: Hasil json.dumps
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```python
+    import json
+
+    data = {"b": 1, "a": True, "c": None}
+    print(json.dumps(data, sort_keys=True))
+    ```
+  options:
+    - '`{"b": 1, "a": True, "c": None}`'
+    - '`{"a": true, "b": 1, "c": null}`'
+    - "`{'a': True, 'b': 1, 'c': None}`"
+    - '`{"a": "true", "b": 1, "c": "null"}`'
+  correct: [1]
+  hint: Ada dua hal yang berubah, yaitu urutan kunci dan ejaan nilai khususnya.
+  explanation: "`sort_keys=True` mengurutkan kunci menjadi `a`, `b`, `c`. `True` ditulis `true` dan `None` ditulis `null`, keduanya tanpa tanda kutip karena bukan teks. Kutip tunggal dan `True` berhuruf besar adalah tulisan Python, bukan JSON."

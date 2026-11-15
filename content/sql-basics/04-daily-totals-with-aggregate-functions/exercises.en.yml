@@ -1,0 +1,102 @@
+- slug: summary-for-1-march
+  type: code
+  title: Summary for 1 March
+  prompt: |
+    Build a summary for the date `2024-03-01` from the `sales` table. The result is one row with two columns: `transactions` (the number of sales rows on that date) and `revenue` (the sum of every `subtotal` on that date).
+  setup: |
+    CREATE TABLE sales (id INTEGER PRIMARY KEY, sale_date TEXT, item TEXT, quantity INTEGER, subtotal INTEGER);
+    INSERT INTO sales VALUES
+      (1, '2024-03-01', 'Milk Coffee', 3, 45000),
+      (2, '2024-03-01', 'Toast', 1, 18000),
+      (3, '2024-03-01', 'Pulled Tea', 2, 24000),
+      (4, '2024-03-01', 'Milk Coffee', 2, 30000),
+      (5, '2024-03-02', 'Black Coffee', 4, 40000),
+      (6, '2024-03-02', 'Fried Rice', 2, 50000),
+      (7, '2024-03-02', 'Milk Coffee', 1, 15000),
+      (8, '2024-03-02', 'Banana Fritters', 3, 36000),
+      (9, '2024-03-03', 'Pulled Tea', 1, 12000),
+      (10, '2024-03-03', 'Milk Coffee', 4, 60000),
+      (11, '2024-03-03', 'Toast', 2, 36000);
+  starter: |
+    -- add the revenue column, and count only the date 2024-03-01
+    SELECT COUNT(*) AS transactions FROM sales;
+  hints:
+    - "Two things are still missing: a filter on the date, and a second column that adds up `subtotal`."
+    - "Filter with `WHERE sale_date = '2024-03-01'`. The number of rows is `COUNT(*)`, and the rupiah total is `SUM(subtotal)`."
+    - "The answer: `SELECT COUNT(*) AS transactions, SUM(subtotal) AS revenue FROM sales WHERE sale_date = '2024-03-01';`."
+  tests:
+    - output: |
+        transactions|revenue
+        4|117000
+    - input: |
+        INSERT INTO sales VALUES
+          (12, '2024-03-01', 'Black Coffee', 2, 20000),
+          (13, '2024-03-04', 'Milk Coffee', 1, 15000);
+      output: |
+        transactions|revenue
+        5|137000
+  solution: |
+    SELECT COUNT(*) AS transactions, SUM(subtotal) AS revenue
+    FROM sales
+    WHERE sale_date = '2024-03-01';
+
+- slug: transaction-statistics
+  type: code
+  title: Transaction statistics
+  prompt: |
+    Ms. Rina wants a picture of how small and how large transactions are. From **every** row of the `sales` table, show one row with three columns: `smallest` (the smallest subtotal), `largest` (the largest subtotal) and `average` (the average subtotal, rounded with `ROUND`).
+  setup: |
+    CREATE TABLE sales (id INTEGER PRIMARY KEY, sale_date TEXT, item TEXT, quantity INTEGER, subtotal INTEGER);
+    INSERT INTO sales VALUES
+      (1, '2024-03-01', 'Milk Coffee', 3, 45000),
+      (2, '2024-03-01', 'Toast', 1, 18000),
+      (3, '2024-03-01', 'Pulled Tea', 2, 24000),
+      (4, '2024-03-01', 'Milk Coffee', 2, 30000),
+      (5, '2024-03-02', 'Black Coffee', 4, 40000),
+      (6, '2024-03-02', 'Fried Rice', 2, 50000),
+      (7, '2024-03-02', 'Milk Coffee', 1, 15000),
+      (8, '2024-03-02', 'Banana Fritters', 3, 36000),
+      (9, '2024-03-03', 'Pulled Tea', 1, 12000),
+      (10, '2024-03-03', 'Milk Coffee', 4, 60000),
+      (11, '2024-03-03', 'Toast', 2, 36000);
+  starter: |
+    -- complete it with largest and average
+    SELECT MIN(subtotal) AS smallest FROM sales;
+  hints:
+    - "One `SELECT` can hold several aggregate functions, separated by commas, each with its own `AS`."
+    - "The largest is found with `MAX(subtotal)`, the average with `AVG(subtotal)`. The average needs to be wrapped in `ROUND(...)`."
+    - "The three columns: `MIN(subtotal) AS smallest, MAX(subtotal) AS largest, ROUND(AVG(subtotal)) AS average`."
+  tests:
+    - output: |
+        smallest|largest|average
+        12000|60000|33273
+    - input: |
+        INSERT INTO sales VALUES
+          (12, '2024-03-04', 'Sweet Iced Tea', 1, 8000),
+          (13, '2024-03-04', 'Fried Rice', 3, 75000);
+      output: |
+        smallest|largest|average
+        8000|75000|34538
+  solution: |
+    SELECT MIN(subtotal) AS smallest,
+           MAX(subtotal) AS largest,
+           ROUND(AVG(subtotal)) AS average
+    FROM sales;
+
+- slug: sum-or-count
+  type: choice
+  title: SUM or COUNT?
+  prompt: |
+    What does this statement work out?
+
+    ```sql
+    SELECT SUM(quantity) FROM sales WHERE item = 'Milk Coffee';
+    ```
+  options:
+    - "The number of transactions that contain Milk Coffee"
+    - "The number of Milk Coffee servings sold"
+    - "The money that came in from Milk Coffee"
+    - "The price of one serving of Milk Coffee"
+  correct: [1]
+  hint: "`SUM` adds up what is in a column, `COUNT` counts rows. The `quantity` column holds the number of servings."
+  explanation: "`SUM(quantity)` adds up the servings from every Milk Coffee transaction: 3 + 2 + 1 + 4 = 10 servings. The number of transactions (4) is counted with `COUNT(*)`, and the money that came in with `SUM(subtotal)`."

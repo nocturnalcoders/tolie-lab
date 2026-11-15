@@ -1,41 +1,41 @@
 ---
-title: A price list with dictionaries
+title: Daftar harga dengan dictionary
 ---
-Menu prices should not be scattered in many places. We keep them in a single **dictionary**: a collection of *key* and *value* pairs.
+Harga menu tidak boleh tersebar di banyak tempat. Kita simpan di satu **dictionary**: kumpulan pasangan *kunci* dan *nilai*.
 
-## Creating and reading
+## Membuat dan membaca
 
 ```python
-menu = {"milk coffee": 15000, "pulled tea": 12000}
+menu = {"kopi susu": 15000, "teh tarik": 12000}
 
-print(menu["milk coffee"])   # 15000
+print(menu["kopi susu"])   # 15000
 ```
 
-The key is on the left of the colon, the value on the right. Reading a key that does not exist causes a `KeyError`.
+Kunci di sebelah kiri titik dua, nilai di sebelah kanan. Membaca kunci yang tidak ada menimbulkan error `KeyError`.
 
-## Checking and getting safely
+## Memeriksa dan mengambil dengan aman
 
 ```python
-if "orange juice" in menu:
-    print("Available")
+if "es jeruk" in menu:
+    print("Ada")
 else:
-    print("Not yet")
+    print("Belum ada")
 
-print(menu.get("orange juice", 0))   # 0, because it is missing
+print(menu.get("es jeruk", 0))   # 0, karena tidak ada
 ```
 
-`.get(key, fallback)` returns the fallback value if the key is missing, without an error.
+`.get(kunci, cadangan)` mengembalikan nilai cadangan bila kunci tidak ada, tanpa error.
 
-## Adding and changing
+## Menambah dan mengubah
 
 ```python
-menu["toast"] = 18000          # add
-menu["milk coffee"] = 16000    # change a price
+menu["roti bakar"] = 18000   # tambah
+menu["kopi susu"] = 16000    # ubah harga
 ```
 
-## Looping over a dictionary
+## Mengulang isi dictionary
 
 ```python
-for name, price in menu.items():
-    print(name, price)
+for nama, harga in menu.items():
+    print(nama, harga)
 ```

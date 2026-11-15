@@ -1,0 +1,126 @@
+- slug: cart-subtotal
+  type: code
+  title: Cart subtotal
+  prompt: |
+    A cart is an array of objects with the properties `name`, `price` and `quantity`.
+
+    Write a function `calcSubtotal(cart)` that returns the sum of `price * quantity` for every item in the cart. An empty cart gives `0`.
+
+    Example: 2 knit bags at 85000 and 1 knit hat at 45000 give `215000`.
+  starter: |
+    function calcSubtotal(cart) {
+      let subtotal = 0;
+      // add price * quantity of every item
+
+    }
+  hints:
+    - "This is the adding-up pattern from lesson 4, except that every item in the array is now an object."
+    - "Inside `for (const item of cart) { ... }`, what you add to the holder is `item.price * item.quantity`."
+    - "Inside the loop: `subtotal = subtotal + item.price * item.quantity;`. After the loop: `return subtotal;`"
+  tests:
+    - input: "console.log(calcSubtotal([{ name: 'Knit bag', price: 85000, quantity: 2 }, { name: 'Knit hat', price: 45000, quantity: 1 }]))"
+      output: "215000"
+    - input: "console.log(calcSubtotal([{ name: 'Scarf', price: 60000, quantity: 1 }]))"
+      output: "60000"
+    - input: "console.log(calcSubtotal([{ name: 'Keychain', price: 12000, quantity: 3 }, { name: 'Scarf', price: 60000, quantity: 2 }, { name: 'Knit hat', price: 45000, quantity: 0 }]))"
+      output: "156000"
+    - input: "console.log(calcSubtotal([]))"
+      output: "0"
+  solution: |
+    function calcSubtotal(cart) {
+      let subtotal = 0;
+      for (const item of cart) {
+        subtotal = subtotal + item.price * item.quantity;
+      }
+      return subtotal;
+    }
+
+- slug: total-to-pay
+  type: code
+  title: Total to pay
+  prompt: |
+    Complete four small functions that follow the Sekar Knits rules:
+
+    - `calcSubtotal(cart)`: the same as in the previous exercise, you may copy it.
+    - `calcDiscount(subtotal)`: 10% of the subtotal if the subtotal is **300000 or more**, otherwise `0`.
+    - `calcShipping(subtotal)`: `0` if the subtotal is **200000 or more**, otherwise `15000`.
+    - `totalToPay(cart)`: the subtotal minus the discount, plus shipping. If the cart is empty there is nothing to ship, so return `0`.
+
+    Example: 4 knit bags at 85000 have a subtotal of 340000, a discount of 34000 and shipping of 0, so the total to pay is `306000`.
+  starter: |
+    function calcSubtotal(cart) {
+      // copy from the previous exercise
+    }
+
+    function calcDiscount(subtotal) {
+      // 10% if the subtotal is 300000 or more, otherwise 0
+    }
+
+    function calcShipping(subtotal) {
+      // 0 if the subtotal is 200000 or more, otherwise 15000
+    }
+
+    function totalToPay(cart) {
+      // use the three functions above
+    }
+  hints:
+    - "Get one small function right first. `calcDiscount` and `calcShipping` are each just one `if` and `else`, as in lesson 3. Ten percent is written `subtotal * 10 / 100`."
+    - "In `totalToPay`, store the result first: `const subtotal = calcSubtotal(cart);`. The discount and shipping are worked out from that subtotal, not from the cart."
+    - "In `totalToPay`, after working out the subtotal: `if (subtotal === 0) { return 0; }`, then `return subtotal - calcDiscount(subtotal) + calcShipping(subtotal);`"
+  tests:
+    - input: "console.log(totalToPay([{ name: 'Scarf', price: 60000, quantity: 1 }]))"
+      output: "75000"
+    - input: "console.log(totalToPay([{ name: 'Knit bag', price: 85000, quantity: 2 }, { name: 'Knit hat', price: 45000, quantity: 1 }]))"
+      output: "215000"
+    - input: "console.log(totalToPay([{ name: 'Knit bag', price: 85000, quantity: 4 }]))"
+      output: "306000"
+    - input: "console.log(calcDiscount(300000)); console.log(calcDiscount(299000)); console.log(calcShipping(200000)); console.log(calcShipping(199000))"
+      output: "30000\n0\n0\n15000"
+    - input: "console.log(totalToPay([]))"
+      output: "0"
+  solution: |
+    function calcSubtotal(cart) {
+      let subtotal = 0;
+      for (const item of cart) {
+        subtotal = subtotal + item.price * item.quantity;
+      }
+      return subtotal;
+    }
+
+    function calcDiscount(subtotal) {
+      if (subtotal >= 300000) {
+        return subtotal * 10 / 100;
+      } else {
+        return 0;
+      }
+    }
+
+    function calcShipping(subtotal) {
+      if (subtotal >= 200000) {
+        return 0;
+      } else {
+        return 15000;
+      }
+    }
+
+    function totalToPay(cart) {
+      const subtotal = calcSubtotal(cart);
+      if (subtotal === 0) {
+        return 0;
+      }
+      return subtotal - calcDiscount(subtotal) + calcShipping(subtotal);
+    }
+
+- slug: apply-the-shop-rules
+  type: choice
+  title: Apply the shop rules
+  prompt: |
+    A shopper puts 3 knit bags at Rp85,000 into the cart, so the subtotal is Rp255,000. Under the Sekar Knits rules, what is the total to pay?
+  options:
+    - "Rp229,500"
+    - "Rp244,500"
+    - "Rp255,000"
+    - "Rp270,000"
+  correct: [2]
+  hint: Check the two rules separately. Does the subtotal reach the discount threshold? Does it reach the free shipping threshold?
+  explanation: "A subtotal of Rp255,000 does not reach Rp300,000, so the discount is 0. But it is over Rp200,000, so shipping is free. Total to pay: 255000 - 0 + 0 = Rp255,000."

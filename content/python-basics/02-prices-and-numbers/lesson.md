@@ -1,40 +1,40 @@
 ---
-title: Prices and numbers
+title: Harga dan angka
 ---
-Ms. Rina asks, "If someone buys two milk coffees, what is the total?" A computer can work that out, as long as we give the numbers names. (Prices here are in Indonesian rupiah, Rp.)
+Bu Rina bertanya, "Kalau ada yang beli dua kopi susu, totalnya berapa?" Komputer bisa menghitung itu, asal kita beri nama pada angkanya.
 
-## Variables
+## Variabel
 
-A **variable** is a name for a stored value:
+**Variabel** adalah nama untuk menyimpan nilai:
 
 ```python
-price = 15000
-quantity = 2
-total = price * quantity
+harga = 15000
+jumlah = 2
+total = harga * jumlah
 print(total)
 ```
 
-The result is `30000`. The `=` sign here means "store the value on the right under the name on the left".
+Hasilnya `30000`. Tanda `=` di sini berarti "simpan nilai di sebelah kanan ke nama di sebelah kiri".
 
-## Arithmetic
+## Operasi hitung
 
-| Operator | Meaning | Example | Result |
+| Operator | Artinya | Contoh | Hasil |
 | --- | --- | --- | --- |
-| `+` | add | `7 + 2` | `9` |
-| `-` | subtract | `7 - 2` | `5` |
-| `*` | multiply | `7 * 2` | `14` |
-| `/` | divide (decimal result) | `7 / 2` | `3.5` |
-| `//` | divide (rounded down) | `7 // 2` | `3` |
-| `%` | remainder | `7 % 2` | `1` |
+| `+` | tambah | `7 + 2` | `9` |
+| `-` | kurang | `7 - 2` | `5` |
+| `*` | kali | `7 * 2` | `14` |
+| `/` | bagi (hasil desimal) | `7 / 2` | `3.5` |
+| `//` | bagi (dibulatkan ke bawah) | `7 // 2` | `3` |
+| `%` | sisa bagi | `7 % 2` | `1` |
 
-The order is the same as in maths: multiply and divide come before add and subtract. Use parentheses to change the order.
+Urutannya seperti di matematika: kali dan bagi dikerjakan sebelum tambah dan kurang. Pakai tanda kurung untuk mengubah urutan.
 
-## Reading numbers from input
+## Membaca angka dari input
 
-`input()` reads one line the user typed, and the result is always **text**. Turn it into a number with `int()`:
+`input()` membaca satu baris yang diketik pengguna, dan hasilnya selalu **teks**. Ubah jadi angka dengan `int()`:
 
 ```python
-quantity = int(input())
+jumlah = int(input())
 ```
 
-In the exercises the input values are prepared by the tests, so you do not have to type them yourself.
+Di latihan, nilai input sudah disiapkan oleh tes, jadi kamu tidak perlu mengetiknya sendiri.

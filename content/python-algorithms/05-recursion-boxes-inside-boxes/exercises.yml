@@ -1,0 +1,144 @@
+- slug: the-number-of-delivery-orders
+  type: code
+  title: Banyaknya urutan antar
+  prompt: |
+    Masukan berisi satu angka `n`, jumlah paket yang dibawa kurir. Tulis fungsi **rekursif** `urutan(n)` yang mengembalikan banyaknya urutan untuk mengantar `n` paket: `n` dikali banyaknya urutan untuk `n - 1` paket.
+
+    Untuk 1 paket, dan juga untuk 0 paket, hasilnya 1. Program di bawahnya sudah mencetak hasilnya:
+
+    ```
+    Urutan antar untuk 3 paket: 6
+    ```
+  language: python
+  starter: |
+    def urutan(n):
+        # kasus dasar: n <= 1
+        # langkah rekursif: n dikali urutan untuk n - 1 paket
+        pass
+
+
+    n = int(input())
+    print(f"Urutan antar untuk {n} paket: {urutan(n)}")
+  hints:
+    - "Fungsi ini butuh dua bagian: jawaban langsung untuk masalah terkecil, dan pemanggilan dirinya sendiri untuk masalah yang lebih kecil."
+    - "Kasus dasarnya: `if n <= 1:` lalu `return 1`. Tulis ini lebih dulu, supaya pemanggilan berantai punya tempat berhenti."
+    - "Setelah kasus dasar, cukup satu baris: `return n * urutan(n - 1)`. Hapus `pass`."
+  tests:
+    - input: "3"
+      output: "Urutan antar untuk 3 paket: 6"
+    - input: "1"
+      output: "Urutan antar untuk 1 paket: 1"
+    - input: "0"
+      output: "Urutan antar untuk 0 paket: 1"
+    - input: "5"
+      output: "Urutan antar untuk 5 paket: 120"
+    - input: "10"
+      output: "Urutan antar untuk 10 paket: 3628800"
+  solution: |
+    def urutan(n):
+        if n <= 1:
+            return 1
+        return n * urutan(n - 1)
+
+
+    n = int(input())
+    print(f"Urutan antar untuk {n} paket: {urutan(n)}")
+
+- slug: count-what-is-in-nested-boxes
+  type: code
+  title: Hitung isi kardus bersarang
+  prompt: |
+    Baris pertama berisi `n` (paling sedikit 1), lalu `n` baris yang masing-masing menjelaskan satu kardus dengan format `nama:isi`. Isinya dipisah spasi: **angka** berarti sejumlah barang lepas, **teks lain** adalah nama kardus yang ada di dalamnya. Kardus juga bisa kosong.
+
+    ```
+    4
+    A:3 B C
+    B:2 D
+    C:5
+    D:1
+    ```
+
+    Tulis fungsi rekursif `hitung(nama)` yang mengembalikan jumlah seluruh barang di dalam sebuah kardus, termasuk barang di kardus-kardus di dalamnya. Program mencetak jumlah untuk kardus di **baris pertama**:
+
+    ```
+    Total barang: 11
+    ```
+
+    Kardus yang tidak berada di dalam kardus pertama tidak ikut dihitung.
+  language: python
+  starter: |
+    n = int(input())
+    isi = {}
+    pertama = ""
+    for i in range(n):
+        nama, sisanya = input().split(":")
+        isi[nama] = sisanya.split()
+        if i == 0:
+            pertama = nama
+
+
+    def hitung(nama):
+        # jumlahkan barang lepas, dan panggil hitung lagi
+        # untuk setiap kardus di dalam kardus ini
+        pass
+
+
+    print(f"Total barang: {hitung(pertama)}")
+  hints:
+    - "`isi[nama]` adalah list teks, misalnya `[\"3\", \"B\", \"C\"]`. Susuri list itu satu per satu sambil membawa `total` yang dimulai dari 0."
+    - "Untuk setiap `benda`: jika `benda.isdigit()`, itu barang lepas, jadi `total += int(benda)`. Jika bukan, itu nama kardus."
+    - "Untuk nama kardus: `total += hitung(benda)`. Fungsi yang sama menghitung isi kardus di dalamnya. Akhiri fungsi dengan `return total`. Kardus kosong otomatis menghasilkan 0."
+  tests:
+    - input: "4\nA:3 B C\nB:2 D\nC:5\nD:1"
+      output: "Total barang: 11"
+    - input: "1\nA:4 6"
+      output: "Total barang: 10"
+    - input: "3\nA:B\nB:C\nC:"
+      output: "Total barang: 0"
+    - input: "4\nX:1 Y\nY:2 2\nZ:100\nW:Z 7"
+      output: "Total barang: 5"
+    - input: "5\nK1:1 K2\nK2:1 K3\nK3:1 K4\nK4:1 K5\nK5:1"
+      output: "Total barang: 5"
+  solution: |
+    n = int(input())
+    isi = {}
+    pertama = ""
+    for i in range(n):
+        nama, sisanya = input().split(":")
+        isi[nama] = sisanya.split()
+        if i == 0:
+            pertama = nama
+
+
+    def hitung(nama):
+        total = 0
+        for benda in isi[nama]:
+            if benda.isdigit():
+                total += int(benda)
+            else:
+                total += hitung(benda)
+        return total
+
+
+    print(f"Total barang: {hitung(pertama)}")
+
+- slug: without-a-base-case
+  type: choice
+  title: Tanpa kasus dasar
+  prompt: |
+    Apa yang terjadi saat kode ini dijalankan?
+
+    ```python
+    def urutan(n):
+        return n * urutan(n - 1)
+
+    print(urutan(3))
+    ```
+  options:
+    - "Mencetak `6`"
+    - "Mencetak `0`, karena akhirnya dikali dengan 0"
+    - "Program berhenti dengan `RecursionError`, karena fungsi tidak pernah berhenti memanggil dirinya"
+    - "Mencetak `3`, karena fungsi hanya dipanggil sekali"
+  correct: [2]
+  hint: Cari baris yang menghentikan pemanggilan berantai.
+  explanation: "Tidak ada kasus dasar, jadi `urutan(3)` memanggil `urutan(2)`, lalu `urutan(1)`, `urutan(0)`, `urutan(-1)`, dan seterusnya tanpa henti. Perkaliannya tidak pernah sempat dihitung, karena setiap pemanggilan masih menunggu pemanggilan berikutnya. Python menghentikannya dengan `RecursionError`."

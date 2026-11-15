@@ -1,0 +1,85 @@
+- slug: cart-total
+  type: code
+  title: Cart total
+  prompt: |
+    Write a function `cartTotal(cart)` that takes an array of `{ name, price, quantity }` objects and returns the cart total as a **number**: the sum of `price * quantity` for every item.
+
+    Example: a Desk Lamp at Rp85000 times 1 and a Scented Candle at Rp30000 times 2 gives `145000`.
+
+    An empty cart gives `0`.
+  language: javascript
+  starter: |
+    const cartTotal = (cart) => {
+      // right now this only adds up prices, the quantity is not counted yet
+      return cart.reduce((total, item) => total + item.price, 0);
+    };
+  hints:
+    - 'The starter code already uses `reduce` with a starting value of `0`. The only thing missing is what gets added for each item.'
+    - 'One item adds `item.price * item.quantity`, not just `item.price`.'
+    - 'The end result: `cart.reduce((total, item) => total + item.price * item.quantity, 0)`. The starting value `0` makes an empty cart give `0` by itself.'
+  tests:
+    - input: 'console.log(cartTotal([{ name: "Desk Lamp", price: 85000, quantity: 1 }, { name: "Scented Candle", price: 30000, quantity: 2 }]))'
+      output: "145000"
+    - input: 'console.log(cartTotal([{ name: "String Lights", price: 25000, quantity: 4 }]))'
+      output: "100000"
+    - input: 'console.log(cartTotal([]))'
+      output: "0"
+    - input: 'console.log(cartTotal([{ name: "Paper Lantern", price: 45000, quantity: 3 }, { name: "Rattan Lampshade", price: 120000, quantity: 0 }, { name: "Scented Candle", price: 30000, quantity: 1 }]))'
+      output: "165000"
+  solution: |
+    const cartTotal = (cart) =>
+      cart.reduce((total, item) => total + item.price * item.quantity, 0);
+
+- slug: stock-per-category
+  type: code
+  title: Stock per category
+  prompt: |
+    Laras wants to know the amount of stock in each category. Write a function `stockByCategory(products)` that takes an array of `{ name, category, stock }` objects and returns an **object**: each key is a category name, each value is the sum of `stock` of all products in that category.
+
+    Example: two `lamp` products with a stock of 4 and 7, plus one `candle` product with a stock of 5, give `{"lamp":11,"candle":5}`.
+
+    The keys come in the order the categories first appear. A category with a stock of 0 is still listed. An empty array gives `{}`.
+  language: javascript
+  starter: |
+    const stockByCategory = (products) => {
+      // use reduce with an empty object as the starting value
+      return {};
+    };
+  hints:
+    - 'The pattern is the same as counting categories in the lesson: `reduce` with a starting value of `{}`. The difference is that you add the stock of the product instead of 1.'
+    - 'Inside the function, the key to use is `p.category`: `tally[p.category] = (tally[p.category] || 0) + p.stock;`.'
+    - 'In full: `products.reduce((tally, p) => { ...; return tally; }, {})`. Without `return tally` inside, the next result so far becomes `undefined`.'
+  tests:
+    - input: 'console.log(stockByCategory([{ name: "Desk Lamp", category: "lamp", stock: 4 }, { name: "Scented Candle", category: "candle", stock: 5 }, { name: "String Lights", category: "lamp", stock: 7 }]))'
+      output: '{"lamp":11,"candle":5}'
+    - input: 'console.log(stockByCategory([{ name: "Scented Candle", category: "candle", stock: 5 }, { name: "Taper Candle", category: "candle", stock: 12 }]))'
+      output: '{"candle":17}'
+    - input: 'console.log(stockByCategory([]))'
+      output: '{}'
+    - input: 'console.log(stockByCategory([{ name: "Paper Lantern", category: "lantern", stock: 0 }, { name: "Desk Lamp", category: "lamp", stock: 3 }, { name: "Bamboo Lantern", category: "lantern", stock: 0 }]))'
+      output: '{"lantern":0,"lamp":3}'
+  solution: |
+    const stockByCategory = (products) =>
+      products.reduce((tally, p) => {
+        tally[p.category] = (tally[p.category] || 0) + p.stock;
+        return tally;
+      }, {});
+
+- slug: the-starting-value-of-reduce
+  type: choice
+  title: The starting value of reduce
+  prompt: |
+    What is shown after this code runs?
+
+    ```javascript
+    const sold = [1, 2, 3];
+    console.log(sold.reduce((sum, n) => sum + n, 10));
+    ```
+  options:
+    - "`6`"
+    - "`10`"
+    - "`60`"
+    - "`16`"
+  correct: [3]
+  hint: Which number does the adding start from?
+  explanation: 'The second argument of `reduce` is the starting value, so the adding starts from `10`, not from `0`: `10 + 1 = 11`, `11 + 2 = 13`, `13 + 3 = 16`.'

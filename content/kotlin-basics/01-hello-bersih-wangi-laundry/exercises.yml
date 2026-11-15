@@ -1,0 +1,144 @@
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang dicetak?
+  prompt: |
+    Apa yang dicetak program ini?
+
+    ```kotlin
+    fun main() {
+        val nama = "Laundry Bersih Wangi"
+        var antrean = 3
+        antrean = antrean + 2
+        println("$nama: $antrean antrean")
+    }
+    ```
+  options:
+    - "`Laundry Bersih Wangi: 3 antrean`"
+    - "`$nama: $antrean antrean`"
+    - "`Laundry Bersih Wangi: 5 antrean`"
+    - "Tidak ada: program ditolak karena `antrean` diisi ulang"
+  correct: [2]
+  hint: "`antrean` dibuat dengan `var`. Berapa isinya saat baris `println` dijalankan?"
+  explanation: >-
+    `antrean` adalah `var`, jadi boleh diisi ulang: 3 + 2 = 5. Di dalam teks, `$nama` dan
+    `$antrean` diganti dengan isi variabelnya, sehingga yang dicetak
+    `Laundry Bersih Wangi: 5 antrean`. Jawaban dengan angka 3 melupakan baris pengisian ulang,
+    dan program ini sah karena yang diisi ulang adalah `var`, bukan `val`.
+
+- slug: which-line-is-rejected
+  type: choice
+  title: Baris mana yang ditolak?
+  prompt: |
+    Satu baris membuat program ini gagal dikompilasi. Baris mana, dan mengapa?
+
+    ```kotlin
+    fun main() {
+        val tarif = 7000        // baris 1
+        var berat = 3           // baris 2
+        berat = 4               // baris 3
+        tarif = 8000            // baris 4
+        println(tarif * berat)  // baris 5
+    }
+    ```
+  options:
+    - "Baris 2: `var` harus ditulis bersama tipenya"
+    - "Baris 3: `berat` sudah punya nilai, jadi tidak boleh diisi lagi"
+    - "Baris 5: `println` tidak bisa menerima hitungan"
+    - "Baris 4: `tarif` adalah `val`, jadi tidak boleh diisi ulang"
+  correct: [3]
+  hint: Bandingkan kata di depan `tarif` dan di depan `berat` saat keduanya dibuat.
+  explanation: >-
+    `tarif` dibuat dengan `val`, jadi nilainya tetap. Baris 4 mencoba mengisinya ulang dan
+    kompilator menolaknya (`Val cannot be reassigned`). Baris 3 tidak bermasalah karena `berat`
+    dibuat dengan `var`. Tipe tidak wajib ditulis, dan `println` boleh menerima hitungan.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Lengkapi baris yang kosong
+  prompt: |
+    Program ini harus mencetak `Total: Rp21000`. Apa yang mengisi bagian `____`?
+
+    ```kotlin
+    fun main() {
+        val berat = 3
+        val tarif = 7000
+        println(____)
+    }
+    ```
+  options:
+    - '`"Total: Rp${berat * tarif}"`'
+    - '`"Total: Rp$berat * tarif"`'
+    - "`'Total: Rp${berat * tarif}'`"
+    - '`f"Total: Rp{berat * tarif}"`'
+  correct: [0]
+  hint: Hitungan di dalam teks perlu kurung kurawal setelah tanda `$`.
+  explanation: >-
+    Hitungan di dalam teks ditulis dalam `${ }`, jadi `"Total: Rp${berat * tarif}"` mencetak
+    `Total: Rp21000`. Tanpa kurung kurawal hanya `$berat` yang diganti, sehingga yang tercetak
+    `Total: Rp3 * tarif`. Kutip tunggal di Kotlin hanya untuk satu karakter, dan awalan `f`
+    adalah cara Python, bukan Kotlin.
+
+- slug: val-or-var
+  type: choice
+  title: val atau var
+  prompt: |
+    Dimas menulis dua baris ini:
+
+    ```kotlin
+    val tarifPerKg = 7000
+    var jumlahCucian = 0
+    ```
+
+    Pernyataan mana yang benar?
+  options:
+    - "`val` untuk angka, `var` untuk teks"
+    - "`tarifPerKg` tidak bisa diisi ulang, sedangkan `jumlahCucian` bisa"
+    - "`var` berarti `jumlahCucian` nanti boleh diisi teks, seperti variabel Python"
+    - "`val` hanya tetap di dalam `main`; di fungsi lain nilainya boleh diganti"
+  correct: [1]
+  hint: Yang dibedakan `val` dan `var` adalah boleh tidaknya diisi ulang, bukan jenis isinya.
+  explanation: >-
+    `val` membuat nilai tetap dan `var` membuat variabel yang boleh diisi ulang; keduanya bisa
+    menyimpan angka maupun teks. `var` bukan berarti tipenya bebas: `jumlahCucian` berisi angka
+    bulat, jadi hanya boleh diisi angka bulat lagi. Inilah bedanya dengan Python, yang
+    membolehkan variabel berganti dari angka ke teks.
+
+- slug: practice-order-label
+  type: code
+  required: false
+  title: "Latihan: label pesanan"
+  prompt: |
+    Program sudah membaca nama pelanggan dan berat cucian (kg). Cetak **satu baris** berbentuk `<nama> - <berat> kg` dengan string template, misalnya `Bu Ani - 3 kg`.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    fun main() {
+        val name = readln()
+        val kg = readln().toInt()
+        // print: <name> - <kg> kg
+    }
+  hints:
+    - "Satu `println(...)` cukup."
+    - "Di dalam tanda kutip, `$name` dan `$kg` diganti isinya: `println(\"$name - $kg kg\")`."
+  tests:
+    - input: |
+        Bu Ani
+        3
+      output: |
+        Bu Ani - 3 kg
+    - input: |
+        Dimas
+        12
+      output: |
+        Dimas - 12 kg
+    - input: |
+        Pak Joko Susilo
+        1
+      output: |
+        Pak Joko Susilo - 1 kg
+  solution: |
+    fun main() {
+        val name = readln()
+        val kg = readln().toInt()
+        println("$name - $kg kg")
+    }

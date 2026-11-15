@@ -1,0 +1,127 @@
+- slug: sold-per-item
+  type: code
+  title: Terjual per menu
+  prompt: |
+    Hitung berapa porsi tiap menu terjual. Dari tabel `penjualan`, tampilkan `item` dan jumlah semua `jumlah`-nya dengan nama kolom `terjual`, satu baris per item. Urutkan dari `terjual` terbanyak. Bila sama, urutkan menurut `item` sesuai abjad.
+  setup: |
+    CREATE TABLE penjualan (id INTEGER PRIMARY KEY, tanggal TEXT, item TEXT, jumlah INTEGER, subtotal INTEGER);
+    INSERT INTO penjualan VALUES
+      (1, '2024-03-01', 'Kopi Susu', 3, 45000),
+      (2, '2024-03-01', 'Roti Bakar', 1, 18000),
+      (3, '2024-03-01', 'Teh Tarik', 2, 24000),
+      (4, '2024-03-01', 'Kopi Susu', 2, 30000),
+      (5, '2024-03-02', 'Kopi Hitam', 4, 40000),
+      (6, '2024-03-02', 'Nasi Goreng', 2, 50000),
+      (7, '2024-03-02', 'Kopi Susu', 1, 15000),
+      (8, '2024-03-02', 'Pisang Goreng', 3, 36000),
+      (9, '2024-03-03', 'Teh Tarik', 1, 12000),
+      (10, '2024-03-03', 'Kopi Susu', 4, 60000),
+      (11, '2024-03-03', 'Roti Bakar', 2, 36000);
+  starter: |
+    -- kelompokkan per item, lalu urutkan
+    SELECT item, SUM(jumlah) AS terjual
+    FROM penjualan;
+  hints:
+    - "Tanpa pengelompokan, `SUM` menjumlahkan seluruh tabel menjadi satu baris. Yang diminta satu baris per item."
+    - "Tambahkan `GROUP BY item` setelah `FROM penjualan`. Untuk urutannya, nama `terjual` boleh dipakai di `ORDER BY`."
+    - "Dua baris terakhirnya: `GROUP BY item` lalu `ORDER BY terjual DESC, item`."
+  tests:
+    - output: |
+        item|terjual
+        Kopi Susu|10
+        Kopi Hitam|4
+        Pisang Goreng|3
+        Roti Bakar|3
+        Teh Tarik|3
+        Nasi Goreng|2
+    - input: |
+        INSERT INTO penjualan VALUES
+          (12, '2024-03-04', 'Nasi Goreng', 5, 125000),
+          (13, '2024-03-04', 'Es Teh Manis', 3, 24000);
+      output: |
+        item|terjual
+        Kopi Susu|10
+        Nasi Goreng|7
+        Kopi Hitam|4
+        Es Teh Manis|3
+        Pisang Goreng|3
+        Roti Bakar|3
+        Teh Tarik|3
+  solution: |
+    SELECT item, SUM(jumlah) AS terjual
+    FROM penjualan
+    GROUP BY item
+    ORDER BY terjual DESC, item;
+
+- slug: star-items
+  type: code
+  title: Menu andalan
+  prompt: |
+    Bu Rina menyebut sebuah menu "andalan" bila omzetnya mencapai Rp50000 atau lebih. Dari tabel `penjualan`, tampilkan `item` dan jumlah semua `subtotal`-nya dengan nama kolom `omzet`, hanya untuk item yang omzetnya paling sedikit 50000. Urutkan dari `omzet` terbesar. Bila sama, urutkan menurut `item` sesuai abjad.
+  setup: |
+    CREATE TABLE penjualan (id INTEGER PRIMARY KEY, tanggal TEXT, item TEXT, jumlah INTEGER, subtotal INTEGER);
+    INSERT INTO penjualan VALUES
+      (1, '2024-03-01', 'Kopi Susu', 3, 45000),
+      (2, '2024-03-01', 'Roti Bakar', 1, 18000),
+      (3, '2024-03-01', 'Teh Tarik', 2, 24000),
+      (4, '2024-03-01', 'Kopi Susu', 2, 30000),
+      (5, '2024-03-02', 'Kopi Hitam', 4, 40000),
+      (6, '2024-03-02', 'Nasi Goreng', 2, 50000),
+      (7, '2024-03-02', 'Kopi Susu', 1, 15000),
+      (8, '2024-03-02', 'Pisang Goreng', 3, 36000),
+      (9, '2024-03-03', 'Teh Tarik', 1, 12000),
+      (10, '2024-03-03', 'Kopi Susu', 4, 60000),
+      (11, '2024-03-03', 'Roti Bakar', 2, 36000);
+  starter: |
+    -- tampilkan hanya item yang omzetnya 50000 atau lebih
+    SELECT item, SUM(subtotal) AS omzet
+    FROM penjualan
+    GROUP BY item
+    ORDER BY omzet DESC, item;
+  hints:
+    - "Syaratnya memakai hasil `SUM`, jadi tidak bisa ditulis di `WHERE`. `WHERE subtotal >= 50000` hanya memeriksa transaksi satu per satu."
+    - "Kelompok disaring dengan `HAVING`, ditulis setelah `GROUP BY` dan sebelum `ORDER BY`."
+    - "Sisipkan baris `HAVING SUM(subtotal) >= 50000` di antara `GROUP BY item` dan `ORDER BY`."
+  tests:
+    - output: |
+        item|omzet
+        Kopi Susu|150000
+        Roti Bakar|54000
+        Nasi Goreng|50000
+    - input: |
+        INSERT INTO penjualan VALUES
+          (12, '2024-03-04', 'Kopi Hitam', 2, 20000),
+          (13, '2024-03-04', 'Es Teh Manis', 2, 16000);
+      output: |
+        item|omzet
+        Kopi Susu|150000
+        Kopi Hitam|60000
+        Roti Bakar|54000
+        Nasi Goreng|50000
+  solution: |
+    SELECT item, SUM(subtotal) AS omzet
+    FROM penjualan
+    GROUP BY item
+    HAVING SUM(subtotal) >= 50000
+    ORDER BY omzet DESC, item;
+
+- slug: where-or-having
+  type: choice
+  title: WHERE atau HAVING?
+  prompt: |
+    Kamu ingin menampilkan hanya tanggal yang punya **lebih dari 3 transaksi**. Bagian mana yang tepat untuk melengkapi perintah ini?
+
+    ```sql
+    SELECT tanggal, COUNT(*) AS transaksi
+    FROM penjualan
+    GROUP BY tanggal
+    ...
+    ```
+  options:
+    - "`WHERE COUNT(*) > 3`"
+    - "`HAVING COUNT(*) > 3`"
+    - "`LIMIT 3`"
+    - "`ORDER BY COUNT(*) > 3`"
+  correct: [1]
+  hint: "Syaratnya memakai hasil hitungan per kelompok."
+  explanation: "`HAVING` menyaring kelompok setelah `GROUP BY`, jadi boleh memakai `COUNT(*)`. `WHERE` bekerja sebelum pengelompokan dan tidak mengenal hasil agregat, sedangkan `LIMIT 3` hanya mengambil tiga baris pertama tanpa melihat isinya."

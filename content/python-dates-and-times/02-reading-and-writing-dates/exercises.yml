@@ -1,0 +1,101 @@
+- slug: the-date-on-a-supplier-invoice
+  type: code
+  title: Tanggal dari tagihan pemasok
+  prompt: |
+    Pemasok menulis tanggal tagihan dalam format `hari/bulan/tahun`, misalnya `14/03/2025`. Bu Rina ingin menyimpannya dalam format mesin kasir.
+
+    Baca satu baris teks. Jika teks itu tanggal yang sah, cetak `Tanggal: <tanggalnya dalam format tahun-bulan-hari>`. Jika tidak cocok dengan formatnya atau tanggalnya tidak ada, cetak `Tanggal tidak sah`.
+  language: python
+  starter: |
+    from datetime import datetime
+
+    teks = input()
+
+    # ubah teks menjadi tanggal; tangkap ValueError untuk teks yang salah
+    print(f"Tanggal: {teks}")
+  hints:
+    - "Pola untuk `14/03/2025` adalah `\"%d/%m/%Y\"`. Pakai `datetime.strptime(teks, pola)`, lalu `.date()` untuk mengambil tanggalnya."
+    - "Letakkan pengubahannya di dalam `try:` dan tulis `except ValueError:` yang mencetak `Tanggal tidak sah`."
+    - "Di dalam `try`: `tanggal = datetime.strptime(teks, \"%d/%m/%Y\").date()` lalu `print(f\"Tanggal: {tanggal}\")`. Tanggal yang dicetak langsung sudah berformat tahun-bulan-hari."
+  tests:
+    - input: "14/03/2025"
+      output: "Tanggal: 2025-03-14"
+    - input: "29/02/2024"
+      output: "Tanggal: 2024-02-29"
+    - input: "29/02/2025"
+      output: "Tanggal tidak sah"
+    - input: "31/12/2024"
+      output: "Tanggal: 2024-12-31"
+    - input: "2025-03-14"
+      output: "Tanggal tidak sah"
+  solution: |
+    from datetime import datetime
+
+    teks = input()
+
+    try:
+        tanggal = datetime.strptime(teks, "%d/%m/%Y").date()
+        print(f"Tanggal: {tanggal}")
+    except ValueError:
+        print("Tanggal tidak sah")
+
+- slug: a-label-for-the-shift-schedule
+  type: code
+  title: Label jadwal shift
+  prompt: |
+    Untuk jadwal di dinding, Bu Rina ingin label yang mudah dibaca. Baris pertama berisi tanggal shift dalam format `tahun-bulan-hari` (misalnya `2025-03-14`), baris kedua nama karyawan.
+
+    Cetak satu baris:
+
+    ```
+    <nama hari>, <hari/bulan/tahun> - <nama karyawan>
+    ```
+
+    Contoh: `Jumat, 14/03/2025 - Siti`. Hari dan bulan selalu dua digit.
+  language: python
+  starter: |
+    from datetime import datetime
+
+    HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+
+    teks = input()
+    nama = input()
+
+    # baca tanggalnya dengan strptime, lalu tulis labelnya dengan strftime
+  hints:
+    - "Dua langkah: baca teks menjadi tanggal dengan `strptime` (pola `\"%Y-%m-%d\"`), lalu tulis kembali dengan `strftime` (pola `\"%d/%m/%Y\"`)."
+    - "`shift = datetime.strptime(teks, \"%Y-%m-%d\").date()`. Nama harinya `HARI[shift.weekday()]`."
+    - "Cetak dengan `print(f\"{HARI[shift.weekday()]}, {shift.strftime('%d/%m/%Y')} - {nama}\")`."
+  tests:
+    - input: "2025-03-14\nSiti"
+      output: "Jumat, 14/03/2025 - Siti"
+    - input: "2025-01-01\nBudi"
+      output: "Rabu, 01/01/2025 - Budi"
+    - input: "2024-02-29\nDewi"
+      output: "Kamis, 29/02/2024 - Dewi"
+    - input: "2024-12-31\nAgus"
+      output: "Selasa, 31/12/2024 - Agus"
+  solution: |
+    from datetime import datetime
+
+    HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+
+    teks = input()
+    nama = input()
+
+    shift = datetime.strptime(teks, "%Y-%m-%d").date()
+    print(f"{HARI[shift.weekday()]}, {shift.strftime('%d/%m/%Y')} - {nama}")
+
+- slug: the-pattern-that-fits
+  type: choice
+  title: Pola yang cocok
+  prompt: |
+    Catatan absen menulis waktu seperti `14-03-2025 08:30` (hari, bulan, tahun, lalu jam dan menit). Pola mana yang bisa membacanya dengan `strptime`?
+  options:
+    - "`\"%d-%m-%Y %H:%M\"`"
+    - "`\"%d-%M-%Y %H:%m\"`"
+    - "`\"%d/%m/%Y %H:%M\"`"
+    - "`\"%Y-%m-%d %H:%M\"`"
+  correct: [0]
+  hint: Periksa tiga hal, yaitu urutan bagiannya, tanda pemisahnya, dan huruf kecil atau besar pada m.
+  explanation: "`%m` (huruf kecil) adalah bulan dan `%M` (huruf besar) adalah menit. Urutan dan tanda pemisah di pola juga harus sama persis dengan teksnya: hari-bulan-tahun dengan tanda `-`, spasi, lalu jam:menit."

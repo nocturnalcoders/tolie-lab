@@ -1,0 +1,101 @@
+- slug: the-date-on-a-supplier-invoice
+  type: code
+  title: The date on a supplier invoice
+  prompt: |
+    Suppliers write the invoice date as `day/month/year`, for example `14/03/2025`. Ms. Rina wants to store it in the till's format.
+
+    Read one line of text. If it is a valid date, print `Date: <the date as year-month-day>`. If it does not fit the format or the date does not exist, print `Invalid date`.
+  language: python
+  starter: |
+    from datetime import datetime
+
+    text = input()
+
+    # turn the text into a date; catch ValueError for bad text
+    print(f"Date: {text}")
+  hints:
+    - "The pattern for `14/03/2025` is `\"%d/%m/%Y\"`. Use `datetime.strptime(text, pattern)`, then `.date()` to keep only the date."
+    - "Put the conversion inside `try:` and write an `except ValueError:` that prints `Invalid date`."
+    - "Inside `try`: `day = datetime.strptime(text, \"%d/%m/%Y\").date()` then `print(f\"Date: {day}\")`. A date printed directly is already in year-month-day format."
+  tests:
+    - input: "14/03/2025"
+      output: "Date: 2025-03-14"
+    - input: "29/02/2024"
+      output: "Date: 2024-02-29"
+    - input: "29/02/2025"
+      output: "Invalid date"
+    - input: "31/12/2024"
+      output: "Date: 2024-12-31"
+    - input: "2025-03-14"
+      output: "Invalid date"
+  solution: |
+    from datetime import datetime
+
+    text = input()
+
+    try:
+        day = datetime.strptime(text, "%d/%m/%Y").date()
+        print(f"Date: {day}")
+    except ValueError:
+        print("Invalid date")
+
+- slug: a-label-for-the-shift-schedule
+  type: code
+  title: A label for the shift schedule
+  prompt: |
+    For the schedule on the wall, Ms. Rina wants a label that is easy to read. The first line holds the shift date as `year-month-day` (for example `2025-03-14`), the second line the name of the staff member.
+
+    Print one line:
+
+    ```
+    <day name>, <day/month/year> - <staff name>
+    ```
+
+    Example: `Friday, 14/03/2025 - Siti`. The day and the month always have two digits.
+  language: python
+  starter: |
+    from datetime import datetime
+
+    DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+    text = input()
+    name = input()
+
+    # read the date with strptime, then write the label with strftime
+  hints:
+    - "Two steps: read the text into a date with `strptime` (pattern `\"%Y-%m-%d\"`), then write it back with `strftime` (pattern `\"%d/%m/%Y\"`)."
+    - "`shift = datetime.strptime(text, \"%Y-%m-%d\").date()`. The day name is `DAYS[shift.weekday()]`."
+    - "Print with `print(f\"{DAYS[shift.weekday()]}, {shift.strftime('%d/%m/%Y')} - {name}\")`."
+  tests:
+    - input: "2025-03-14\nSiti"
+      output: "Friday, 14/03/2025 - Siti"
+    - input: "2025-01-01\nBudi"
+      output: "Wednesday, 01/01/2025 - Budi"
+    - input: "2024-02-29\nDewi"
+      output: "Thursday, 29/02/2024 - Dewi"
+    - input: "2024-12-31\nAgus"
+      output: "Tuesday, 31/12/2024 - Agus"
+  solution: |
+    from datetime import datetime
+
+    DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+    text = input()
+    name = input()
+
+    shift = datetime.strptime(text, "%Y-%m-%d").date()
+    print(f"{DAYS[shift.weekday()]}, {shift.strftime('%d/%m/%Y')} - {name}")
+
+- slug: the-pattern-that-fits
+  type: choice
+  title: The pattern that fits
+  prompt: |
+    The attendance log writes times like `14-03-2025 08:30` (day, month, year, then hour and minute). Which pattern can read it with `strptime`?
+  options:
+    - "`\"%d-%m-%Y %H:%M\"`"
+    - "`\"%d-%M-%Y %H:%m\"`"
+    - "`\"%d/%m/%Y %H:%M\"`"
+    - "`\"%Y-%m-%d %H:%M\"`"
+  correct: [0]
+  hint: Check three things, namely the order of the parts, the separators, and lower or upper case m.
+  explanation: "`%m` (lower case) is the month and `%M` (upper case) is the minute. The order and the separators in the pattern must also match the text exactly: day-month-year with `-`, a space, then hour:minute."

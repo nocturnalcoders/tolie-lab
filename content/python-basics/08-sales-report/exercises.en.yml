@@ -1,0 +1,93 @@
+- slug: discount-function
+  type: code
+  title: A discount function
+  prompt: |
+    Write a function `amount_to_pay(total)` that returns the amount to pay after the discount rule (10% off for a total of 100000 or more). The program below it already uses it to print `Pay: Rp<amount>`.
+  language: python
+  starter: |
+    def amount_to_pay(total):
+        # return the amount to pay
+        pass
+
+
+    total = int(input())
+    print(f"Pay: Rp{amount_to_pay(total)}")
+  hint: Use return, not print, inside the function.
+  tests:
+    - input: "50000"
+      output: "Pay: Rp50000"
+    - input: "99999"
+      output: "Pay: Rp99999"
+    - input: "100000"
+      output: "Pay: Rp90000"
+    - input: "250000"
+      output: "Pay: Rp225000"
+  solution: |
+    def amount_to_pay(total):
+        if total >= 100000:
+            return total * 90 // 100
+        return total
+
+
+    total = int(input())
+    print(f"Pay: Rp{amount_to_pay(total)}")
+
+- slug: sales-report
+  type: code
+  title: "Project: the sales report"
+  prompt: |
+    The first line holds `n`, then `n` lines in the format `name,quantity,price`. Print two lines:
+
+    ```
+    Total sales: Rp<quantity * price, added up over all lines>
+    Best seller: <name with the most units sold>
+    ```
+
+    If there is a tie, pick the one that appears first.
+  language: python
+  starter: |
+    n = int(input())
+    total = 0
+    best_seller = ""
+    most_units = 0
+    for _ in range(n):
+        name, quantity, price = input().split(",")
+        # turn quantity and price into numbers,
+        # then update the total and the best seller
+    # print the report
+  hint: Update the best seller only if the quantity is greater (not equal) than the one recorded.
+  tests:
+    - input: "3\nmilk coffee,10,15000\npulled tea,7,12000\ntoast,12,18000"
+      output: "Total sales: Rp450000\nBest seller: toast"
+    - input: "2\nmilk coffee,5,15000\npulled tea,5,12000"
+      output: "Total sales: Rp135000\nBest seller: milk coffee"
+    - input: "1\norange juice,3,10000"
+      output: "Total sales: Rp30000\nBest seller: orange juice"
+  solution: |
+    n = int(input())
+    total = 0
+    best_seller = ""
+    most_units = 0
+    for _ in range(n):
+        name, quantity, price = input().split(",")
+        quantity = int(quantity)
+        price = int(price)
+        total += quantity * price
+        if quantity > most_units:
+            most_units = quantity
+            best_seller = name
+    print(f"Total sales: Rp{total}")
+    print(f"Best seller: {best_seller}")
+
+- slug: quiz-return
+  type: choice
+  title: print or return
+  prompt: What is the difference between `print` and `return` inside a function?
+  options:
+    - "No difference, both show the result"
+    - "`return` sends a value back to the code that called it, while `print` only shows it on the screen"
+    - "`print` sends a value back to the caller, while `return` shows it on the screen"
+    - "`return` may only be used once in the whole program"
+  correct: [1]
+  hint: A function's result can be stored in a variable only if the function returns it.
+  explanation: "`return` gives a value back to the caller so it can be stored or calculated with again. `print` only writes to the screen and gives nothing back to use."

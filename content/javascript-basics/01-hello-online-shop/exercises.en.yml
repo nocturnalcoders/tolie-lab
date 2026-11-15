@@ -1,0 +1,76 @@
+- slug: greet-the-shopper
+  type: code
+  title: Greet the shopper
+  prompt: |
+    A new shopper has just opened the shop page. Show this greeting exactly as written:
+
+    `Welcome to Sekar Knits!`
+  starter: |
+    // write your code below
+  hints:
+    - "The command that shows text is `console.log(...)`."
+    - "The text must be wrapped in quotes and match exactly, including the capital letters and the exclamation mark."
+    - "Write `console.log(\"Welcome to Sekar Knits!\");`"
+  tests:
+    - input: ""
+      output: "Welcome to Sekar Knits!"
+  solution: |
+    console.log("Welcome to Sekar Knits!");
+
+- slug: label-and-stock-left
+  type: code
+  title: Label and stock left
+  prompt: |
+    One knit bag has just been sold. The variables are already set up in the editor.
+
+    1. Take 1 away from `stock`.
+    2. Show two lines with template literals, using the variables (do not type the numbers yourself):
+
+    ```
+    Knit bag: Rp85000
+    Stock left: 11
+    ```
+  starter: |
+    const productName = "Knit bag";
+    const price = 85000;
+    let stock = 12;
+
+    // 1. take 1 away from stock
+
+    // 2. show the two lines
+  hints:
+    - "`stock` was made with `let`, so its value may be replaced: `stock = stock - 1;`"
+    - "A template literal uses backticks, not ordinary quotes: `${productName}` is only replaced by its value when the text is wrapped in backticks."
+    - "First line: console.log(`${productName}: Rp${price}`); Second line: console.log(`Stock left: ${stock}`);"
+  tests:
+    - input: ""
+      output: "Knit bag: Rp85000\nStock left: 11"
+  solution: |
+    const productName = "Knit bag";
+    const price = 85000;
+    let stock = 12;
+
+    stock = stock - 1;
+
+    console.log(`${productName}: Rp${price}`);
+    console.log(`Stock left: ${stock}`);
+
+- slug: const-or-let
+  type: choice
+  title: const or let?
+  prompt: |
+    What happens when this code runs?
+
+    ```javascript
+    const price = 45000;
+    price = 50000;
+    console.log(price);
+    ```
+  options:
+    - "It shows `50000`"
+    - "It shows `45000`"
+    - "The program stops with an error because a `const` cannot be replaced"
+    - "It shows `45000` and then `50000`"
+  correct: [2]
+  hint: Remember the difference between `const` and `let`.
+  explanation: "A value made with `const` cannot be replaced. The second line causes an error, so `console.log` never runs. If the price really is going to change, use `let`."

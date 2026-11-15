@@ -1,0 +1,167 @@
+- slug: revenue-from-finished-orders
+  type: code
+  title: Omzet pesanan selesai
+  prompt: |
+    Satu baris masukan berisi daftar JSON. Setiap pesanan punya kunci `id`, `status` (`selesai` atau `batal`), dan `total`.
+
+    Cetak tiga baris:
+
+    ```
+    Pesanan selesai: <banyaknya pesanan selesai>
+    Pesanan batal: <banyaknya pesanan batal>
+    Omzet: Rp<jumlah total dari pesanan selesai saja>
+    ```
+
+    Daftarnya bisa kosong (`[]`).
+  starter: |
+    import json
+
+    daftar = json.loads(input())
+    selesai = len(daftar)
+    batal = 0
+    omzet = 0
+    for pesanan in daftar:
+        omzet += pesanan["total"]
+    print(f"Pesanan selesai: {selesai}")
+    print(f"Pesanan batal: {batal}")
+    print(f"Omzet: Rp{omzet}")
+  hints:
+    - >-
+      Kode awal menganggap semua pesanan selesai. Periksa `status` setiap pesanan di dalam perulangan sebelum menghitungnya.
+    - >-
+      Mulai dari `selesai = 0`. Di dalam perulangan tulis `if pesanan["status"] == "selesai":`, dan hanya di sana `selesai` dan `omzet` bertambah.
+    - >-
+      Tambahkan `else:` dengan `batal += 1`. Total pesanan batal tidak ditambahkan ke `omzet`.
+  tests:
+    - input: |
+        [{"id": "AM-1021", "status": "selesai", "total": 68000}, {"id": "AM-1022", "status": "batal", "total": 22000}, {"id": "AM-1023", "status": "selesai", "total": 50000}]
+      output: |
+        Pesanan selesai: 2
+        Pesanan batal: 1
+        Omzet: Rp118000
+    - input: |
+        [{"id": "AM-1030", "status": "selesai", "total": 30000}, {"id": "AM-1031", "status": "selesai", "total": 25000}]
+      output: |
+        Pesanan selesai: 2
+        Pesanan batal: 0
+        Omzet: Rp55000
+    - input: |
+        []
+      output: |
+        Pesanan selesai: 0
+        Pesanan batal: 0
+        Omzet: Rp0
+    - input: |
+        [{"id": "AM-1040", "status": "batal", "total": 99000}]
+      output: |
+        Pesanan selesai: 0
+        Pesanan batal: 1
+        Omzet: Rp0
+  solution: |
+    import json
+
+    daftar = json.loads(input())
+    selesai = 0
+    batal = 0
+    omzet = 0
+    for pesanan in daftar:
+        if pesanan["status"] == "selesai":
+            selesai += 1
+            omzet += pesanan["total"]
+        else:
+            batal += 1
+    print(f"Pesanan selesai: {selesai}")
+    print(f"Pesanan batal: {batal}")
+    print(f"Omzet: Rp{omzet}")
+
+- slug: sold-per-dish
+  type: code
+  title: Terjual per menu
+  prompt: |
+    Satu baris masukan berisi daftar pesanan. Setiap pesanan punya `status` dan `item`, yaitu daftar objek dengan kunci `menu` dan `jumlah`.
+
+    Hitung berapa porsi setiap menu terjual, **hanya dari pesanan yang berstatus `selesai`**. Cetak satu baris `<menu>: <jumlah>` untuk setiap menu, diurutkan menurut abjad.
+
+    Jika tidak ada yang terjual, cetak `Belum ada penjualan`.
+  starter: |
+    import json
+
+    daftar = json.loads(input())
+    terjual = {}
+    # isi terjual dari item setiap pesanan yang selesai
+
+    for menu in sorted(terjual):
+        print(f"{menu}: {terjual[menu]}")
+  hints:
+    - >-
+      Ada dua lapis daftar: daftar pesanan, dan daftar `item` di dalam setiap pesanan. Jadi kamu perlu perulangan di dalam perulangan.
+    - >-
+      Di perulangan luar, lewati pesanan yang tidak selesai. Di perulangan dalam, `for item in pesanan["item"]:`, tambahkan jumlahnya dengan `terjual[item["menu"]] = terjual.get(item["menu"], 0) + item["jumlah"]`.
+    - >-
+      Sebelum mencetak, periksa `if not terjual:` lalu cetak `Belum ada penjualan`. Perulangan cetak yang sudah ada pindah ke bagian `else:`.
+  tests:
+    - input: |
+        [{"id": "AM-1021", "status": "selesai", "item": [{"menu": "nasi rendang", "jumlah": 2}, {"menu": "es teh manis", "jumlah": 2}]}, {"id": "AM-1022", "status": "batal", "item": [{"menu": "ayam geprek", "jumlah": 3}]}, {"id": "AM-1023", "status": "selesai", "item": [{"menu": "es teh manis", "jumlah": 1}, {"menu": "sate ayam", "jumlah": 4}]}]
+      output: |
+        es teh manis: 3
+        nasi rendang: 2
+        sate ayam: 4
+    - input: |
+        [{"id": "AM-1030", "status": "selesai", "item": [{"menu": "ayam geprek", "jumlah": 1}, {"menu": "ayam geprek", "jumlah": 2}]}]
+      output: |
+        ayam geprek: 3
+    - input: |
+        []
+      output: |
+        Belum ada penjualan
+    - input: |
+        [{"id": "AM-1040", "status": "batal", "item": [{"menu": "sate ayam", "jumlah": 5}]}]
+      output: |
+        Belum ada penjualan
+    - input: |
+        [{"id": "AM-1050", "status": "selesai", "item": []}, {"id": "AM-1051", "status": "selesai", "item": [{"menu": "sate ayam", "jumlah": 2}, {"menu": "ayam geprek", "jumlah": 1}]}]
+      output: |
+        ayam geprek: 1
+        sate ayam: 2
+  solution: |
+    import json
+
+    daftar = json.loads(input())
+    terjual = {}
+    for pesanan in daftar:
+        if pesanan["status"] != "selesai":
+            continue
+        for item in pesanan["item"]:
+            menu = item["menu"]
+            terjual[menu] = terjual.get(menu, 0) + item["jumlah"]
+
+    if not terjual:
+        print("Belum ada penjualan")
+    else:
+        for menu in sorted(terjual):
+            print(f"{menu}: {terjual[menu]}")
+
+- slug: filter-then-add-up
+  type: choice
+  title: Menyaring lalu menjumlahkan
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```python
+    import json
+
+    teks = '[{"status": "selesai", "total": 20000}, {"status": "batal", "total": 45000}, {"status": "selesai", "total": 30000}]'
+    omzet = 0
+    for p in json.loads(teks):
+        if p["status"] == "selesai":
+            omzet += p["total"]
+    print(omzet)
+    ```
+  options:
+    - "`95000`"
+    - "`50000`"
+    - "`45000`"
+    - "`2`"
+  correct: [1]
+  hint: Hanya pesanan yang lolos dari `if` yang ikut dijumlahkan.
+  explanation: "Perulangan melewati tiga pesanan, tetapi `if` hanya meloloskan dua yang berstatus `selesai`. Jadi yang dijumlahkan adalah `20000 + 30000 = 50000`. Angka `45000` milik pesanan yang batal tidak ikut, dan `2` adalah banyaknya pesanan selesai, bukan omzetnya."

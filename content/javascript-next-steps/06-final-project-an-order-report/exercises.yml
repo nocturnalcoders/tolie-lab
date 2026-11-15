@@ -1,0 +1,189 @@
+- slug: order-total-and-revenue
+  type: code
+  title: Total pesanan dan omzet
+  prompt: |
+    Setiap pesanan berbentuk seperti ini:
+
+    ```javascript
+    { id: "L-101", pembeli: "Dimas", status: "selesai",
+      barang: [{ nama: "Lampu Meja", harga: 85000, jumlah: 1 }] }
+    ```
+
+    `status` berisi `"selesai"` atau `"batal"`. Buat dua fungsi:
+
+    - `totalPesanan(pesanan)` mengembalikan total **satu** pesanan: jumlah dari `harga * jumlah` semua barangnya.
+    - `omzet(daftar)` menerima array pesanan dan mengembalikan jumlah total semua pesanan yang statusnya `"selesai"`. Pesanan yang batal tidak dihitung.
+
+    Keduanya mengembalikan angka. Pesanan tanpa barang totalnya `0`, dan array pesanan kosong omzetnya `0`.
+  language: javascript
+  starter: |
+    const totalPesanan = (pesanan) => {
+      // jumlahkan harga * jumlah semua barang di pesanan.barang
+      return 0;
+    };
+
+    const omzet = (daftar) => {
+      // saat ini semua pesanan ikut dihitung, termasuk yang batal
+      return daftar.reduce((t, p) => t + totalPesanan(p), 0);
+    };
+  hints:
+    - 'Kerjakan `totalPesanan` dulu. Polanya sama dengan total belanja keranjang: `reduce` pada `pesanan.barang` dengan nilai awal `0`.'
+    - '`totalPesanan` menjadi `pesanan.barang.reduce((t, b) => t + b.harga * b.jumlah, 0)`. Untuk `omzet`, pesanan yang batal harus disingkirkan sebelum dijumlahkan.'
+    - 'Sisipkan `filter` sebelum `reduce` di `omzet`: `daftar.filter((p) => p.status === "selesai").reduce((t, p) => t + totalPesanan(p), 0)`.'
+  tests:
+    - input: 'console.log(totalPesanan({ id: "L-101", pembeli: "Dimas", status: "selesai", barang: [{ nama: "Lampu Meja", harga: 85000, jumlah: 1 }, { nama: "Lilin Aroma", harga: 30000, jumlah: 2 }] }))'
+      output: "145000"
+    - input: |
+        {
+          const data = [
+            { id: "L-101", pembeli: "Dimas", status: "selesai", barang: [{ nama: "Lampu Meja", harga: 85000, jumlah: 1 }, { nama: "Lilin Aroma", harga: 30000, jumlah: 2 }] },
+            { id: "L-102", pembeli: "Sari", status: "batal", barang: [{ nama: "Kap Lampu Rotan", harga: 120000, jumlah: 3 }] },
+            { id: "L-103", pembeli: "Wulan", status: "selesai", barang: [{ nama: "Lampu Tumblr", harga: 25000, jumlah: 4 }] },
+          ];
+          console.log(omzet(data));
+        }
+      output: "245000"
+    - input: 'console.log(omzet([]))'
+      output: "0"
+    - input: |
+        {
+          const data = [
+            { id: "L-201", pembeli: "Bayu", status: "batal", barang: [{ nama: "Lampion Kertas", harga: 45000, jumlah: 2 }] },
+            { id: "L-202", pembeli: "Sari", status: "batal", barang: [{ nama: "Lilin Aroma", harga: 30000, jumlah: 1 }] },
+          ];
+          console.log(omzet(data));
+        }
+      output: "0"
+    - input: 'console.log(totalPesanan({ id: "L-301", pembeli: "Wulan", status: "selesai", barang: [] }))'
+      output: "0"
+  solution: |
+    const totalPesanan = (pesanan) =>
+      pesanan.barang.reduce((t, b) => t + b.harga * b.jumlah, 0);
+
+    const omzet = (daftar) =>
+      daftar
+        .filter((p) => p.status === "selesai")
+        .reduce((t, p) => t + totalPesanan(p), 0);
+
+- slug: daily-order-report
+  type: code
+  title: Laporan pesanan harian
+  prompt: |
+    Susun laporan malam untuk Mbak Laras. Buat fungsi `laporan(daftar)` yang menerima array pesanan (bentuknya sama dengan latihan sebelumnya) dan mengembalikan **satu teks** berisi empat baris:
+
+    ```
+    Pesanan selesai: 3
+    Pesanan batal: 1
+    Omzet: Rp510000
+    Pesanan terbesar: L-103 (Bayu) Rp265000
+    ```
+
+    - Omzet dan pesanan terbesar hanya dihitung dari pesanan berstatus `"selesai"`.
+    - Pesanan terbesar adalah yang totalnya paling tinggi, ditulis `<id> (<pembeli>) Rp<total>`. Jika ada total yang sama, pakai yang lebih dulu ada di array.
+    - Jika tidak ada pesanan yang selesai, baris terakhir menjadi `Pesanan terbesar: -`.
+
+    Fungsi `totalPesanan` sudah disediakan di kode awal.
+  language: javascript
+  starter: |
+    const totalPesanan = (pesanan) =>
+      pesanan.barang.reduce((t, b) => t + b.harga * b.jumlah, 0);
+
+    const laporan = (daftar) => {
+      const selesai = daftar.filter((p) => p.status === "selesai");
+
+      const baris = [
+        `Pesanan selesai: ${selesai.length}`,
+        // tambahkan tiga baris lainnya
+      ];
+      return baris.join("\n");
+    };
+  hints:
+    - 'Kerjakan baris demi baris. Jumlah pesanan batal adalah `daftar.length - selesai.length`. Omzet adalah `reduce` pada `selesai` yang menjumlahkan `totalPesanan(p)`.'
+    - 'Untuk pesanan terbesar, urutkan salinannya: `const terbesar = [...selesai].sort((a, b) => totalPesanan(b) - totalPesanan(a))[0];`. Total yang sama tetap dalam urutan aslinya, jadi yang lebih dulu otomatis terpilih.'
+    - 'Jika `terbesar === undefined`, teksnya `-`. Jika ada, teksnya tersusun dari `terbesar.id`, lalu `terbesar.pembeli` di dalam kurung, lalu `Rp` dan `totalPesanan(terbesar)`. Masukkan keempat baris ke array `baris` sesuai urutan di soal.'
+  tests:
+    - input: |
+        {
+          const data = [
+            { id: "L-101", pembeli: "Dimas", status: "selesai", barang: [{ nama: "Lampu Meja", harga: 85000, jumlah: 1 }, { nama: "Lilin Aroma", harga: 30000, jumlah: 2 }] },
+            { id: "L-102", pembeli: "Sari", status: "batal", barang: [{ nama: "Kap Lampu Rotan", harga: 120000, jumlah: 3 }] },
+            { id: "L-103", pembeli: "Bayu", status: "selesai", barang: [{ nama: "Lampion Kertas", harga: 45000, jumlah: 4 }, { nama: "Lampu Meja", harga: 85000, jumlah: 1 }] },
+            { id: "L-104", pembeli: "Wulan", status: "selesai", barang: [{ nama: "Lampu Tumblr", harga: 25000, jumlah: 4 }] },
+          ];
+          console.log(laporan(data));
+        }
+      output: |
+        Pesanan selesai: 3
+        Pesanan batal: 1
+        Omzet: Rp510000
+        Pesanan terbesar: L-103 (Bayu) Rp265000
+    - input: |
+        {
+          const data = [
+            { id: "L-201", pembeli: "Sari", status: "selesai", barang: [{ nama: "Lilin Aroma", harga: 30000, jumlah: 3 }] },
+            { id: "L-202", pembeli: "Dimas", status: "selesai", barang: [{ nama: "Lampion Kertas", harga: 45000, jumlah: 2 }] },
+            { id: "L-203", pembeli: "Wulan", status: "selesai", barang: [{ nama: "Lampu Tumblr", harga: 25000, jumlah: 1 }] },
+          ];
+          console.log(laporan(data));
+        }
+      output: |
+        Pesanan selesai: 3
+        Pesanan batal: 0
+        Omzet: Rp205000
+        Pesanan terbesar: L-201 (Sari) Rp90000
+    - input: 'console.log(laporan([]))'
+      output: |
+        Pesanan selesai: 0
+        Pesanan batal: 0
+        Omzet: Rp0
+        Pesanan terbesar: -
+    - input: |
+        {
+          const data = [
+            { id: "L-301", pembeli: "Bayu", status: "batal", barang: [{ nama: "Lampu Meja", harga: 85000, jumlah: 2 }] },
+            { id: "L-302", pembeli: "Sari", status: "batal", barang: [{ nama: "Lilin Aroma", harga: 30000, jumlah: 1 }] },
+          ];
+          console.log(laporan(data));
+        }
+      output: |
+        Pesanan selesai: 0
+        Pesanan batal: 2
+        Omzet: Rp0
+        Pesanan terbesar: -
+  solution: |
+    const totalPesanan = (pesanan) =>
+      pesanan.barang.reduce((t, b) => t + b.harga * b.jumlah, 0);
+
+    const laporan = (daftar) => {
+      const selesai = daftar.filter((p) => p.status === "selesai");
+      const omzet = selesai.reduce((t, p) => t + totalPesanan(p), 0);
+      const terbesar = [...selesai].sort(
+        (a, b) => totalPesanan(b) - totalPesanan(a)
+      )[0];
+      const teksTerbesar =
+        terbesar === undefined
+          ? "-"
+          : `${terbesar.id} (${terbesar.pembeli}) Rp${totalPesanan(terbesar)}`;
+
+      const baris = [
+        `Pesanan selesai: ${selesai.length}`,
+        `Pesanan batal: ${daftar.length - selesai.length}`,
+        `Omzet: Rp${omzet}`,
+        `Pesanan terbesar: ${teksTerbesar}`,
+      ];
+      return baris.join("\n");
+    };
+
+- slug: the-right-chain
+  type: choice
+  title: Rangkaian yang tepat
+  prompt: |
+    `daftar` adalah array pesanan dan `totalPesanan(p)` mengembalikan total satu pesanan. Kode mana yang menghitung omzet dari pesanan berstatus `"selesai"` saja?
+  options:
+    - "`daftar.map((p) => p.status === \"selesai\").reduce((t, p) => t + totalPesanan(p), 0)`"
+    - "`daftar.filter((p) => p.status === \"selesai\").reduce((t, p) => t + totalPesanan(p), 0)`"
+    - "`daftar.reduce((t, p) => t + totalPesanan(p), 0).filter((p) => p.status === \"selesai\")`"
+    - "`daftar.find((p) => p.status === \"selesai\").reduce((t, p) => t + totalPesanan(p), 0)`"
+  correct: [1]
+  hint: Perhatikan apa yang dihasilkan setiap metode sebelum metode berikutnya dipanggil, array pesanan, array lain, satu objek, atau angka?
+  explanation: '`filter` mengembalikan array pesanan yang selesai, sehingga `reduce` bisa menjumlahkan totalnya. `map` dengan syarat menghasilkan array `true`/`false`, bukan pesanan. `reduce` menghasilkan angka, dan angka tidak punya `filter`. `find` mengembalikan satu pesanan saja, yang tidak punya `reduce`.'

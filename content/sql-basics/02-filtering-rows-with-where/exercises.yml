@@ -1,0 +1,111 @@
+- slug: budget-drinks
+  type: code
+  title: Minuman hemat
+  prompt: |
+    Seorang pelanggan mencari minuman yang harganya paling banyak Rp12000. Tampilkan `nama` dan `harga` dari tabel `menu` untuk baris yang `kategori`-nya `minuman` **dan** `harga`-nya tidak lebih dari 12000. Urutkan menurut `id` (`ORDER BY id`).
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, nama TEXT, kategori TEXT, harga INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Kopi Hitam', 'minuman', 10000),
+      (2, 'Kopi Susu', 'minuman', 15000),
+      (3, 'Teh Tarik', 'minuman', 12000),
+      (4, 'Es Teh Manis', 'minuman', 8000),
+      (5, 'Roti Bakar', 'makanan', 18000),
+      (6, 'Pisang Goreng', 'makanan', 12000),
+      (7, 'Nasi Goreng', 'makanan', 25000);
+  starter: |
+    -- tambahkan syarat harga
+    SELECT nama, harga FROM menu
+    WHERE kategori = 'minuman'
+    ORDER BY id;
+  hints:
+    - "Ada dua syarat yang harus benar bersamaan: kategorinya minuman, dan harganya tidak lebih dari 12000."
+    - "Gabungkan dua syarat dengan `AND`. \"Tidak lebih dari\" ditulis `<=`, supaya harga 12000 ikut tampil."
+    - "Bagian syaratnya: `WHERE kategori = 'minuman' AND harga <= 12000`."
+  tests:
+    - output: |
+        nama|harga
+        Kopi Hitam|10000
+        Teh Tarik|12000
+        Es Teh Manis|8000
+    - input: |
+        INSERT INTO menu VALUES
+          (8, 'Jus Jeruk', 'minuman', 14000),
+          (9, 'Air Mineral', 'minuman', 5000),
+          (10, 'Kentang Goreng', 'makanan', 11000);
+      output: |
+        nama|harga
+        Kopi Hitam|10000
+        Teh Tarik|12000
+        Es Teh Manis|8000
+        Air Mineral|5000
+  solution: |
+    SELECT nama, harga FROM menu
+    WHERE kategori = 'minuman' AND harga <= 12000
+    ORDER BY id;
+
+- slug: all-the-coffee-and-tea
+  type: code
+  title: Semua kopi dan teh
+  prompt: |
+    Bu Rina ingin daftar semua menu kopi dan teh. Tampilkan `nama` dan `harga` dari tabel `menu` untuk baris yang namanya memuat kata `Kopi` **atau** memuat kata `Teh` (di posisi mana pun). Urutkan menurut `id` (`ORDER BY id`).
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, nama TEXT, kategori TEXT, harga INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Kopi Hitam', 'minuman', 10000),
+      (2, 'Kopi Susu', 'minuman', 15000),
+      (3, 'Teh Tarik', 'minuman', 12000),
+      (4, 'Es Teh Manis', 'minuman', 8000),
+      (5, 'Roti Bakar', 'makanan', 18000),
+      (6, 'Pisang Goreng', 'makanan', 12000),
+      (7, 'Nasi Goreng', 'makanan', 25000);
+  starter: |
+    -- baru menemukan nama yang diawali Kopi; lengkapi syaratnya
+    SELECT nama, harga FROM menu
+    WHERE nama LIKE 'Kopi%'
+    ORDER BY id;
+  hints:
+    - "Pola `'Kopi%'` hanya cocok bila namanya diawali Kopi. \"Es Teh Manis\" memuat Teh di tengah, jadi polanya perlu `%` di kedua sisi."
+    - "Pola \"memuat Kopi\" adalah `'%Kopi%'`. Dua syarat yang cukup salah satunya benar digabung dengan `OR`."
+    - "Bagian syaratnya: `WHERE nama LIKE '%Kopi%' OR nama LIKE '%Teh%'`."
+  tests:
+    - output: |
+        nama|harga
+        Kopi Hitam|10000
+        Kopi Susu|15000
+        Teh Tarik|12000
+        Es Teh Manis|8000
+    - input: |
+        INSERT INTO menu VALUES
+          (8, 'Es Kopi Gula Aren', 'minuman', 20000),
+          (9, 'Jus Jeruk', 'minuman', 14000);
+      output: |
+        nama|harga
+        Kopi Hitam|10000
+        Kopi Susu|15000
+        Teh Tarik|12000
+        Es Teh Manis|8000
+        Es Kopi Gula Aren|20000
+  solution: |
+    SELECT nama, harga FROM menu
+    WHERE nama LIKE '%Kopi%' OR nama LIKE '%Teh%'
+    ORDER BY id;
+
+- slug: two-conditions-at-once
+  type: choice
+  title: Dua syarat sekaligus
+  prompt: |
+    Dengan tabel `menu` di pelajaran ini, menu apa saja yang ditampilkan?
+
+    ```sql
+    SELECT nama FROM menu
+    WHERE kategori = 'makanan' AND harga < 15000;
+    ```
+  options:
+    - "Roti Bakar, Pisang Goreng, dan Nasi Goreng"
+    - "Pisang Goreng saja"
+    - "Kopi Hitam, Teh Tarik, Es Teh Manis, dan Pisang Goreng"
+    - "Tidak ada baris yang tampil"
+  correct: [1]
+  hint: "Dengan `AND`, kedua syarat harus benar pada baris yang sama."
+  explanation: "Makanan ada tiga: Roti Bakar (18000), Pisang Goreng (12000), dan Nasi Goreng (25000). Hanya Pisang Goreng yang harganya di bawah 15000. Minuman murah tidak ikut karena kategorinya bukan makanan."

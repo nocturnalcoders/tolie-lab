@@ -1,0 +1,155 @@
+- slug: daily-box-stock
+  type: code
+  title: Daily box stock
+  prompt: |
+    The first line holds the starting stock of boxes, the second line `n`, then `n` lines of stock changes per day (positive when a delivery arrives, negative when boxes are used).
+
+    Print the stock at the end of each day, then the highest and lowest stock with their days:
+
+    ```
+    Day 1: 25
+    Day 2: 17
+    Day 3: 27
+    Day 4: 24
+    Highest: 27 (day 3)
+    Lowest: 17 (day 2)
+    ```
+
+    What is compared is the stock at the end of a day, so the starting stock does not take part. If values are equal, print the **earliest** day. If `n` is 0, print only `No data`.
+  language: python
+  starter: |
+    stock = int(input())
+    n = int(input())
+
+    for day in range(1, n + 1):
+        stock += int(input())
+        print(f"Day {day}: {stock}")
+        # update the highest and lowest records and their days
+
+    # print Highest and Lowest, or "No data" if n is 0
+  hints:
+    - "The running total is already there. You need four more notes: `highest`, `high_day`, `lowest`, `low_day`, updated inside the loop."
+    - "The starting record has to come from the first day. One way: `if day == 1 or stock > highest:` then set `highest = stock` and `high_day = day`. Do the same with `<` for the lowest."
+    - "After the loop: `if n == 0:` print `No data`, otherwise print `f\"Highest: {highest} (day {high_day})\"` and a similar line for `Lowest`."
+  tests:
+    - input: "20\n4\n5\n-8\n10\n-3"
+      output: "Day 1: 25\nDay 2: 17\nDay 3: 27\nDay 4: 24\nHighest: 27 (day 3)\nLowest: 17 (day 2)"
+    - input: "10\n3\n-4\n-4\n-1"
+      output: "Day 1: 6\nDay 2: 2\nDay 3: 1\nHighest: 6 (day 1)\nLowest: 1 (day 3)"
+    - input: "50\n0"
+      output: "No data"
+    - input: "0\n4\n5\n-5\n5\n-5"
+      output: "Day 1: 5\nDay 2: 0\nDay 3: 5\nDay 4: 0\nHighest: 5 (day 1)\nLowest: 0 (day 2)"
+    - input: "7\n1\n0"
+      output: "Day 1: 7\nHighest: 7 (day 1)\nLowest: 7 (day 1)"
+  solution: |
+    stock = int(input())
+    n = int(input())
+
+    highest = 0
+    high_day = 0
+    lowest = 0
+    low_day = 0
+    for day in range(1, n + 1):
+        stock += int(input())
+        print(f"Day {day}: {stock}")
+        if day == 1 or stock > highest:
+            highest = stock
+            high_day = day
+        if day == 1 or stock < lowest:
+            lowest = stock
+            low_day = day
+
+    if n == 0:
+        print("No data")
+    else:
+        print(f"Highest: {highest} (day {high_day})")
+        print(f"Lowest: {lowest} (day {low_day})")
+
+- slug: drop-the-double-scans
+  type: code
+  title: Drop the double scans
+  prompt: |
+    The scanner at the counter sometimes reads the same parcel more than once.
+
+    The first line holds `n`, then `n` lines of tracking numbers in scan order. Print each tracking number **only once**, in the order it was first scanned. Then print the number of unique tracking numbers and the number of scans thrown away:
+
+    ```
+    KJ-104
+    KJ-221
+    KJ-087
+    Unique: 3
+    Duplicates: 3
+    ```
+
+    The scan order must not change, so do not sort the result.
+  language: python
+  starter: |
+    n = int(input())
+    scans = []
+    for _ in range(n):
+        scans.append(input())
+
+    unique = []
+    # put into unique only the tracking numbers not seen before
+    for tracking in scans:
+        unique.append(tracking)
+
+    for tracking in unique:
+        print(tracking)
+    print(f"Unique: {len(unique)}")
+    print("Duplicates: 0")
+  hints:
+    - "The starter code puts every tracking number into `unique`. Add a memory `seen = set()` and only add a tracking number when it is not in there yet."
+    - "Inside the loop: `if tracking not in seen:` then `seen.add(tracking)` and `unique.append(tracking)`. The order is kept because `unique` is a list filled in scan order."
+    - "The duplicates do not need counting one by one: they are the difference between all scans and the unique ones, `n - len(unique)`."
+  tests:
+    - input: "6\nKJ-104\nKJ-221\nKJ-104\nKJ-087\nKJ-221\nKJ-104"
+      output: "KJ-104\nKJ-221\nKJ-087\nUnique: 3\nDuplicates: 3"
+    - input: "3\nKJ-300\nKJ-100\nKJ-200"
+      output: "KJ-300\nKJ-100\nKJ-200\nUnique: 3\nDuplicates: 0"
+    - input: "0"
+      output: "Unique: 0\nDuplicates: 0"
+    - input: "4\nKJ-555\nKJ-555\nKJ-555\nKJ-555"
+      output: "KJ-555\nUnique: 1\nDuplicates: 3"
+  solution: |
+    n = int(input())
+    scans = []
+    for _ in range(n):
+        scans.append(input())
+
+    seen = set()
+    unique = []
+    for tracking in scans:
+        if tracking not in seen:
+            seen.add(tracking)
+            unique.append(tracking)
+
+    for tracking in unique:
+        print(tracking)
+    print(f"Unique: {len(unique)}")
+    print(f"Duplicates: {n - len(unique)}")
+
+- slug: the-starting-record
+  type: choice
+  title: The starting record
+  prompt: |
+    The counter's cash difference was negative on all three days. What does this code print?
+
+    ```python
+    differences = [-3000, -7000, -2000]
+
+    highest = 0
+    for d in differences:
+        if d > highest:
+            highest = d
+    print(highest)
+    ```
+  options:
+    - "`-2000`"
+    - "`-7000`"
+    - "`0`"
+    - "`-3000`"
+  correct: [2]
+  hint: Is any of the data larger than the starting value of `highest`?
+  explanation: "None of the data is larger than 0, so `highest` is never replaced and `0` is printed, a number that is not even in the data. The right answer, `-2000`, only comes out when the starting record is taken from the first piece of data: `highest = differences[0]`."

@@ -1,6 +1,6 @@
 # tolie.space Lab
 
-Platform belajar coding: kursus gratis dengan latihan kode yang berjalan **di browser peserta** (Python lewat Pyodide, SQL lewat SQLite), soal **pilihan ganda** yang dinilai di server, kemajuan per pelajaran (lentera yang menyala), dan akun. Ini tahap 1 dari dokumen desain.
+Platform belajar coding: kursus gratis dengan latihan kode yang berjalan **di browser peserta** (Python lewat Pyodide, SQL lewat SQLite, JavaScript langsung), soal **pilihan ganda** yang dinilai di server, kemajuan per pelajaran (lentera yang menyala), dan akun. Ini tahap 1 dari dokumen desain.
 
 Tumpukan: React + Vite, Flask, PostgreSQL, semuanya di Docker Compose. Kode peserta tidak pernah berjalan di server.
 
@@ -8,19 +8,24 @@ Tumpukan: React + Vite, Flask, PostgreSQL, semuanya di Docker Compose. Kode pese
 
 - Akun (daftar, masuk, keluar), sesi aman, batas percobaan login, dan **atur ulang password** lewat email.
 - Katalog kursus, halaman kursus, halaman pelajaran dengan editor kode (CodeMirror) dan tes otomatis.
-- Dua jenis latihan: **kode** (Python atau SQL, dijalankan di browser, dengan **petunjuk bertahap**) dan **pilihan ganda** (satu atau banyak jawaban benar; jawaban benar tidak dikirim sebelum dijawab).
+- Dua jenis latihan: **kode** (Python, SQL, atau JavaScript, dijalankan di browser, dengan **petunjuk bertahap**) dan **pilihan ganda** (satu atau banyak jawaban benar; jawaban benar tidak dikirim sebelum dijawab).
 - Kemajuan, kode yang tersimpan otomatis, **runtun belajar** harian, dan penguncian modul berbayar di sisi server.
 - **Pembayaran modul berbayar lewat Stripe Checkout** (mati sampai kuncinya diisi).
 - **Sertifikat penyelesaian** dari tolie.space dengan tanda tangan Christianto Lie: PDF, nomor unik, kode QR, dan halaman verifikasi publik.
 - **Perks gratis dan berbayar**: perbandingan paket di halaman depan dan daftar manfaat di tiap kursus, semuanya bisa diedit tanpa kode.
 - **Admin di situs**: ringkasan angka (pendaftar, peserta aktif, pelajaran yang ditinggalkan, latihan tersulit), tambah dan edit kursus, pelajaran, soal pilihan ganda, dan latihan kode; beri akses modul; cabut sertifikat.
 - **Dua bahasa, Indonesia dan Inggris**: tombol ID/EN di header, pesan dari server, perbandingan paket, sertifikat PDF, dan dua kursus (Python Dasar untuk Warung Kopi, dan Python Basics for a Coffee Shop).
-- Tiga kursus, masing-masing dalam bahasa Indonesia dan Inggris: **Python Dasar** (8 pelajaran, 15 latihan kode, 10 soal pilihan ganda), **Python Lanjutan** (8 pelajaran, 17 latihan kode, 8 soal), dan **SQL Dasar** (6 pelajaran, 12 latihan kode, 6 soal). Semua solusinya sudah diuji dengan Python dan SQLite sungguhan.
+- **13 kursus gratis**, semuanya dalam bahasa Indonesia dan Inggris (satu kursus, dua bahasa):
+  - Python: Dasar, Lanjutan, Berorientasi Objek, Tanggal dan Waktu, Logika dan Algoritma, Mengolah JSON.
+  - SQL: Dasar, Lanjutan, Merancang Tabel dan Mengubah Data.
+  - JavaScript: Dasar, Lanjutan.
+  - Java Dasar dan Kotlin Dasar: kursus membaca kode dengan soal pilihan ganda (kedua bahasa ini tidak dijalankan di browser).
+  - Seluruhnya 140 latihan kode dan 120 soal pilihan ganda. Semua solusi dan kode awal, di kedua bahasa, diuji dengan Python, SQLite, dan JavaScript sungguhan.
 - Cadangan database otomatis tiap malam, dan CI (GitHub Actions) yang menjalankan semua tes di setiap push.
 
 ## Belum ada (tahap berikutnya)
 
-Buy Me a Coffee, pengembalian dana otomatis (refund dilakukan di dashboard Stripe; akses dicabut manual), JavaScript di browser, dan Java lewat Judge0. Lihat dokumen desain.
+Buy Me a Coffee, pengembalian dana otomatis (refund dilakukan di dashboard Stripe; akses dicabut manual), dan menjalankan Java atau Kotlin (butuh server penilai seperti Judge0). Lihat dokumen desain.
 
 ## Pasang di droplet
 
@@ -104,14 +109,18 @@ Coba sekali di mode tes dengan kartu `4242 4242 4242 4242` sebelum memakai kunci
 
 - **Tampilan:** tombol ID / EN di header. Pilihan disimpan di browser. Kalau belum memilih, browser berbahasa Indonesia mendapat Indonesia dan yang lain mendapat Inggris.
 - **Pesan dari server** (galat, email verifikasi) mengikuti bahasa yang dipilih: frontend mengirim header `X-Lang` di setiap permintaan.
-- **Kursus punya bahasa tulisnya sendiri** (`locale: id` atau `locale: en` di `course.yml`). Katalog menampilkan kursus dalam bahasa tampilan, dengan tombol untuk melihat kursus bahasa lain. Kursus bahasa Inggris adalah folder tersendiri, `content/python-basics`, jadi kemajuan dan sertifikatnya terpisah dari versi Indonesia.
-- **Sertifikat PDF** memakai bahasa kursusnya. Halaman verifikasi publik memakai bahasa tampilan pengunjung.
+- **Satu kursus, dua bahasa.** Kursus ditulis sekali dalam bahasa utamanya (`locale` di `course.yml`) dan bisa membawa terjemahan di folder yang sama (`translations: en:` di `course.yml`, lalu `lesson.en.md` dan `exercises.en.yml` di tiap pelajaran). Ia tetap satu kursus: satu kemajuan, satu sertifikat. Saat pengunjung menekan ID / EN, kursus, pelajaran, dan soal yang sama tampil dalam bahasa itu; kode yang sedang ditulis tidak hilang. Kursus tanpa terjemahan tampil dalam bahasa utamanya, dan di katalog muncul lewat tombol "tampilkan juga kursus dalam bahasa lain".
+- **Sertifikat** terbit dalam bahasa yang dipakai peserta saat mengklaimnya, dan tetap dalam bahasa itu. Halaman verifikasi publik memakai bahasa tampilan pengunjung.
+- Nama folder kursus, folder pelajaran, dan slug latihan memakai bahasa Inggris (`python-basics`, `01-hello-coffee-shop`, `greet-the-customer`), apa pun bahasa tulis kursusnya. Alamat pelajaran jadi sama untuk kedua bahasa.
+- Dua kursus lama yang terpisah per bahasa (`python-dasar` dan `python-basics`) sekarang satu kursus, `python-basics`. Saat API pertama kali menyala setelah pembaruan, kemajuan, kode, dan sertifikat peserta `python-dasar` dipindahkan ke pelajaran dan latihan yang sepadan (`replaces:` di `course.yml`), lalu kursus lamanya dihapus. Tautan lama ke `/kursus/python-dasar` tidak berlaku lagi.
 - **Perbandingan paket**: `content/plans.yml` punya satu daftar per bahasa (`id:` dan `en:`).
 - Antarmuka **admin hanya berbahasa Indonesia**, karena dipakai pemilik situs.
 
-Menambah teks tampilan baru: tulis teks Indonesianya di kode dengan `t('...')`, lalu tambahkan terjemahan Inggrisnya di `frontend/src/locales/en.js`. Tes gagal bila ada teks yang belum punya terjemahan, atau terjemahan yang tidak lagi dipakai. Pesan galat baru dari server ditambahkan ke `backend/i18n.py` dengan cara yang sama. Kursus dalam bahasa lain adalah folder kursus baru dengan `locale` yang sesuai.
+Menambah teks tampilan baru: tulis teks Indonesianya di kode dengan `t('...')`, lalu tambahkan terjemahan Inggrisnya di `frontend/src/locales/en.js`. Tes gagal bila ada teks yang belum punya terjemahan, atau terjemahan yang tidak lagi dipakai. Pesan galat baru dari server ditambahkan ke `backend/i18n.py` dengan cara yang sama.
 
 ## Menulis kursus
+
+Panduan lengkap untuk penulis (format, terjemahan, arti `input` di tiap bahasa pemrograman) ada di [`content/README.md`](content/README.md). Ringkasnya:
 
 Semua isi ada di folder `content/`, tanpa admin: tulis, `git push`, lalu di droplet `git pull && docker compose restart api` (tanpa build ulang).
 
@@ -119,11 +128,16 @@ Semua isi ada di folder `content/`, tanpa admin: tulis, `git push`, lalu di drop
 content/<kursus>/course.yml                    judul, bahasa pemrograman, locale (id atau en), level, harga (price_idr), status
 content/<kursus>/<NN-pelajaran>/lesson.md      front matter (title) lalu materi Markdown
 content/<kursus>/<NN-pelajaran>/exercises.yml  daftar latihan
+content/<kursus>/<NN-pelajaran>/lesson.en.md, exercises.en.yml   terjemahan (opsional, tapi harus lengkap untuk seluruh kursus)
 ```
 
-Latihan kode: `slug`, `type: code`, `title`, `prompt`, `starter`, `tests` (daftar `input` dan `output`), `hints`, dan `solution`. `hints` adalah daftar sampai 3 petunjuk yang dibuka peserta satu per satu, dari arahan ringan sampai hampir jawabannya (satu `hint` saja juga boleh). Latihan pilihan ganda: `type: choice`, `options`, `correct` (nomor opsi mulai dari 0), `multiple: true` bila boleh banyak jawaban, `hint`, `explanation`. Contoh lengkap ada di `content/python-dasar`.
+Latihan kode: `slug`, `type: code`, `title`, `prompt`, `starter`, `tests` (daftar `input` dan `output`), `hints`, dan `solution`. `hints` adalah daftar sampai 3 petunjuk yang dibuka peserta satu per satu, dari arahan ringan sampai hampir jawabannya (satu `hint` saja juga boleh). Latihan pilihan ganda: `type: choice`, `options`, `correct` (nomor opsi mulai dari 0), `multiple: true` bila boleh banyak jawaban, `hint`, `explanation`. Contoh lengkap ada di `content/python-basics`.
 
-**Kursus SQL** (`language: sql` di `course.yml`): tiap latihan kode punya `setup`, yaitu SQL (CREATE TABLE dan INSERT) yang dijalankan di database SQLite kosong sebelum setiap tes, dan bisa dilihat peserta. `input` sebuah tes adalah SQL tambahan (misalnya baris baru, supaya jawaban yang ditulis mati gagal), dan `output` adalah tabel hasil: satu baris nama kolom, lalu satu baris per data, dipisah `|`. Selalu minta `ORDER BY` kalau hasilnya lebih dari satu baris. Contoh ada di `content/sql-dasar`.
+**Kursus SQL** (`language: sql` di `course.yml`): tiap latihan kode punya `setup`, yaitu SQL (CREATE TABLE dan INSERT) yang dijalankan di database SQLite kosong sebelum setiap tes, dan bisa dilihat peserta. `input` sebuah tes adalah SQL tambahan (misalnya baris baru, supaya jawaban yang ditulis mati gagal), dan `output` adalah tabel hasil: satu baris nama kolom, lalu satu baris per data, dipisah `|`. Selalu minta `ORDER BY` kalau hasilnya lebih dari satu baris. Untuk soal yang mengubah data (INSERT, UPDATE, CREATE TABLE), isi `check`: SQL yang dijalankan setelah jawaban peserta, dan hasilnyalah yang dibandingkan. Contoh ada di `content/sql-basics` dan `content/sql-tables-and-data`.
+
+**Kursus JavaScript** (`language: javascript`): `input` sebuah tes adalah JavaScript yang dijalankan tepat setelah kode peserta, biasanya memanggil fungsi yang diminta, misalnya `console.log(total(15000, 2))`. Keluarannya satu baris per `console.log`.
+
+**Java dan Kotlin** tidak bisa dijalankan di browser, jadi kursusnya hanya memakai soal pilihan ganda (membaca kode: apa yang dicetak, baris mana yang salah). Latihan kode untuk kedua bahasa itu ditolak saat pengecekan.
 
 Sebelum di-push, jalankan pengecekan (ia juga melaporkan file YAML yang rusak). Ia menjalankan `solution` dan `starter` setiap latihan di Python atau SQLite sungguhan: solusi harus lulus semua tes, dan kode awal tidak boleh sudah lulus.
 
@@ -145,7 +159,7 @@ Buka `/admin` (hanya akun admin). Dari sana:
 - **Latihan kode**: perintah, kode awal, solusi, petunjuk (satu per baris), dan daftar tes (untuk kursus SQL juga tabel dan datanya). Sebelum disimpan, solusi dijalankan terhadap tesnya di browser kamu: solusi harus lulus semua tes, dan kode awal tidak boleh sudah lulus. Solusi tidak pernah dikirim ke peserta.
 - **Beri akses modul** ke seorang peserta lewat email, dan **cabut atau pulihkan sertifikat**.
 
-Soal dan pelajaran yang dibuat atau diubah di admin ditandai `admin`, dan file di `content/` tidak akan menimpanya lagi. Yang belum kamu ubah tetap dikelola file. Menghapus pelajaran atau soal yang sudah dijawab peserta meminta konfirmasi, karena kemajuan mereka ikut terhapus.
+Soal dan pelajaran yang dibuat atau diubah di admin ditandai `admin`, dan file di `content/` tidak akan menimpanya lagi. Admin menyunting bahasa utama kursus; terjemahan pelajaran atau soal yang kamu ubah di admin dibuang (supaya tidak ada dua versi yang berbeda isi), jadi pengunjung berbahasa Inggris melihat teks bahasa utamanya untuk bagian itu. Yang belum kamu ubah tetap dikelola file. Menghapus pelajaran atau soal yang sudah dijawab peserta meminta konfirmasi, karena kemajuan mereka ikut terhapus.
 
 ## Sertifikat
 
@@ -172,7 +186,8 @@ cd frontend && npm ci
 npm test                  # tampilan, alur latihan, sertifikat, admin, runner (worker palsu)
 npm run test:python       # runner Python di Pyodide sungguhan (stdin, error, exit, batas keluaran)
 npm run test:sql          # runner SQL di SQLite sungguhan (setup, tabel hasil, error)
-npm run check-content     # solusi semua latihan di Python dan SQLite sungguhan
+npm run test:js           # runner JavaScript (console.log, kode tes, error)
+npm run check-content     # solusi semua latihan, kedua bahasa (tambah `-- nama-kursus` untuk satu kursus saja)
 ```
 
 Semua itu juga dijalankan GitHub Actions di setiap push dan pull request (`.github/workflows/ci.yml`).

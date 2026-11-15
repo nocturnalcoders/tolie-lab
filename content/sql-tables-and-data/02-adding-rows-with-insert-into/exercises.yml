@@ -1,0 +1,128 @@
+- slug: a-new-item
+  type: code
+  title: Menu baru
+  prompt: |
+    Warung Kopi Senja mulai menjual jus. Tambahkan satu baris ke tabel `menu`:
+
+    - `id`: 8
+    - `nama`: `Jus Jeruk`
+    - `kategori`: `minuman`
+    - `harga`: 14000
+
+    Baris lain jangan diubah. Pemeriksa akan menampilkan `id`, `nama`, `kategori`, `harga` dari seluruh tabel `menu`, urut menurut `id`.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, nama TEXT, kategori TEXT, harga INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Kopi Hitam', 'minuman', 10000),
+      (2, 'Kopi Susu', 'minuman', 15000),
+      (3, 'Teh Tarik', 'minuman', 12000),
+      (4, 'Es Teh Manis', 'minuman', 8000),
+      (5, 'Roti Bakar', 'makanan', 18000),
+      (6, 'Pisang Goreng', 'makanan', 12000),
+      (7, 'Nasi Goreng', 'makanan', 25000);
+  check: |
+    SELECT id, nama, kategori, harga FROM menu ORDER BY id;
+  starter: |
+    -- tulis INSERT INTO untuk Jus Jeruk di sini
+
+    SELECT * FROM menu ORDER BY id;
+  hints:
+    - "Bentuknya `INSERT INTO tabel (kolom, ...) VALUES (nilai, ...);`. Urutan nilai mengikuti urutan kolom."
+    - "Kolomnya `(id, nama, kategori, harga)`. Tulisan seperti nama dan kategori diapit petik tunggal, angka tidak."
+    - "Nilainya `(8, 'Jus Jeruk', 'minuman', 14000)`, jadi: `INSERT INTO menu (id, nama, kategori, harga) VALUES (8, 'Jus Jeruk', 'minuman', 14000);`."
+  tests:
+    - output: |
+        id|nama|kategori|harga
+        1|Kopi Hitam|minuman|10000
+        2|Kopi Susu|minuman|15000
+        3|Teh Tarik|minuman|12000
+        4|Es Teh Manis|minuman|8000
+        5|Roti Bakar|makanan|18000
+        6|Pisang Goreng|makanan|12000
+        7|Nasi Goreng|makanan|25000
+        8|Jus Jeruk|minuman|14000
+    - input: |
+        UPDATE menu SET harga = 11000 WHERE id = 1;
+        DELETE FROM menu WHERE id = 6;
+      output: |
+        id|nama|kategori|harga
+        1|Kopi Hitam|minuman|11000
+        2|Kopi Susu|minuman|15000
+        3|Teh Tarik|minuman|12000
+        4|Es Teh Manis|minuman|8000
+        5|Roti Bakar|makanan|18000
+        7|Nasi Goreng|makanan|25000
+        8|Jus Jeruk|minuman|14000
+  solution: |
+    INSERT INTO menu (id, nama, kategori, harga)
+    VALUES (8, 'Jus Jeruk', 'minuman', 14000);
+
+- slug: three-new-customers
+  type: code
+  title: Tiga pelanggan baru
+  prompt: |
+    Tiga pelanggan baru mendaftar hari ini. Tambahkan mereka ke tabel `pelanggan` dengan **satu** perintah `INSERT`, dalam urutan ini:
+
+    | nama | kota |
+    |---|---|
+    | Dewi | Bandung |
+    | Rudi | Bogor |
+    | Tono | Jakarta |
+
+    Jangan isi kolom `id`: sebut hanya kolom `nama` dan `kota`, biarkan database memberi nomornya. Pemeriksa akan menampilkan `id`, `nama`, `kota` dari seluruh tabel `pelanggan`, urut menurut `id`.
+  setup: |
+    CREATE TABLE pelanggan (id INTEGER PRIMARY KEY, nama TEXT, kota TEXT);
+    INSERT INTO pelanggan VALUES
+      (1, 'Sari', 'Bandung'),
+      (2, 'Budi', 'Jakarta');
+  check: |
+    SELECT id, nama, kota FROM pelanggan ORDER BY id;
+  starter: |
+    -- baru satu pelanggan; tambahkan Rudi dan Tono di perintah yang sama
+    INSERT INTO pelanggan (nama, kota) VALUES
+      ('Dewi', 'Bandung');
+  hints:
+    - "Satu `INSERT` boleh membawa beberapa baris. Tiap baris punya kurungnya sendiri."
+    - "Pisahkan baris dengan koma: `VALUES ('Dewi', 'Bandung'), (...), (...);`. Titik koma hanya di akhir."
+    - "Setelah `('Dewi', 'Bandung')` tambahkan `, ('Rudi', 'Bogor'), ('Tono', 'Jakarta')`."
+  tests:
+    - output: |
+        id|nama|kota
+        1|Sari|Bandung
+        2|Budi|Jakarta
+        3|Dewi|Bandung
+        4|Rudi|Bogor
+        5|Tono|Jakarta
+    - input: |
+        INSERT INTO pelanggan VALUES (3, 'Wati', 'Depok');
+      output: |
+        id|nama|kota
+        1|Sari|Bandung
+        2|Budi|Jakarta
+        3|Wati|Depok
+        4|Dewi|Bandung
+        5|Rudi|Bogor
+        6|Tono|Jakarta
+  solution: |
+    INSERT INTO pelanggan (nama, kota) VALUES
+      ('Dewi', 'Bandung'),
+      ('Rudi', 'Bogor'),
+      ('Tono', 'Jakarta');
+
+- slug: columns-you-leave-out
+  type: choice
+  title: Kolom yang tidak disebut
+  prompt: |
+    Tabel `menu` punya kolom `id`, `nama`, `kategori`, `harga`, tanpa aturan tambahan pada `kategori` dan `harga`. Apa isi `kategori` dan `harga` pada baris yang dibuat perintah ini?
+
+    ```sql
+    INSERT INTO menu (id, nama) VALUES (9, 'Donat');
+    ```
+  options:
+    - "`kategori` berisi tulisan kosong dan `harga` berisi 0"
+    - "Keduanya `NULL`"
+    - "Keduanya disalin dari baris sebelumnya"
+    - "Perintahnya gagal karena kolomnya tidak lengkap"
+  correct: [1]
+  hint: "Ingat apa arti kosong di SQL."
+  explanation: "Kolom yang tidak ada di daftar dibiarkan tanpa nilai, yaitu `NULL`. `NULL` bukan 0 dan bukan tulisan kosong. Perintahnya tetap berhasil karena daftar kolom dan daftar nilainya sama panjang."

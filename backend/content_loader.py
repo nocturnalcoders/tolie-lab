@@ -4,6 +4,10 @@ content/<course>/course.yml
 content/<course>/<NN-lesson>/lesson.md        (front matter with `title`, then Markdown)
 content/<course>/<NN-lesson>/exercises.yml    (list of code and multiple-choice exercises)
 
+A course is written once and can carry a translation: `translations: en: {...}` in course.yml, plus
+lesson.en.md and exercises.en.yml next to the originals. It stays one course (one progress, one
+certificate); the site shows it in the visitor's language.
+
 Authors only touch these files. `python manage.py check-content` validates them, and the API
 imports them into PostgreSQL when it starts. The `solution` of a code exercise is checked by the
 frontend script (npm run check-content) and never stored in the database.
@@ -16,7 +20,9 @@ from pathlib import Path
 import yaml
 
 SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-LANGUAGES = {"python", "javascript", "sql", "java"}
+LANGUAGES = {"python", "javascript", "sql", "java", "kotlin"}
+RUNNABLE = {"python", "sql", "javascript"}  # languages the browser can run
+SERVER_RUN = {"java", "kotlin"}  # run on a remote compiler with few daily credits (judge.py): keep these exercises optional
 LOCALES = {"id", "en"}  # the language a course is written in
 KINDS = {"course", "module"}
 STATUSES = {"draft", "published"}
@@ -89,8 +95,11 @@ def validate_exercise(raw: dict, where: str, course_language: str) -> dict:
     }
     if kind == "code":
         language = raw.get("language", course_language)
-        if language not in LANGUAGES:
-            _fail(where, f"`language` must be one of {sorted(LANGUAGES)}")
+        if language not in RUNNABLE | SERVER_RUN:
+            _fail(where, f"`language` must be one of {sorted(RUNNABLE | SERVER_RUN)}")
+        if language in SERVER_RUN and ex["required"]:
+            # Finishing a lesson must not depend on the remote compiler's daily allowance.
+            _fail(where, f"a {language} code exercise needs `required: false`")
         tests = raw.get("tests")
         if not isinstance(tests, list) or not tests:
             _fail(where, "`tests` must be a non-empty list")
@@ -111,6 +120,8 @@ def validate_exercise(raw: dict, where: str, course_language: str) -> dict:
         if language == "sql":
             # Tables and rows every test starts from. A test's `input` is extra SQL run after it.
             ex["config"]["setup"] = _text(raw.get("setup"), where, "setup", required=False, limit=8000)
+            # For exercises that change data: run after the learner's script; its result is what the tests compare.
+            ex["config"]["check"] = _text(raw.get("check"), where, "check", required=False, limit=2000)
     else:
         options = raw.get("options")
         if not isinstance(options, list) or not 2 <= len(options) <= 8 or not all(isinstance(o, str) and o.strip() for o in options):
@@ -131,6 +142,51 @@ def validate_exercise(raw: dict, where: str, course_language: str) -> dict:
             "explanation": _text(raw.get("explanation"), where, "explanation", limit=1200),
         }
     return ex
+
+
+def _course_texts(meta: dict, where: str) -> dict:
+    """The translatable texts of a course: title, level, summary and perks."""
+    perks = meta.get("perks", [])
+    if not isinstance(perks, list) or len(perks) > 12 or not all(isinstance(x, str) and 0 < len(x.strip()) <= 160 for x in perks):
+        _fail(where, "`perks` must be a list of up to 12 short texts")
+    return {
+        "title": _text(meta.get("title"), where, "title", limit=120).strip(),
+        "level": _text(meta.get("level"), where, "level", limit=40).strip(),
+        "summary": _text(meta.get("summary"), where, "summary", limit=600).strip(),
+        "perks": [x.strip() for x in perks],
+    }
+
+
+def _check_same_shape(base: dict, tr: dict, where: str) -> None:
+    """A translated exercise must be graded exactly like the original: progress is shared between languages."""
+    if tr["type"] != base["type"]:
+        _fail(where, "the translation has a different `type` than the original")
+    b, t = base["config"], tr["config"]
+    if base["type"] == "code":
+        if len(t["tests"]) != len(b["tests"]):
+            _fail(where, f"the translation has {len(t['tests'])} tests, the original has {len(b['tests'])}")
+        if t["language"] != b["language"]:
+            _fail(where, "the translation uses a different programming language")
+    elif len(t["options"]) != len(b["options"]) or t["correct"] != b["correct"] or t["multiple"] != b["multiple"]:
+        _fail(where, "the translation must have the same number of options, the same `correct` and the same `multiple`")
+
+
+def _load_exercises(path: Path, where: str, language: str) -> list[dict]:
+    try:
+        items = yaml.safe_load(path.read_text(encoding="utf-8")) or []
+    except yaml.YAMLError as exc:
+        _fail(where, f"not valid YAML ({exc})")
+    if not isinstance(items, list):
+        _fail(where, "must be a list")
+    out: list[dict] = []
+    seen: set[str] = set()
+    for raw in items:
+        ex = validate_exercise(raw, where, language)
+        if ex["slug"] in seen:
+            _fail(where, f"duplicate exercise slug `{ex['slug']}`")
+        seen.add(ex["slug"])
+        out.append(ex)
+    return out
 
 
 def load_course(folder: Path) -> dict:
@@ -163,8 +219,16 @@ def load_course(folder: Path) -> dict:
     locale = meta.get("locale", "id")
     if locale not in LOCALES:
         _fail(where, "`locale` must be id or en")
+    translations = meta.get("translations") or {}
+    if not isinstance(translations, dict) or not all(k in LOCALES and k != locale and isinstance(v, dict) for k, v in translations.items()):
+        _fail(where, f"`translations` must map another site language ({sorted(LOCALES - {locale})}) to its texts")
+    replaces = meta.get("replaces", [])
+    if not isinstance(replaces, list) or not all(isinstance(x, str) and SLUG.match(x) and x != slug for x in replaces):
+        _fail(where, "`replaces` must be a list of course slugs")
     course = {
         "locale": locale,
+        "i18n": {k: _course_texts(v, f"{where}/translations/{k}") for k, v in translations.items()},
+        "replaces": replaces,
         "perks": [x.strip() for x in perks],
         "certificate": bool(meta.get("certificate", True)),
         "slug": slug,
@@ -196,23 +260,32 @@ def load_course(folder: Path) -> dict:
             "slug": lslug,
             "title": _text(front.get("title"), f"{lwhere}/lesson.md", "title", limit=120),
             "body": _text(body, f"{lwhere}/lesson.md", "body"),
+            "i18n": {},
             "exercises": [],
         }
         ex_file = sub / "exercises.yml"
         if ex_file.is_file():
-            try:
-                items = yaml.safe_load(ex_file.read_text(encoding="utf-8")) or []
-            except yaml.YAMLError as exc:
-                _fail(f"{lwhere}/exercises.yml", f"not valid YAML ({exc})")
-            if not isinstance(items, list):
-                _fail(f"{lwhere}/exercises.yml", "must be a list")
-            seen: set[str] = set()
-            for raw in items:
-                ex = validate_exercise(raw, f"{lwhere}/exercises.yml", language)
-                if ex["slug"] in seen:
-                    _fail(f"{lwhere}/exercises.yml", f"duplicate exercise slug `{ex['slug']}`")
-                seen.add(ex["slug"])
-                lesson["exercises"].append(ex)
+            lesson["exercises"] = _load_exercises(ex_file, f"{lwhere}/exercises.yml", language)
+        for ex in lesson["exercises"]:
+            ex["i18n"] = {}
+        # Translations: all or nothing. A half-translated course would switch language mid-lesson.
+        for other in sorted(LOCALES - {locale}):
+            tr_md, tr_ex = sub / f"lesson.{other}.md", sub / f"exercises.{other}.yml"
+            if other not in course["i18n"]:
+                if tr_md.exists() or tr_ex.exists():
+                    _fail(lwhere, f"has `{other}` files, but course.yml has no `translations: {other}:`")
+                continue
+            if not tr_md.is_file():
+                _fail(lwhere, f"lesson.{other}.md is missing (the course declares a `{other}` translation)")
+            front, body = _split_front_matter(tr_md.read_text(encoding="utf-8"), f"{lwhere}/{tr_md.name}")
+            lesson["i18n"][other] = {"title": _text(front.get("title"), f"{lwhere}/{tr_md.name}", "title", limit=120),
+                                     "body": _text(body, f"{lwhere}/{tr_md.name}", "body")}
+            translated = _load_exercises(tr_ex, f"{lwhere}/{tr_ex.name}", language) if tr_ex.is_file() else []
+            if [x["slug"] for x in translated] != [x["slug"] for x in lesson["exercises"]]:
+                _fail(f"{lwhere}/{tr_ex.name}", "must list the same exercise slugs, in the same order, as exercises.yml")
+            for ex, tr in zip(lesson["exercises"], translated):
+                _check_same_shape(ex, tr, f"{lwhere}/{tr_ex.name}/{ex['slug']}")
+                ex["i18n"][other] = {"title": tr["title"], "prompt": tr["prompt"], "config": tr["config"]}
         course["lessons"].append(lesson)
     if not course["lessons"]:
         _fail(where, "a course needs at least one lesson folder")

@@ -1,0 +1,239 @@
+- slug: parse-an-invoice
+  type: code
+  title: Parse an invoice
+  prompt: |
+    Write a function `parse(row)` for rows written as `supplier,invoice date,term,amount`, for example `Gayo Coffee Co,12/02/2025,30,1250000`. The invoice date is written as `day/month/year` and the term is counted in days.
+
+    For a valid row, return a dictionary with the keys `supplier` (tidied with `.strip()`), `due` (a `date`: the invoice date plus the term), and `amount` (a number). The date text may have spaces around it, so tidy it with `.strip()` as well.
+
+    Return `None` when the row is broken: it does not have four columns, the date is invalid, the term or the amount is not a number, the term is negative, or the amount is 0 or less.
+
+    The program below it already prints every valid invoice and counts the valid and broken rows.
+  language: python
+  starter: |
+    from datetime import datetime, timedelta
+
+
+    def rupiah(number):
+        return "Rp" + f"{number:,}".replace(",", ".")
+
+
+    def parse(row):
+        # return a dictionary for a valid row, None for a broken row
+        pass
+
+
+    n = int(input())
+    valid = 0
+    broken = 0
+    for _ in range(n):
+        inv = parse(input())
+        if inv is None:
+            broken += 1
+        else:
+            valid += 1
+            print(f"{inv['supplier']} | {inv['due']} | {rupiah(inv['amount'])}")
+    print(f"Valid invoices: {valid}")
+    print(f"Broken rows: {broken}")
+  hints:
+    - "Everything that can raise a `ValueError` goes inside one `try`: splitting into four columns, `strptime`, and `int` twice. In `except ValueError:` write `return None`."
+    - "Inside `try`: `supplier, text, term, amount = row.split(\",\")`, then `invoice = datetime.strptime(text.strip(), \"%d/%m/%Y\").date()`, `term = int(term)`, and `amount = int(amount)`."
+    - "After the try/except: if `term < 0 or amount <= 0`, `return None`. Otherwise return `{\"supplier\": supplier.strip(), \"due\": invoice + timedelta(days=term), \"amount\": amount}`."
+  tests:
+    - input: "3\nGayo Coffee Co,12/02/2025,30,1250000\nFresh Milk, 07/03/2025 ,7,300000\nMakmur Bakery,30/02/2025,14,450000"
+      output: "Gayo Coffee Co | 2025-03-14 | Rp1.250.000\nFresh Milk | 2025-03-14 | Rp300.000\nValid invoices: 2\nBroken rows: 1"
+    - input: "3\nSweet Sugar,18/12/2025,14,200000\nFresh Milk,22/02/2024,7,300000\nMakmur Bakery,01/03/2025,fourteen,450000"
+      output: "Sweet Sugar | 2026-01-01 | Rp200.000\nFresh Milk | 2024-02-29 | Rp300.000\nValid invoices: 2\nBroken rows: 1"
+    - input: "4\nGayo Coffee Co,12/02/2025,30\nFresh Milk,2025-03-07,7,300000\nMakmur Bakery,01/03/2025,14,0\nSpring Water,10/03/2025,-5,120000"
+      output: "Valid invoices: 0\nBroken rows: 4"
+    - input: "2\n Makmur Bakery ,01/03/2025,0,450000\nSweet Sugar,31/01/2024,30,75000"
+      output: "Makmur Bakery | 2025-03-01 | Rp450.000\nSweet Sugar | 2024-03-01 | Rp75.000\nValid invoices: 2\nBroken rows: 0"
+  solution: |
+    from datetime import datetime, timedelta
+
+
+    def rupiah(number):
+        return "Rp" + f"{number:,}".replace(",", ".")
+
+
+    def parse(row):
+        try:
+            supplier, text, term, amount = row.split(",")
+            invoice = datetime.strptime(text.strip(), "%d/%m/%Y").date()
+            term = int(term)
+            amount = int(amount)
+        except ValueError:
+            return None
+        if term < 0 or amount <= 0:
+            return None
+        return {
+            "supplier": supplier.strip(),
+            "due": invoice + timedelta(days=term),
+            "amount": amount,
+        }
+
+
+    n = int(input())
+    valid = 0
+    broken = 0
+    for _ in range(n):
+        inv = parse(input())
+        if inv is None:
+            broken += 1
+        else:
+            valid += 1
+            print(f"{inv['supplier']} | {inv['due']} | {rupiah(inv['amount'])}")
+    print(f"Valid invoices: {valid}")
+    print(f"Broken rows: {broken}")
+
+- slug: project-invoice-reminder-report
+  type: code
+  title: Project invoice reminder report
+  prompt: |
+    The first line holds **today's** date (`year-month-day`), the second line `n`, followed by `n` invoice rows written as `supplier,invoice date,term,amount`. The `parse` and `rupiah` functions are already there, and the starter code already collects the valid invoices in the list `invoices`.
+
+    Print one line for every valid invoice, starting from the **earliest** due date. When due dates are equal, sort by supplier name.
+
+    ```
+    <due date> | <supplier> | <amount in rupiah format> | <status>
+    ```
+
+    The status is `overdue by <n> days`, `today`, or `<n> days left`. Always write `days`, also when the number is 1. After that print three summary lines:
+
+    ```
+    Overdue invoices: <how many invoices are overdue>, <their money>
+    Due within 7 days: <the money of invoices due from today up to 7 days from now>
+    Broken rows: <how many rows are broken>
+    ```
+  language: python
+  starter: |
+    from datetime import datetime, timedelta
+
+
+    def rupiah(number):
+        return "Rp" + f"{number:,}".replace(",", ".")
+
+
+    def parse(row):
+        try:
+            supplier, text, term, amount = row.split(",")
+            invoice = datetime.strptime(text.strip(), "%d/%m/%Y").date()
+            term = int(term)
+            amount = int(amount)
+        except ValueError:
+            return None
+        if term < 0 or amount <= 0:
+            return None
+        return {
+            "supplier": supplier.strip(),
+            "due": invoice + timedelta(days=term),
+            "amount": amount,
+        }
+
+
+    today = datetime.strptime(input(), "%Y-%m-%d").date()
+    n = int(input())
+    invoices = []
+    broken = 0
+    for _ in range(n):
+        inv = parse(input())
+        if inv is None:
+            broken += 1
+        else:
+            invoices.append(inv)
+
+    # sort the invoices, print each one with its status, then print the summary
+    print(f"Broken rows: {broken}")
+  hints:
+    - "Write a key function `order(inv)` that returns `(inv[\"due\"], inv[\"supplier\"])`, then `for inv in sorted(invoices, key=order):`. Also set three variables to 0 before the loop: `overdue`, `overdue_money` and `this_week`."
+    - "Inside the loop work out `left = (inv[\"due\"] - today).days`. If `left < 0`: the status is `f\"overdue by {-left} days\"`, add to `overdue` and `overdue_money`. If `left == 0`: the status is `today`. Otherwise `f\"{left} days left\"`. For `left` from 0 to 7, add the amount to `this_week`."
+    - "Print each invoice with `print(f\"{inv['due']} | {inv['supplier']} | {rupiah(inv['amount'])} | {status}\")`. After the loop: `print(f\"Overdue invoices: {overdue}, {rupiah(overdue_money)}\")`, then `print(f\"Due within 7 days: {rupiah(this_week)}\")`, then the broken rows."
+  tests:
+    - input: "2025-03-14\n5\nGayo Coffee Co,12/02/2025,30,1250000\nMakmur Bakery,24/02/2025,14,450000\nFresh Milk,01/03/2025,20,300000\nSweet Sugar,01/03/2025,four,90000\nSpring Water,10/03/2025,30,120000"
+      output: "2025-03-10 | Makmur Bakery | Rp450.000 | overdue by 4 days\n2025-03-14 | Gayo Coffee Co | Rp1.250.000 | today\n2025-03-21 | Fresh Milk | Rp300.000 | 7 days left\n2025-04-09 | Spring Water | Rp120.000 | 26 days left\nOverdue invoices: 1, Rp450.000\nDue within 7 days: Rp1.550.000\nBroken rows: 1"
+    - input: "2025-12-30\n4\nSweet Sugar,18/12/2025,14,200000\nFresh Milk,30/12/2025,8,300000\nGayo Coffee Co,28/11/2025,30,1250000\nSpring Water,02/12/2025,30,120000"
+      output: "2025-12-28 | Gayo Coffee Co | Rp1.250.000 | overdue by 2 days\n2026-01-01 | Spring Water | Rp120.000 | 2 days left\n2026-01-01 | Sweet Sugar | Rp200.000 | 2 days left\n2026-01-07 | Fresh Milk | Rp300.000 | 8 days left\nOverdue invoices: 1, Rp1.250.000\nDue within 7 days: Rp320.000\nBroken rows: 0"
+    - input: "2024-03-02\n3\nMakmur Bakery,22/02/2024,7,450000\nFresh Milk,15/02/2024,14,300000\nSweet Sugar,01/02/2024,30,75000"
+      output: "2024-02-29 | Fresh Milk | Rp300.000 | overdue by 2 days\n2024-02-29 | Makmur Bakery | Rp450.000 | overdue by 2 days\n2024-03-02 | Sweet Sugar | Rp75.000 | today\nOverdue invoices: 2, Rp750.000\nDue within 7 days: Rp75.000\nBroken rows: 0"
+    - input: "2025-03-14\n2\n???\nFresh Milk,31/02/2025,7,300000"
+      output: "Overdue invoices: 0, Rp0\nDue within 7 days: Rp0\nBroken rows: 2"
+  solution: |
+    from datetime import datetime, timedelta
+
+
+    def rupiah(number):
+        return "Rp" + f"{number:,}".replace(",", ".")
+
+
+    def parse(row):
+        try:
+            supplier, text, term, amount = row.split(",")
+            invoice = datetime.strptime(text.strip(), "%d/%m/%Y").date()
+            term = int(term)
+            amount = int(amount)
+        except ValueError:
+            return None
+        if term < 0 or amount <= 0:
+            return None
+        return {
+            "supplier": supplier.strip(),
+            "due": invoice + timedelta(days=term),
+            "amount": amount,
+        }
+
+
+    def order(inv):
+        return (inv["due"], inv["supplier"])
+
+
+    today = datetime.strptime(input(), "%Y-%m-%d").date()
+    n = int(input())
+    invoices = []
+    broken = 0
+    for _ in range(n):
+        inv = parse(input())
+        if inv is None:
+            broken += 1
+        else:
+            invoices.append(inv)
+
+    overdue = 0
+    overdue_money = 0
+    this_week = 0
+    for inv in sorted(invoices, key=order):
+        left = (inv["due"] - today).days
+        if left < 0:
+            status = f"overdue by {-left} days"
+            overdue += 1
+            overdue_money += inv["amount"]
+        elif left == 0:
+            status = "today"
+        else:
+            status = f"{left} days left"
+        if 0 <= left <= 7:
+            this_week += inv["amount"]
+        print(f"{inv['due']} | {inv['supplier']} | {rupiah(inv['amount'])} | {status}")
+
+    print(f"Overdue invoices: {overdue}, {rupiah(overdue_money)}")
+    print(f"Due within 7 days: {rupiah(this_week)}")
+    print(f"Broken rows: {broken}")
+
+- slug: a-30-day-term-is-not-one-month
+  type: choice
+  title: A 30-day term is not one month
+  prompt: |
+    An invoice is dated 31 January 2025 with a 30-day term. 2025 is not a leap year. What does this code show?
+
+    ```python
+    from datetime import date, timedelta
+
+    print(date(2025, 1, 31) + timedelta(days=30))
+    ```
+  options:
+    - "`2025-02-28`"
+    - "`2025-03-01`"
+    - "`2025-03-02`"
+    - "The program stops with an error because 31 February does not exist"
+  correct: [2]
+  hint: February 2025 has 28 days. Use up those 28 days first, then see how many of the 30 are left.
+  explanation: "`timedelta` counts days, not months. From 31 January, 28 days take us to 28 February, and the two remaining days to 2 March. That is why a due date is safer worked out by Python than guessed as \"next month\"."

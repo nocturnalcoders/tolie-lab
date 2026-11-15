@@ -1,0 +1,106 @@
+- slug: cheapest-first
+  type: code
+  title: Cheapest first
+  prompt: |
+    Ms. Rina wants a new menu board sorted from the cheapest price. Show the `name` and `price` of every row in the `menu` table, sorted by `price` from the smallest. When prices are equal, sort by `name` in alphabetical order.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+  starter: |
+    -- sort by price, then by name
+    SELECT name, price FROM menu;
+  hints:
+    - "Sorting is written at the end of the statement with `ORDER BY`."
+    - "`ORDER BY price` alone is not enough: the two items that cost 12000 need a tie-breaker. You can sort by more than one column, separated by commas."
+    - "End the statement with `ORDER BY price, name`."
+  tests:
+    - output: |
+        name|price
+        Sweet Iced Tea|8000
+        Black Coffee|10000
+        Banana Fritters|12000
+        Pulled Tea|12000
+        Milk Coffee|15000
+        Toast|18000
+        Fried Rice|25000
+    - input: |
+        INSERT INTO menu VALUES
+          (8, 'Corn Fritters', 'food', 12000),
+          (9, 'Mineral Water', 'drink', 5000);
+      output: |
+        name|price
+        Mineral Water|5000
+        Sweet Iced Tea|8000
+        Black Coffee|10000
+        Banana Fritters|12000
+        Corn Fritters|12000
+        Pulled Tea|12000
+        Milk Coffee|15000
+        Toast|18000
+        Fried Rice|25000
+  solution: |
+    SELECT name, price FROM menu ORDER BY price, name;
+
+- slug: the-three-most-expensive-items
+  type: code
+  title: The three most expensive items
+  prompt: |
+    Show the `name` and `price` of the **three** most expensive items in the `menu` table, starting with the most expensive. When prices are equal, put the `name` that comes first alphabetically first.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+  starter: |
+    -- sort from the most expensive, then take only three rows
+    SELECT name, price FROM menu
+    ORDER BY price;
+  hints:
+    - "There are two steps: sort from the largest price, then take the first three rows."
+    - "`DESC` reverses the order of one column, and `LIMIT 3` takes the first three rows. Do not forget `name` as the tie-breaker for equal prices."
+    - "End the statement with `ORDER BY price DESC, name LIMIT 3`."
+  tests:
+    - output: |
+        name|price
+        Fried Rice|25000
+        Toast|18000
+        Milk Coffee|15000
+    - input: |
+        INSERT INTO menu VALUES
+          (8, 'Fried Noodles', 'food', 22000),
+          (9, 'Coffee with Palm Sugar', 'drink', 18000);
+      output: |
+        name|price
+        Fried Rice|25000
+        Fried Noodles|22000
+        Coffee with Palm Sugar|18000
+  solution: |
+    SELECT name, price FROM menu
+    ORDER BY price DESC, name
+    LIMIT 3;
+
+- slug: the-single-cheapest
+  type: choice
+  title: The single cheapest
+  prompt: |
+    Which statement shows the **one** item with the lowest price?
+  options:
+    - "`SELECT name FROM menu ORDER BY price DESC LIMIT 1;`"
+    - "`SELECT name FROM menu LIMIT 1 ORDER BY price;`"
+    - "`SELECT name FROM menu ORDER BY price LIMIT 1;`"
+    - "`SELECT name FROM menu LIMIT 1;`"
+  correct: [2]
+  hint: "The default order of `ORDER BY` is from small to large, and `LIMIT` is written last."
+  explanation: "`ORDER BY price` sorts from the cheapest, then `LIMIT 1` takes the first row. With `DESC` you would get the most expensive item instead, `LIMIT` before `ORDER BY` is a syntax error, and `LIMIT 1` without sorting takes a row that is not certain."

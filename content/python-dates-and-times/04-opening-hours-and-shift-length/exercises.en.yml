@@ -1,0 +1,119 @@
+- slug: is-the-shop-open
+  type: code
+  title: Is the shop open?
+  prompt: |
+    Senja Coffee Shop opens every day at 07:00. From Monday to Friday it closes at 21:00, on Saturday and Sunday at 22:00.
+
+    Read one line with a date and a time written as `year-month-day hour:minute`, for example `2025-03-14 20:45`. If the shop is open at that moment, print `Open until <closing time>`, for example `Open until 21:00`. If not, print `Closed`.
+
+    At exactly closing time, the shop is already closed.
+  language: python
+  starter: |
+    from datetime import datetime, time
+
+    moment = datetime.strptime(input(), "%Y-%m-%d %H:%M")
+    opens = time(7, 0)
+
+    # pick the closing time from the day, then compare the clock time
+  hints:
+    - "There are two questions: which day (`moment.weekday()`, 5 and 6 mean the weekend) and what time (`moment.time()`)."
+    - "`if moment.weekday() >= 5:` use `closes = time(22, 0)`, otherwise `closes = time(21, 0)`. The shop is open when `opens <= moment.time() < closes`."
+    - "If it is open, print `f\"Open until {closes.strftime('%H:%M')}\"`. If not, print `Closed`."
+  tests:
+    - input: "2025-03-14 20:45"
+      output: "Open until 21:00"
+    - input: "2025-03-14 21:00"
+      output: "Closed"
+    - input: "2025-03-15 21:30"
+      output: "Open until 22:00"
+    - input: "2025-03-10 06:59"
+      output: "Closed"
+    - input: "2024-02-29 07:00"
+      output: "Open until 21:00"
+  solution: |
+    from datetime import datetime, time
+
+    moment = datetime.strptime(input(), "%Y-%m-%d %H:%M")
+    opens = time(7, 0)
+
+    if moment.weekday() >= 5:
+        closes = time(22, 0)
+    else:
+        closes = time(21, 0)
+
+    if opens <= moment.time() < closes:
+        print(f"Open until {closes.strftime('%H:%M')}")
+    else:
+        print("Closed")
+
+- slug: shift-length
+  type: code
+  title: Shift length
+  prompt: |
+    The first line holds the moment a staff member starts, the second line the moment they leave. Both are written as `year-month-day hour:minute`. A night shift can end on the next date.
+
+    Print the length of the shift:
+
+    ```
+    Shift length: <hours> h <minutes> min
+    ```
+
+    Example: `Shift length: 7 h 45 min`.
+  language: python
+  starter: |
+    from datetime import datetime
+
+    PATTERN = "%Y-%m-%d %H:%M"
+
+    start = datetime.strptime(input(), PATTERN)
+    end = datetime.strptime(input(), PATTERN)
+
+    # work out the difference in minutes, then split it into hours and minutes
+    print(f"Shift length: {end.hour - start.hour} h {end.minute - start.minute} min")
+  hints:
+    - "Subtracting hours from hours and minutes from minutes can give negative numbers. Subtract the whole `datetime` instead: `length = end - start`."
+    - "Turn the span into minutes: `minutes = int(length.total_seconds()) // 60`."
+    - "The hours are `minutes // 60` and the rest is `minutes % 60`. Print `f\"Shift length: {minutes // 60} h {minutes % 60} min\"`."
+  tests:
+    - input: "2025-03-14 14:30\n2025-03-14 22:15"
+      output: "Shift length: 7 h 45 min"
+    - input: "2024-12-31 20:00\n2025-01-01 02:30"
+      output: "Shift length: 6 h 30 min"
+    - input: "2024-02-28 22:00\n2024-02-29 06:00"
+      output: "Shift length: 8 h 0 min"
+    - input: "2025-03-14 07:00\n2025-03-14 07:45"
+      output: "Shift length: 0 h 45 min"
+    - input: "2025-03-14 06:45\n2025-03-14 15:00"
+      output: "Shift length: 8 h 15 min"
+  solution: |
+    from datetime import datetime
+
+    PATTERN = "%Y-%m-%d %H:%M"
+
+    start = datetime.strptime(input(), PATTERN)
+    end = datetime.strptime(input(), PATTERN)
+
+    length = end - start
+    minutes = int(length.total_seconds()) // 60
+    print(f"Shift length: {minutes // 60} h {minutes % 60} min")
+
+- slug: past-midnight
+  type: choice
+  title: Past midnight
+  prompt: |
+    Budi starts his watch at 22:00 and works for 3 hours. What does this code show?
+
+    ```python
+    from datetime import datetime, timedelta
+
+    start = datetime(2025, 3, 14, 22, 0)
+    print(start + timedelta(hours=3))
+    ```
+  options:
+    - "`2025-03-14 25:00:00`"
+    - "`2025-03-14 01:00:00`"
+    - "`2025-03-15 01:00:00`"
+    - "The program stops with an error because hour 25 does not exist"
+  correct: [2]
+  hint: A datetime keeps the date and the clock time together. What happens to the date when the clock passes 24:00?
+  explanation: "When the hours pass midnight, a `datetime` moves to the next date automatically. That is why a night shift is safer to calculate with `datetime` than with the clock time alone."

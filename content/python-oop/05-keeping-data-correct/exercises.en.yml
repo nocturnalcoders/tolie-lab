@@ -1,0 +1,172 @@
+- slug: a-valid-menu-item
+  type: code
+  title: A valid menu item
+  prompt: |
+    Make `MenuItem` reject bad data. Inside `__init__`, before storing anything:
+
+    - if `name.strip()` is empty, raise a `ValueError` with the message `Name must not be empty`
+    - if `price` is 0 or less, raise a `ValueError` with the message `Price must be more than 0`
+
+    Check the name first. The program below reads `n`, then `n` lines in the format `name,price`, and prints `OK: <name> Rp<price>` or `Rejected: <message>` for each line.
+  language: python
+  starter: |
+    class MenuItem:
+        def __init__(self, name, price):
+            # reject an empty name and a price of 0 or less with raise ValueError(...)
+            self.name = name
+            self.price = price
+
+
+    n = int(input())
+    for _ in range(n):
+        name, price = input().split(",")
+        try:
+            item = MenuItem(name, int(price))
+            print(f"OK: {item.name} Rp{item.price}")
+        except ValueError as e:
+            print(f"Rejected: {e}")
+  hints:
+    - "The program below already catches the `ValueError` and prints its message. What is missing is the part inside `__init__` that raises the error."
+    - "The first check: `if name.strip() == \"\":` then `raise ValueError(\"Name must not be empty\")`. Write it before the line `self.name = name`."
+    - "The second check, right below it: `if price <= 0:` then `raise ValueError(\"Price must be more than 0\")`. The message has to match exactly."
+  tests:
+    - input: "3\nmilk coffee,15000\npulled tea,-12000\ntoast,18000"
+      output: "OK: milk coffee Rp15000\nRejected: Price must be more than 0\nOK: toast Rp18000"
+    - input: "2\n,10000\norange juice,0"
+      output: "Rejected: Name must not be empty\nRejected: Price must be more than 0"
+    - input: "2\n   ,-5\norange juice,1"
+      output: "Rejected: Name must not be empty\nOK: orange juice Rp1"
+    - input: "1\npulled tea,12000"
+      output: "OK: pulled tea Rp12000"
+  solution: |
+    class MenuItem:
+        def __init__(self, name, price):
+            if name.strip() == "":
+                raise ValueError("Name must not be empty")
+            if price <= 0:
+                raise ValueError("Price must be more than 0")
+            self.name = name
+            self.price = price
+
+
+    n = int(input())
+    for _ in range(n):
+        name, price = input().split(",")
+        try:
+            item = MenuItem(name, int(price))
+            print(f"OK: {item.name} Rp{item.price}")
+        except ValueError as e:
+            print(f"Rejected: {e}")
+
+- slug: stock-that-stays-right
+  type: code
+  title: Stock that stays right
+  prompt: |
+    Toast often runs out before the afternoon. Complete the `MenuStock` class:
+
+    - `sell(quantity)` raises a `ValueError` with the message `Quantity must be more than 0` if `quantity` is 0 or less, and `Not enough stock` if `quantity` is more than `stock`. If it is valid, lower `stock`.
+    - the property `sold_out` is `True` if `stock` is exactly 0
+
+    The program below reads a line `name,stock`, then `n`, then `n` lines each holding a quantity to sell. Each sale prints `Sold <quantity>, <stock> left` or `Failed: <message>`. The last line: `Sold out` or `Stock left: <stock>`.
+  language: python
+  starter: |
+    class MenuStock:
+        def __init__(self, name, stock):
+            self.name = name
+            self.stock = stock
+
+        def sell(self, quantity):
+            # reject an invalid quantity first, only then lower the stock
+            self.stock -= quantity
+
+        @property
+        def sold_out(self):
+            # True if stock is exactly 0
+            pass
+
+
+    name, stock = input().split(",")
+    menu = MenuStock(name, int(stock))
+    n = int(input())
+    for _ in range(n):
+        quantity = int(input())
+        try:
+            menu.sell(quantity)
+            print(f"Sold {quantity}, {menu.stock} left")
+        except ValueError as e:
+            print(f"Failed: {e}")
+
+    if menu.sold_out:
+        print("Sold out")
+    else:
+        print(f"Stock left: {menu.stock}")
+  hints:
+    - "In `sell`, both checks have to sit above the line `self.stock -= quantity`. When `raise` runs, the lines below it do not, so the stock stays intact."
+    - "`if quantity <= 0: raise ValueError(\"Quantity must be more than 0\")`, then `if quantity > self.stock: raise ValueError(\"Not enough stock\")`. Selling exactly as many as the stock is still allowed."
+    - "The body of the `sold_out` property is a single line: `return self.stock == 0`."
+  tests:
+    - input: "toast,5\n3\n2\n4\n3"
+      output: "Sold 2, 3 left\nFailed: Not enough stock\nSold 3, 0 left\nSold out"
+    - input: "milk coffee,10\n2\n0\n4"
+      output: "Failed: Quantity must be more than 0\nSold 4, 6 left\nStock left: 6"
+    - input: "orange juice,2\n3\n-1\n3\n1"
+      output: "Failed: Quantity must be more than 0\nFailed: Not enough stock\nSold 1, 1 left\nStock left: 1"
+    - input: "pulled tea,0\n1\n1"
+      output: "Failed: Not enough stock\nSold out"
+    - input: "toast,3\n0"
+      output: "Stock left: 3"
+  solution: |
+    class MenuStock:
+        def __init__(self, name, stock):
+            self.name = name
+            self.stock = stock
+
+        def sell(self, quantity):
+            if quantity <= 0:
+                raise ValueError("Quantity must be more than 0")
+            if quantity > self.stock:
+                raise ValueError("Not enough stock")
+            self.stock -= quantity
+
+        @property
+        def sold_out(self):
+            return self.stock == 0
+
+
+    name, stock = input().split(",")
+    menu = MenuStock(name, int(stock))
+    n = int(input())
+    for _ in range(n):
+        quantity = int(input())
+        try:
+            menu.sell(quantity)
+            print(f"Sold {quantity}, {menu.stock} left")
+        except ValueError as e:
+            print(f"Failed: {e}")
+
+    if menu.sold_out:
+        print("Sold out")
+    else:
+        print(f"Stock left: {menu.stock}")
+
+- slug: reading-a-property
+  type: choice
+  title: Reading a property
+  prompt: |
+    The `OrderLine` class has this property:
+
+    ```python
+        @property
+        def subtotal(self):
+            return self.item.price * self.quantity
+    ```
+
+    If `line` is an `OrderLine` object, what is the right way to print its subtotal?
+  options:
+    - "`print(line.subtotal)`"
+    - "`print(line.subtotal())`"
+    - "`print(OrderLine.subtotal)`"
+    - "`print(line[\"subtotal\"])`"
+  correct: [0]
+  hint: "`@property` lets a method be read like an attribute."
+  explanation: "A property is read without brackets: `line.subtotal`. Python runs the method and hands back its result. `line.subtotal()` actually fails, because the result of `line.subtotal` is a number, and a number cannot be called."

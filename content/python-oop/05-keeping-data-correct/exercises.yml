@@ -1,0 +1,172 @@
+- slug: a-valid-menu-item
+  type: code
+  title: Menu yang sah
+  prompt: |
+    Buat `ItemMenu` menolak data yang salah. Di dalam `__init__`, sebelum menyimpan apa pun:
+
+    - jika `nama.strip()` kosong, munculkan `ValueError` dengan pesan `Nama tidak boleh kosong`
+    - jika `harga` 0 atau kurang, munculkan `ValueError` dengan pesan `Harga harus lebih dari 0`
+
+    Periksa nama lebih dulu. Program di bawahnya membaca `n`, lalu `n` baris berformat `nama,harga`, dan mencetak `OK: <nama> Rp<harga>` atau `Ditolak: <pesan>` untuk setiap baris.
+  language: python
+  starter: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            # tolak nama kosong dan harga 0 atau kurang dengan raise ValueError(...)
+            self.nama = nama
+            self.harga = harga
+
+
+    n = int(input())
+    for _ in range(n):
+        nama, harga = input().split(",")
+        try:
+            item = ItemMenu(nama, int(harga))
+            print(f"OK: {item.nama} Rp{item.harga}")
+        except ValueError as e:
+            print(f"Ditolak: {e}")
+  hints:
+    - "Program di bawah sudah menangkap `ValueError` dan mencetak pesannya. Yang belum ada adalah bagian yang memunculkan error itu di dalam `__init__`."
+    - "Pemeriksaan pertama: `if nama.strip() == \"\":` lalu `raise ValueError(\"Nama tidak boleh kosong\")`. Tulis sebelum baris `self.nama = nama`."
+    - "Pemeriksaan kedua, tepat di bawahnya: `if harga <= 0:` lalu `raise ValueError(\"Harga harus lebih dari 0\")`. Pesannya harus sama persis."
+  tests:
+    - input: "3\nkopi susu,15000\nteh tarik,-12000\nroti bakar,18000"
+      output: "OK: kopi susu Rp15000\nDitolak: Harga harus lebih dari 0\nOK: roti bakar Rp18000"
+    - input: "2\n,10000\nes jeruk,0"
+      output: "Ditolak: Nama tidak boleh kosong\nDitolak: Harga harus lebih dari 0"
+    - input: "2\n   ,-5\nes jeruk,1"
+      output: "Ditolak: Nama tidak boleh kosong\nOK: es jeruk Rp1"
+    - input: "1\nteh tarik,12000"
+      output: "OK: teh tarik Rp12000"
+  solution: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            if nama.strip() == "":
+                raise ValueError("Nama tidak boleh kosong")
+            if harga <= 0:
+                raise ValueError("Harga harus lebih dari 0")
+            self.nama = nama
+            self.harga = harga
+
+
+    n = int(input())
+    for _ in range(n):
+        nama, harga = input().split(",")
+        try:
+            item = ItemMenu(nama, int(harga))
+            print(f"OK: {item.nama} Rp{item.harga}")
+        except ValueError as e:
+            print(f"Ditolak: {e}")
+
+- slug: stock-that-stays-right
+  type: code
+  title: Stok yang terjaga
+  prompt: |
+    Roti bakar sering habis sebelum sore. Lengkapi kelas `StokMenu`:
+
+    - `jual(jumlah)` memunculkan `ValueError` dengan pesan `Jumlah harus lebih dari 0` jika `jumlah` 0 atau kurang, dan `Stok tidak cukup` jika `jumlah` melebihi `stok`. Jika sah, kurangi `stok`.
+    - property `habis` bernilai `True` jika `stok` tepat 0
+
+    Program di bawahnya membaca baris `nama,stok`, lalu `n`, lalu `n` baris berisi jumlah yang ingin dijual. Setiap penjualan mencetak `Terjual <jumlah>, sisa <stok>` atau `Gagal: <pesan>`. Baris terakhir: `Habis` atau `Sisa stok: <stok>`.
+  language: python
+  starter: |
+    class StokMenu:
+        def __init__(self, nama, stok):
+            self.nama = nama
+            self.stok = stok
+
+        def jual(self, jumlah):
+            # tolak jumlah yang tidak sah lebih dulu, baru kurangi stok
+            self.stok -= jumlah
+
+        @property
+        def habis(self):
+            # True jika stok tepat 0
+            pass
+
+
+    nama, stok = input().split(",")
+    menu = StokMenu(nama, int(stok))
+    n = int(input())
+    for _ in range(n):
+        jumlah = int(input())
+        try:
+            menu.jual(jumlah)
+            print(f"Terjual {jumlah}, sisa {menu.stok}")
+        except ValueError as e:
+            print(f"Gagal: {e}")
+
+    if menu.habis:
+        print("Habis")
+    else:
+        print(f"Sisa stok: {menu.stok}")
+  hints:
+    - "Di `jual`, kedua pemeriksaan harus berada di atas baris `self.stok -= jumlah`. Kalau `raise` dijalankan, baris di bawahnya tidak ikut jalan, jadi stok tetap utuh."
+    - "`if jumlah <= 0: raise ValueError(\"Jumlah harus lebih dari 0\")`, lalu `if jumlah > self.stok: raise ValueError(\"Stok tidak cukup\")`. Menjual tepat sebanyak stok masih boleh."
+    - "Isi property `habis` cukup satu baris: `return self.stok == 0`."
+  tests:
+    - input: "roti bakar,5\n3\n2\n4\n3"
+      output: "Terjual 2, sisa 3\nGagal: Stok tidak cukup\nTerjual 3, sisa 0\nHabis"
+    - input: "kopi susu,10\n2\n0\n4"
+      output: "Gagal: Jumlah harus lebih dari 0\nTerjual 4, sisa 6\nSisa stok: 6"
+    - input: "es jeruk,2\n3\n-1\n3\n1"
+      output: "Gagal: Jumlah harus lebih dari 0\nGagal: Stok tidak cukup\nTerjual 1, sisa 1\nSisa stok: 1"
+    - input: "teh tarik,0\n1\n1"
+      output: "Gagal: Stok tidak cukup\nHabis"
+    - input: "roti bakar,3\n0"
+      output: "Sisa stok: 3"
+  solution: |
+    class StokMenu:
+        def __init__(self, nama, stok):
+            self.nama = nama
+            self.stok = stok
+
+        def jual(self, jumlah):
+            if jumlah <= 0:
+                raise ValueError("Jumlah harus lebih dari 0")
+            if jumlah > self.stok:
+                raise ValueError("Stok tidak cukup")
+            self.stok -= jumlah
+
+        @property
+        def habis(self):
+            return self.stok == 0
+
+
+    nama, stok = input().split(",")
+    menu = StokMenu(nama, int(stok))
+    n = int(input())
+    for _ in range(n):
+        jumlah = int(input())
+        try:
+            menu.jual(jumlah)
+            print(f"Terjual {jumlah}, sisa {menu.stok}")
+        except ValueError as e:
+            print(f"Gagal: {e}")
+
+    if menu.habis:
+        print("Habis")
+    else:
+        print(f"Sisa stok: {menu.stok}")
+
+- slug: reading-a-property
+  type: choice
+  title: Membaca property
+  prompt: |
+    Kelas `BarisPesanan` punya property ini:
+
+    ```python
+        @property
+        def subtotal(self):
+            return self.item.harga * self.jumlah
+    ```
+
+    Jika `b` adalah sebuah objek `BarisPesanan`, bagaimana cara yang benar untuk mencetak subtotalnya?
+  options:
+    - "`print(b.subtotal)`"
+    - "`print(b.subtotal())`"
+    - "`print(BarisPesanan.subtotal)`"
+    - "`print(b[\"subtotal\"])`"
+  correct: [0]
+  hint: "`@property` membuat sebuah metode dibaca seperti atribut."
+  explanation: "Property dibaca tanpa kurung: `b.subtotal`. Python menjalankan metodenya dan memberikan hasilnya. `b.subtotal()` justru gagal, karena hasil `b.subtotal` adalah angka, dan angka tidak bisa dipanggil."

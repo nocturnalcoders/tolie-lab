@@ -1,17 +1,28 @@
 slug: sql-basics
-title: SQL Basics for a Coffee Shop
+title: SQL Dasar untuk Warung Kopi
 language: sql
-locale: en
-level: Beginner
+locale: id
+level: Pemula
 kind: course
 price_idr: 0
 status: published
-position: 6
+position: 5
 summary: >-
-  Learn SQL from scratch through the data of a small coffee shop: reading the
-  menu table, filtering and sorting, summarising daily sales, counting sales
-  per item, and joining orders with the menu into a sales report.
+  Belajar SQL dari nol lewat data sebuah warung kopi: membaca tabel menu,
+  menyaring dan mengurutkan, merekap penjualan harian, menghitung penjualan per
+  menu, sampai menggabungkan pesanan dengan menu menjadi laporan penjualan.
 perks:
-  - 6 lessons, 12 coding exercises and 6 multiple-choice questions
-  - Every exercise runs right in your browser, nothing to install
-  - A completion certificate from tolie.space, signed by Christianto Lie
+  - 6 pelajaran, 12 latihan kode, dan 6 soal pilihan ganda
+  - Semua latihan dijalankan langsung di browser
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie
+translations:
+  en:
+    title: SQL Basics for a Coffee Shop
+    level: Beginner
+    summary: 'Learn SQL from scratch through the data of a small coffee shop: reading the
+      menu table, filtering and sorting, summarising daily sales, counting sales per item,
+      and joining orders with the menu into a sales report.'
+    perks:
+    - 6 lessons, 12 coding exercises and 6 multiple-choice questions
+    - Every exercise runs right in your browser, nothing to install
+    - A completion certificate from tolie.space, signed by Christianto Lie

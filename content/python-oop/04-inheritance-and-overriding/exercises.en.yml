@@ -1,0 +1,191 @@
+- slug: large-drinks
+  type: code
+  title: Large drinks
+  prompt: |
+    The `MenuItem` class is complete. Write the body of the `Drink` class, which inherits from `MenuItem`:
+
+    - `__init__(name, price, size)` stores `name` and `price` through `super().__init__`, then stores `size`
+    - `selling_price()` returns `price` plus 3000 if the size is `large`, otherwise just `price`
+
+    The program below reads `n`, then `n` lines. A drink line has the format `drink,name,price,size`, a food line has the format `food,name,price`. Each item is printed with `print(item)`.
+  language: python
+  starter: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+        def selling_price(self):
+            return self.price
+
+        def __str__(self):
+            return f"{self.name}: Rp{self.selling_price()}"
+
+
+    class Drink(MenuItem):
+        # write __init__ (with size) and override selling_price
+        pass
+
+
+    n = int(input())
+    for _ in range(n):
+        columns = input().split(",")
+        if columns[0] == "drink":
+            item = Drink(columns[1], int(columns[2]), columns[3])
+        else:
+            item = MenuItem(columns[1], int(columns[2]))
+        print(item)
+  hints:
+    - "A `Drink` class that only says `pass` still uses its parent's `__init__`, which takes just `name` and `price`. It needs an `__init__` of its own with three parameters."
+    - "Inside `__init__(self, name, price, size)`: call `super().__init__(name, price)`, then `self.size = size`."
+    - "Override `def selling_price(self):` with `if self.size == \"large\": return self.price + 3000`, then `return self.price`. There is no need to write `__str__` again."
+  tests:
+    - input: "3\ndrink,milk coffee,15000,large\ndrink,pulled tea,12000,regular\nfood,toast,18000"
+      output: "milk coffee: Rp18000\npulled tea: Rp12000\ntoast: Rp18000"
+    - input: "1\ndrink,orange juice,10000,large"
+      output: "orange juice: Rp13000"
+    - input: "2\nfood,toast,18000\nfood,banana fritters,8000"
+      output: "toast: Rp18000\nbanana fritters: Rp8000"
+    - input: "2\ndrink,milk coffee,15000,regular\ndrink,milk coffee,15000,large"
+      output: "milk coffee: Rp15000\nmilk coffee: Rp18000"
+  solution: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+        def selling_price(self):
+            return self.price
+
+        def __str__(self):
+            return f"{self.name}: Rp{self.selling_price()}"
+
+
+    class Drink(MenuItem):
+        def __init__(self, name, price, size):
+            super().__init__(name, price)
+            self.size = size
+
+        def selling_price(self):
+            if self.size == "large":
+                return self.price + 3000
+            return self.price
+
+
+    n = int(input())
+    for _ in range(n):
+        columns = input().split(",")
+        if columns[0] == "drink":
+            item = Drink(columns[1], int(columns[2]), columns[3])
+        else:
+            item = MenuItem(columns[1], int(columns[2]))
+        print(item)
+
+- slug: the-member-discount
+  type: code
+  title: The member discount
+  prompt: |
+    Regular customers pay in full. Members of Senja Coffee Shop get 10% off.
+
+    The `Customer` class is complete. Finish the `Member` class by overriding two methods:
+
+    - `kind()` returns `member`
+    - `pay(total)` returns `total - total // 10`
+
+    The program below reads `n`, then `n` lines in the format `kind,name,total`, and prints `<name> (<kind>): Rp<amount paid>` for each line.
+  language: python
+  starter: |
+    class Customer:
+        def __init__(self, name):
+            self.name = name
+
+        def kind(self):
+            return "regular"
+
+        def pay(self, total):
+            return total
+
+
+    class Member(Customer):
+        # override kind() and pay()
+        pass
+
+
+    n = int(input())
+    for _ in range(n):
+        kind, name, total = input().split(",")
+        if kind == "member":
+            c = Member(name)
+        else:
+            c = Customer(name)
+        print(f"{c.name} ({c.kind()}): Rp{c.pay(int(total))}")
+  hints:
+    - "`Member` needs no new `__init__`, because its data is the same as `Customer`: only `name`. Just the behaviour of two methods differs."
+    - "Overriding means writing a method with the same name and parameters in the child class: `def kind(self):` and `def pay(self, total):`."
+    - "`kind` holds `return \"member\"`, and `pay` holds `return total - total // 10`."
+  tests:
+    - input: "2\nmember,Siti,50000\nregular,Budi,50000"
+      output: "Siti (member): Rp45000\nBudi (regular): Rp50000"
+    - input: "1\nmember,Dewi,12500"
+      output: "Dewi (member): Rp11250"
+    - input: "2\nregular,Agus,18000\nregular,Rina,30000"
+      output: "Agus (regular): Rp18000\nRina (regular): Rp30000"
+    - input: "2\nmember,Siti,0\nmember,Budi,48000"
+      output: "Siti (member): Rp0\nBudi (member): Rp43200"
+  solution: |
+    class Customer:
+        def __init__(self, name):
+            self.name = name
+
+        def kind(self):
+            return "regular"
+
+        def pay(self, total):
+            return total
+
+
+    class Member(Customer):
+        def kind(self):
+            return "member"
+
+        def pay(self, total):
+            return total - total // 10
+
+
+    n = int(input())
+    for _ in range(n):
+        kind, name, total = input().split(",")
+        if kind == "member":
+            c = Member(name)
+        else:
+            c = Customer(name)
+        print(f"{c.name} ({c.kind()}): Rp{c.pay(int(total))}")
+
+- slug: which-method-runs
+  type: choice
+  title: Which method runs
+  prompt: |
+    What is shown after this code runs?
+
+    ```python
+    class MenuItem:
+        def kind(self):
+            return "item"
+
+    class Drink(MenuItem):
+        def kind(self):
+            return "drink"
+
+    class Food(MenuItem):
+        pass
+
+    print(Drink().kind(), Food().kind())
+    ```
+  options:
+    - "`drink food`"
+    - "`item item`"
+    - "`drink item`"
+    - "An error, because `Food` has no `kind` method"
+  correct: [2]
+  hint: Python looks for a method in the object's own class first. If it is not there, it looks in the parent class.
+  explanation: "`Drink` overrides `kind`, so its own version runs and returns `drink`. `Food` does not write `kind`, so Python uses the method inherited from `MenuItem`, which returns `item`."

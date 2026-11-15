@@ -1,37 +1,37 @@
 ---
-title: Cleaning customer data
+title: Merapikan data pelanggan
 ---
-Senja Coffee Shop's customer list is a mess: some names are typed in all capitals, some have extra spaces. The data needs tidying before it can be used. Work like this shows up in offices all the time.
+Daftar pelanggan Warung Kopi Senja berantakan: ada yang diketik huruf besar semua, ada yang spasinya berlebih. Sebelum dipakai, datanya perlu dirapikan. Pekerjaan seperti ini sangat sering muncul di kantor.
 
-## String methods
+## Metode teks
 
-Text has many "methods", commands written after a dot:
+Teks punya banyak "metode", yaitu perintah yang ditulis setelah titik:
 
-| Method | Result for `"  siti aMINAH "` |
+| Metode | Hasil untuk `"  siti aMINAH "` |
 | --- | --- |
-| `.strip()` | `"siti aMINAH"` (spaces at the ends removed) |
+| `.strip()` | `"siti aMINAH"` (spasi di pinggir dibuang) |
 | `.lower()` | `"  siti aminah "` |
 | `.upper()` | `"  SITI AMINAH "` |
 | `.title()` | `"  Siti Aminah "` |
 
-Methods can be chained from left to right:
+Metode bisa dirangkai dari kiri ke kanan:
 
 ```python
-name = "  siti aMINAH "
-print(name.strip().title())
+nama = "  siti aMINAH "
+print(nama.strip().title())
 ```
 
-The result is `Siti Aminah`.
+Hasilnya `Siti Aminah`.
 
-## Splitting text
+## Memecah teks
 
-`.split("@")` splits text at a certain character and gives a **list**:
+`.split("@")` memecah teks di tanda tertentu dan menghasilkan **list** (daftar):
 
 ```python
 email = "budi@gmail.com"
-parts = email.split("@")
-print(parts)      # ['budi', 'gmail.com']
-print(parts[1])   # gmail.com
+bagian = email.split("@")
+print(bagian)      # ['budi', 'gmail.com']
+print(bagian[1])   # gmail.com
 ```
 
-Items in a list are read by their position number, which starts at `0`.
+Isi list dibaca dengan nomor urut yang dimulai dari `0`.

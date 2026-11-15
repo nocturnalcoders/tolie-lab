@@ -1,0 +1,120 @@
+- slug: parse-one-row
+  type: code
+  title: Urai satu baris
+  prompt: |
+    Tulis fungsi `urai(baris)` yang menerima teks berformat `nama,jumlah,harga` dan mengembalikan dictionary dengan kunci `nama`, `jumlah`, dan `harga`.
+
+    Barisnya diketik tangan, jadi bisa ada spasi berlebih dan huruf besar. Nama harus dirapikan: tanpa spasi di pinggir dan huruf kecil semua. Jumlah dan harga harus berupa angka.
+
+    Program di bawahnya sudah mencetak hasilnya.
+  language: python
+  starter: |
+    def urai(baris):
+        # pecah baris, rapikan, lalu kembalikan dictionary
+        pass
+
+
+    p = urai(input())
+    print(f"Menu: {p['nama']}")
+    print(f"Jumlah: {p['jumlah']}")
+    print(f"Subtotal: Rp{p['jumlah'] * p['harga']}")
+  hints:
+    - "Mulai dengan `kolom = baris.split(\",\")`. Kolom pertama adalah nama, kedua jumlah, ketiga harga."
+    - "Nama dirapikan dengan `kolom[0].strip().lower()`. Jumlah dan harga diubah dengan `int`, yang sudah mengabaikan spasi di pinggir."
+    - "Akhiri fungsi dengan `return {\"nama\": kolom[0].strip().lower(), \"jumlah\": int(kolom[1]), \"harga\": int(kolom[2])}`."
+  tests:
+    - input: "kopi susu,2,15000"
+      output: "Menu: kopi susu\nJumlah: 2\nSubtotal: Rp30000"
+    - input: "  Kopi Susu , 2 , 15000"
+      output: "Menu: kopi susu\nJumlah: 2\nSubtotal: Rp30000"
+    - input: "ROTI BAKAR,1,18000"
+      output: "Menu: roti bakar\nJumlah: 1\nSubtotal: Rp18000"
+    - input: "es jeruk, 0 ,10000"
+      output: "Menu: es jeruk\nJumlah: 0\nSubtotal: Rp0"
+  solution: |
+    def urai(baris):
+        kolom = baris.split(",")
+        return {
+            "nama": kolom[0].strip().lower(),
+            "jumlah": int(kolom[1]),
+            "harga": int(kolom[2]),
+        }
+
+
+    p = urai(input())
+    print(f"Menu: {p['nama']}")
+    print(f"Jumlah: {p['jumlah']}")
+    print(f"Subtotal: Rp{p['jumlah'] * p['harga']}")
+
+- slug: till-export-summary
+  type: code
+  title: Rekap ekspor kasir
+  prompt: |
+    Baris pertama berisi banyaknya baris data `n`. Baris kedua adalah baris judul `jam,menu,jumlah,harga` yang harus dilewati. Setelah itu ada `n` baris data dengan empat kolom tersebut.
+
+    Cetak tiga baris:
+
+    ```
+    Baris data: <n>
+    Item terjual: <jumlah semua kolom jumlah>
+    Penjualan: Rp<jumlah dikali harga, dijumlahkan semua baris>
+    ```
+  language: python
+  starter: |
+    n = int(input())
+    # baris judul perlu dibaca dulu supaya terlewati
+
+    item = 0
+    penjualan = 0
+    for _ in range(n):
+        kolom = input().split(",")
+        # ambil jumlah dan harga dari kolom, lalu tambahkan ke item dan penjualan
+
+    # cetak tiga baris rekap
+  hints:
+    - "Baris judul ikut dihitung sebagai satu kali `input()`. Panggil `input()` sekali sebelum perulangan dan abaikan hasilnya."
+    - "Nomor kolom dimulai dari 0: jam di `kolom[0]`, menu di `kolom[1]`, jumlah di `kolom[2]`, harga di `kolom[3]`. Ubah jumlah dan harga dengan `int`."
+    - "Di dalam perulangan: `jumlah = int(kolom[2])`, `harga = int(kolom[3])`, `item += jumlah`, `penjualan += jumlah * harga`. Setelah itu cetak tiga baris dengan f-string."
+  tests:
+    - input: "3\njam,menu,jumlah,harga\n08:15,kopi susu,2,15000\n08:40,teh tarik,1,12000\n09:05,roti bakar,3,18000"
+      output: "Baris data: 3\nItem terjual: 6\nPenjualan: Rp96000"
+    - input: "2\njam,menu,jumlah,harga\n10:00, es jeruk , 4 , 10000\n10:30,kopi susu,1,15000"
+      output: "Baris data: 2\nItem terjual: 5\nPenjualan: Rp55000"
+    - input: "1\njam,menu,jumlah,harga\n16:45,roti bakar,10,18000"
+      output: "Baris data: 1\nItem terjual: 10\nPenjualan: Rp180000"
+    - input: "0\njam,menu,jumlah,harga"
+      output: "Baris data: 0\nItem terjual: 0\nPenjualan: Rp0"
+  solution: |
+    n = int(input())
+    input()
+
+    item = 0
+    penjualan = 0
+    for _ in range(n):
+        kolom = input().split(",")
+        jumlah = int(kolom[2])
+        harga = int(kolom[3])
+        item += jumlah
+        penjualan += jumlah * harga
+
+    print(f"Baris data: {n}")
+    print(f"Item terjual: {item}")
+    print(f"Penjualan: Rp{penjualan}")
+
+- slug: the-result-of-split
+  type: choice
+  title: Hasil split
+  prompt: |
+    Apa hasil dari ekspresi ini?
+
+    ```python
+    " teh tarik ,3".split(",")
+    ```
+  options:
+    - "`['teh tarik', '3']`"
+    - "`[' teh tarik ', '3']`"
+    - "`['teh tarik', 3]`"
+    - "`[' teh', 'tarik ', '3']`"
+  correct: [1]
+  hint: split hanya memotong di tanda pemisah, tidak mengubah apa pun selain itu.
+  explanation: "`split(\",\")` memotong tepat di koma. Spasi tetap ikut di dalam potongannya, dan `'3'` tetap berupa teks. Untuk merapikannya masih perlu `.strip()` dan `int`."

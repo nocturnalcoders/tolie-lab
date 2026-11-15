@@ -1,0 +1,92 @@
+- slug: shipping-fee
+  type: code
+  title: Ongkos kirim
+  prompt: |
+    Buat fungsi `ongkosKirim(total)` yang mengembalikan ongkos kirim sebagai angka:
+
+    - `0` jika total belanja **200000 atau lebih**
+    - `15000` jika kurang dari itu
+  starter: |
+    function ongkosKirim(total) {
+      // kembalikan 0 atau 15000
+    }
+  hints:
+    - "Kamu butuh satu `if` dengan `else`, masing-masing berisi satu `return`."
+    - "Tepat 200000 sudah gratis, jadi pakai `>=`, bukan `>`."
+    - "Kerangkanya: `if (total >= 200000) { return 0; } else { return 15000; }`"
+  tests:
+    - input: "console.log(ongkosKirim(50000))"
+      output: "15000"
+    - input: "console.log(ongkosKirim(350000))"
+      output: "0"
+    - input: "console.log(ongkosKirim(200000))"
+      output: "0"
+    - input: "console.log(ongkosKirim(199999))"
+      output: "15000"
+  solution: |
+    function ongkosKirim(total) {
+      if (total >= 200000) {
+        return 0;
+      } else {
+        return 15000;
+      }
+    }
+
+- slug: stock-status
+  type: code
+  title: Status stok
+  prompt: |
+    Halaman produk menampilkan status stok. Buat fungsi `statusStok(stok)` yang mengembalikan:
+
+    - `Habis` jika stok sama dengan 0
+    - `Hampir habis` jika stok 1 sampai 5
+    - `Tersedia` jika stok lebih dari 5
+  starter: |
+    function statusStok(stok) {
+      // kembalikan salah satu dari tiga teks
+    }
+  hints:
+    - "Ada tiga pilihan, jadi kamu butuh `if`, `else if`, dan `else`."
+    - "Periksa `stok === 0` lebih dulu. Setelah itu, stok yang tersisa pasti 1 atau lebih, jadi cukup periksa `stok <= 5`."
+    - "Urutannya: `if (stok === 0) { return \"Habis\"; } else if (stok <= 5) { return \"Hampir habis\"; } else { return \"Tersedia\"; }`"
+  tests:
+    - input: "console.log(statusStok(0))"
+      output: "Habis"
+    - input: "console.log(statusStok(1))"
+      output: "Hampir habis"
+    - input: "console.log(statusStok(5))"
+      output: "Hampir habis"
+    - input: "console.log(statusStok(6))"
+      output: "Tersedia"
+    - input: "console.log(statusStok(40))"
+      output: "Tersedia"
+  solution: |
+    function statusStok(stok) {
+      if (stok === 0) {
+        return "Habis";
+      } else if (stok <= 5) {
+        return "Hampir habis";
+      } else {
+        return "Tersedia";
+      }
+    }
+
+- slug: two-or-three-equals-signs
+  type: choice
+  title: Dua atau tiga tanda sama dengan?
+  prompt: |
+    Jumlah barang dari formulir pesanan sering datang sebagai teks. Apa yang tampil?
+
+    ```javascript
+    const jumlah = "3";
+    console.log(jumlah == 3);
+    console.log(jumlah === 3);
+    ```
+  options:
+    - "`true` lalu `true`"
+    - "`true` lalu `false`"
+    - "`false` lalu `true`"
+    - "`false` lalu `false`"
+  correct: [1]
+  hint: Salah satu dari keduanya mengubah jenis nilai sebelum membandingkan.
+  explanation: "`==` mengubah teks `\"3\"` menjadi angka lebih dulu, jadi hasilnya `true`. `===` juga membandingkan jenis nilainya: teks tidak sama dengan angka, jadi hasilnya `false`. Karena itu `===` lebih aman."

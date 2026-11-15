@@ -1,0 +1,146 @@
+- slug: sort-the-parcel-weights
+  type: code
+  title: Sort the parcel weights
+  prompt: |
+    The first line holds `n` (at least 1), then `n` lines of parcel weights in kg. Sort them from the lightest with **selection sort** as in the lesson, without `sorted()`.
+
+    Each round (there are `n - 1` rounds), find the lightest parcel in the part that is not tidy yet. Swap **only if** that lightest parcel is not already in its place, then print the list after that round. At the end, print the result and how many swaps happened:
+
+    ```
+    Round 1: 1 2 8 5
+    Round 2: 1 2 8 5
+    Round 3: 1 2 5 8
+    Result: 1 2 5 8
+    Swaps: 2
+    ```
+
+    If two weights are equal, the leftmost one is chosen. The `show` function in the starter code turns a list into text with spaces.
+  language: python
+  starter: |
+    def show(items):
+        texts = []
+        for w in items:
+            texts.append(str(w))
+        return " ".join(texts)
+
+
+    n = int(input())
+    weights = []
+    for _ in range(n):
+        weights.append(int(input()))
+
+    swaps = 0
+    # n - 1 rounds: find the index of the lightest parcel in the rest of the list,
+    # swap if needed, then print "Round <number>: <the list>"
+
+    print(f"Result: {show(weights)}")
+    print(f"Swaps: {swaps}")
+  hints:
+    - "You need two nested loops. The outer one, `for i in range(n - 1):`, picks the place being filled. The inner one finds the index of the lightest parcel from `i` to the end."
+    - "Start each round with `smallest = i`. In `for j in range(i + 1, n):`, if `weights[j] < weights[smallest]` then `smallest = j`. Using `<` (not `<=`) makes the leftmost one win when weights are equal."
+    - "After the inner loop: `if smallest != i:` swap with `weights[i], weights[smallest] = weights[smallest], weights[i]` and `swaps += 1`. Then, outside that `if`, `print(f\"Round {i + 1}: {show(weights)}\")`."
+  tests:
+    - input: "4\n5\n2\n8\n1"
+      output: "Round 1: 1 2 8 5\nRound 2: 1 2 8 5\nRound 3: 1 2 5 8\nResult: 1 2 5 8\nSwaps: 2"
+    - input: "3\n1\n4\n9"
+      output: "Round 1: 1 4 9\nRound 2: 1 4 9\nResult: 1 4 9\nSwaps: 0"
+    - input: "1\n7"
+      output: "Result: 7\nSwaps: 0"
+    - input: "5\n9\n7\n7\n3\n1"
+      output: "Round 1: 1 7 7 3 9\nRound 2: 1 3 7 7 9\nRound 3: 1 3 7 7 9\nRound 4: 1 3 7 7 9\nResult: 1 3 7 7 9\nSwaps: 2"
+  solution: |
+    def show(items):
+        texts = []
+        for w in items:
+            texts.append(str(w))
+        return " ".join(texts)
+
+
+    n = int(input())
+    weights = []
+    for _ in range(n):
+        weights.append(int(input()))
+
+    swaps = 0
+    for i in range(n - 1):
+        smallest = i
+        for j in range(i + 1, n):
+            if weights[j] < weights[smallest]:
+                smallest = j
+        if smallest != i:
+            weights[i], weights[smallest] = weights[smallest], weights[i]
+            swaps += 1
+        print(f"Round {i + 1}: {show(weights)}")
+
+    print(f"Result: {show(weights)}")
+    print(f"Swaps: {swaps}")
+
+- slug: sorted-or-not
+  type: code
+  title: Sorted or not?
+  prompt: |
+    Before the truck leaves, Mr. Darto wants to be sure the load really is in order from the lightest.
+
+    The first line holds `n`, then `n` lines of parcel weights in loading order. Compare each parcel with the one directly to its right. A pair is **wrong** when the left parcel is heavier than the right one. Equal weights are not wrong.
+
+    If no pair is wrong, print `Sorted`. If some are, print how many:
+
+    ```
+    Not sorted, wrong pairs: 2
+    ```
+
+    An empty list and a list with one parcel count as sorted.
+  language: python
+  starter: |
+    n = int(input())
+    weights = []
+    for _ in range(n):
+        weights.append(int(input()))
+
+    wrong = 0
+    # compare each parcel with its right-hand neighbour
+
+    print("Sorted")
+  hints:
+    - "The last parcel has no right-hand neighbour, so the loop is `for i in range(n - 1):`. For `n` of 0 or 1, that loop does not run at all."
+    - "Inside the loop: if `weights[i] > weights[i + 1]`, do `wrong += 1`. Use `>` and not `>=`, because equal weights are not wrong."
+    - "At the end: `if wrong == 0:` print `Sorted`, otherwise `print(f\"Not sorted, wrong pairs: {wrong}\")`."
+  tests:
+    - input: "5\n1\n3\n2\n5\n4"
+      output: "Not sorted, wrong pairs: 2"
+    - input: "4\n2\n2\n5\n9"
+      output: "Sorted"
+    - input: "0"
+      output: "Sorted"
+    - input: "3\n9\n5\n1"
+      output: "Not sorted, wrong pairs: 2"
+    - input: "1\n4"
+      output: "Sorted"
+  solution: |
+    n = int(input())
+    weights = []
+    for _ in range(n):
+        weights.append(int(input()))
+
+    wrong = 0
+    for i in range(n - 1):
+        if weights[i] > weights[i + 1]:
+            wrong += 1
+
+    if wrong == 0:
+        print("Sorted")
+    else:
+        print(f"Not sorted, wrong pairs: {wrong}")
+
+- slug: the-number-of-comparisons
+  type: choice
+  title: The number of comparisons
+  prompt: Selection sort as in the lesson is run on a list of **5** parcels. How many times are two weights compared (the line `if weights[j] < weights[smallest]`) before it finishes?
+  options:
+    - "4"
+    - "5"
+    - "10"
+    - "25"
+  correct: [2]
+  hint: The first round compares 4 times. Each following round compares one fewer.
+  explanation: "The first round compares 4 times, then 3, 2 and 1, so 4 + 3 + 2 + 1 = 10. This number does not depend on what is in the list: an already sorted list is still compared 10 times."

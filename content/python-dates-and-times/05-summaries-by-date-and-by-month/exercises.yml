@@ -1,0 +1,140 @@
+- slug: sales-by-date
+  type: code
+  title: Omzet per tanggal
+  prompt: |
+    Baris pertama berisi `n`, lalu `n` baris setoran berformat `hari/bulan/tahun,jumlah`, misalnya `14/03/2025,45000`. Barisnya tidak berurutan dan satu tanggal bisa muncul lebih dari sekali.
+
+    Jumlahkan setoran untuk setiap tanggal. Cetak satu baris `<hari/bulan/tahun>: <omzet dalam format rupiah>` untuk setiap tanggal, dari tanggal **paling awal**. Baris terakhir: `Total: <jumlah semuanya dalam format rupiah>`.
+
+    Fungsi `rupiah` sudah tersedia.
+  language: python
+  starter: |
+    from datetime import datetime
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    n = int(input())
+    omzet = {}
+    total = 0
+    for _ in range(n):
+        teks, jumlah = input().split(",")
+        # ubah teks menjadi tanggal, lalu tambahkan jumlahnya ke omzet dan total
+
+    # cetak omzet setiap tanggal dari yang paling awal, lalu totalnya
+  hints:
+    - "Jadikan `date` sebagai kunci dictionary, bukan teksnya. Dengan begitu `sorted(omzet)` mengurutkan menurut kalender."
+    - "Di dalam perulangan: `tanggal = datetime.strptime(teks, \"%d/%m/%Y\").date()`, lalu `omzet[tanggal] = omzet.get(tanggal, 0) + int(jumlah)` dan `total += int(jumlah)`."
+    - "Setelah perulangan: `for tanggal in sorted(omzet):` cetak `f\"{tanggal.strftime('%d/%m/%Y')}: {rupiah(omzet[tanggal])}\"`. Terakhir cetak `f\"Total: {rupiah(total)}\"`."
+  tests:
+    - input: "4\n14/03/2025,45000\n13/03/2025,30000\n14/03/2025,15000\n02/04/2025,60000"
+      output: "13/03/2025: Rp30.000\n14/03/2025: Rp60.000\n02/04/2025: Rp60.000\nTotal: Rp150.000"
+    - input: "3\n01/01/2025,120000\n31/12/2024,250000\n01/01/2025,80000"
+      output: "31/12/2024: Rp250.000\n01/01/2025: Rp200.000\nTotal: Rp450.000"
+    - input: "3\n01/03/2024,18000\n29/02/2024,36000\n28/02/2024,12000"
+      output: "28/02/2024: Rp12.000\n29/02/2024: Rp36.000\n01/03/2024: Rp18.000\nTotal: Rp66.000"
+    - input: "1\n05/06/2025,1250000"
+      output: "05/06/2025: Rp1.250.000\nTotal: Rp1.250.000"
+  solution: |
+    from datetime import datetime
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    n = int(input())
+    omzet = {}
+    total = 0
+    for _ in range(n):
+        teks, jumlah = input().split(",")
+        tanggal = datetime.strptime(teks, "%d/%m/%Y").date()
+        omzet[tanggal] = omzet.get(tanggal, 0) + int(jumlah)
+        total += int(jumlah)
+
+    for tanggal in sorted(omzet):
+        print(f"{tanggal.strftime('%d/%m/%Y')}: {rupiah(omzet[tanggal])}")
+    print(f"Total: {rupiah(total)}")
+
+- slug: sales-by-month
+  type: code
+  title: Omzet per bulan
+  prompt: |
+    Inputnya sama seperti latihan sebelumnya: `n`, lalu `n` baris `hari/bulan/tahun,jumlah` yang tidak berurutan.
+
+    Kali ini jumlahkan setoran per **bulan**. Cetak satu baris `<tahun-bulan>: <omzet dalam format rupiah>` untuk setiap bulan, dari bulan paling awal, misalnya `2025-03: Rp75.000`. Baris terakhir: `Bulan terbaik: <tahun-bulan dengan omzet terbesar>`.
+
+    Jika ada bulan yang omzetnya sama besar, pilih bulan yang lebih awal.
+  language: python
+  starter: |
+    from datetime import datetime
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    n = int(input())
+    per_bulan = {}
+    for _ in range(n):
+        teks, jumlah = input().split(",")
+        tanggal = datetime.strptime(teks, "%d/%m/%Y").date()
+        # tambahkan jumlahnya ke bulan yang sesuai
+
+    # cetak omzet setiap bulan dari yang paling awal, lalu bulan terbaik
+  hints:
+    - "Kunci dictionary-nya adalah teks tahun dan bulan: `bulan = tanggal.strftime(\"%Y-%m\")`. Lalu pakai pola `.get` seperti biasa."
+    - "`per_bulan[bulan] = per_bulan.get(bulan, 0) + int(jumlah)`. Setelah perulangan, `for bulan in sorted(per_bulan):` cetak `f\"{bulan}: {rupiah(per_bulan[bulan])}\"`."
+    - "Untuk bulan terbaik, siapkan `terbaik = None` sebelum perulangan cetak. Di dalamnya: `if terbaik is None or per_bulan[bulan] > per_bulan[terbaik]: terbaik = bulan`. Karena memakai `>` dan urutannya dari bulan paling awal, bulan yang lebih awal menang saat omzetnya sama."
+  tests:
+    - input: "5\n14/03/2025,45000\n02/04/2025,60000\n13/03/2025,30000\n28/02/2025,50000\n30/04/2025,10000"
+      output: "2025-02: Rp50.000\n2025-03: Rp75.000\n2025-04: Rp70.000\nBulan terbaik: 2025-03"
+    - input: "4\n01/01/2025,120000\n31/12/2024,250000\n15/01/2025,80000\n01/12/2024,10000"
+      output: "2024-12: Rp260.000\n2025-01: Rp200.000\nBulan terbaik: 2024-12"
+    - input: "3\n10/05/2025,40000\n10/04/2025,40000\n29/02/2024,5000"
+      output: "2024-02: Rp5.000\n2025-04: Rp40.000\n2025-05: Rp40.000\nBulan terbaik: 2025-04"
+    - input: "1\n29/02/2024,99000"
+      output: "2024-02: Rp99.000\nBulan terbaik: 2024-02"
+  solution: |
+    from datetime import datetime
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    n = int(input())
+    per_bulan = {}
+    for _ in range(n):
+        teks, jumlah = input().split(",")
+        tanggal = datetime.strptime(teks, "%d/%m/%Y").date()
+        bulan = tanggal.strftime("%Y-%m")
+        per_bulan[bulan] = per_bulan.get(bulan, 0) + int(jumlah)
+
+    terbaik = None
+    for bulan in sorted(per_bulan):
+        print(f"{bulan}: {rupiah(per_bulan[bulan])}")
+        if terbaik is None or per_bulan[bulan] > per_bulan[terbaik]:
+            terbaik = bulan
+    print(f"Bulan terbaik: {terbaik}")
+
+- slug: sorting-date-text
+  type: choice
+  title: Mengurutkan teks tanggal
+  prompt: |
+    Apa yang ditampilkan kode ini?
+
+    ```python
+    tanggal = ["05/02/2025", "20/01/2025", "11/12/2024"]
+    print(sorted(tanggal)[0])
+    ```
+  options:
+    - "`11/12/2024`, karena itu tanggal paling awal"
+    - "`05/02/2025`, karena teks dibandingkan dari huruf paling kiri"
+    - "`20/01/2025`, karena Januari adalah bulan pertama"
+    - "Program berhenti dengan error"
+  correct: [1]
+  hint: Isi list itu teks, bukan date. Bagaimana Python membandingkan dua teks?
+  explanation: "Teks diurutkan huruf demi huruf dari kiri, jadi yang menentukan adalah `0`, `2`, dan `1` di depan. Python tidak tahu bahwa teks itu tanggal. Ubah dulu menjadi `date` dengan `strptime` supaya urutannya mengikuti kalender."

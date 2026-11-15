@@ -1,0 +1,146 @@
+- slug: sort-the-parcel-weights
+  type: code
+  title: Urutkan berat paket
+  prompt: |
+    Baris pertama berisi `n` (paling sedikit 1), lalu `n` baris berat paket dalam kg. Urutkan dari yang teringan dengan **selection sort** seperti di pelajaran, tanpa `sorted()`.
+
+    Setiap putaran (ada `n - 1` putaran), cari paket teringan di bagian yang belum rapi. Tukar **hanya jika** paket teringan itu belum berada di tempatnya, lalu cetak isi daftar setelah putaran itu. Di akhir, cetak hasilnya dan berapa kali penukaran terjadi:
+
+    ```
+    Putaran 1: 1 2 8 5
+    Putaran 2: 1 2 8 5
+    Putaran 3: 1 2 5 8
+    Hasil: 1 2 5 8
+    Tukar: 2
+    ```
+
+    Jika ada berat yang sama, yang dipilih adalah yang paling kiri. Fungsi `tampil` di kode awal mengubah daftar menjadi teks berspasi.
+  language: python
+  starter: |
+    def tampil(daftar):
+        teks = []
+        for b in daftar:
+            teks.append(str(b))
+        return " ".join(teks)
+
+
+    n = int(input())
+    berat = []
+    for _ in range(n):
+        berat.append(int(input()))
+
+    tukar = 0
+    # n - 1 putaran: cari indeks paket teringan di sisa daftar,
+    # tukar jika perlu, lalu cetak "Putaran <nomor>: <isi daftar>"
+
+    print(f"Hasil: {tampil(berat)}")
+    print(f"Tukar: {tukar}")
+  hints:
+    - "Perlu dua perulangan bersarang. Yang luar, `for i in range(n - 1):`, menentukan tempat yang sedang diisi. Yang dalam mencari indeks paket teringan dari `i` sampai akhir."
+    - "Mulai tiap putaran dengan `kecil = i`. Di `for j in range(i + 1, n):`, jika `berat[j] < berat[kecil]` maka `kecil = j`. Tanda `<` (bukan `<=`) membuat yang paling kiri menang saat beratnya sama."
+    - "Setelah perulangan dalam: `if kecil != i:` tukar dengan `berat[i], berat[kecil] = berat[kecil], berat[i]` dan `tukar += 1`. Lalu, di luar `if` itu, `print(f\"Putaran {i + 1}: {tampil(berat)}\")`."
+  tests:
+    - input: "4\n5\n2\n8\n1"
+      output: "Putaran 1: 1 2 8 5\nPutaran 2: 1 2 8 5\nPutaran 3: 1 2 5 8\nHasil: 1 2 5 8\nTukar: 2"
+    - input: "3\n1\n4\n9"
+      output: "Putaran 1: 1 4 9\nPutaran 2: 1 4 9\nHasil: 1 4 9\nTukar: 0"
+    - input: "1\n7"
+      output: "Hasil: 7\nTukar: 0"
+    - input: "5\n9\n7\n7\n3\n1"
+      output: "Putaran 1: 1 7 7 3 9\nPutaran 2: 1 3 7 7 9\nPutaran 3: 1 3 7 7 9\nPutaran 4: 1 3 7 7 9\nHasil: 1 3 7 7 9\nTukar: 2"
+  solution: |
+    def tampil(daftar):
+        teks = []
+        for b in daftar:
+            teks.append(str(b))
+        return " ".join(teks)
+
+
+    n = int(input())
+    berat = []
+    for _ in range(n):
+        berat.append(int(input()))
+
+    tukar = 0
+    for i in range(n - 1):
+        kecil = i
+        for j in range(i + 1, n):
+            if berat[j] < berat[kecil]:
+                kecil = j
+        if kecil != i:
+            berat[i], berat[kecil] = berat[kecil], berat[i]
+            tukar += 1
+        print(f"Putaran {i + 1}: {tampil(berat)}")
+
+    print(f"Hasil: {tampil(berat)}")
+    print(f"Tukar: {tukar}")
+
+- slug: sorted-or-not
+  type: code
+  title: Sudah urut atau belum?
+  prompt: |
+    Sebelum truk berangkat, Pak Darto ingin memastikan muatannya benar-benar urut dari yang teringan.
+
+    Baris pertama berisi `n`, lalu `n` baris berat paket sesuai urutan muat. Bandingkan setiap paket dengan paket tepat di sebelah kanannya. Sepasang paket dianggap **salah** jika yang kiri lebih berat daripada yang kanan. Berat yang sama tidak salah.
+
+    Jika tidak ada pasangan yang salah, cetak `Sudah urut`. Jika ada, cetak jumlahnya:
+
+    ```
+    Belum urut: 2 pasangan salah
+    ```
+
+    Daftar kosong dan daftar berisi satu paket dianggap sudah urut.
+  language: python
+  starter: |
+    n = int(input())
+    berat = []
+    for _ in range(n):
+        berat.append(int(input()))
+
+    salah = 0
+    # bandingkan setiap paket dengan tetangga kanannya
+
+    print("Sudah urut")
+  hints:
+    - "Paket terakhir tidak punya tetangga kanan, jadi perulangannya `for i in range(n - 1):`. Untuk `n` 0 atau 1, perulangan itu tidak berjalan sama sekali."
+    - "Di dalam perulangan: jika `berat[i] > berat[i + 1]`, tambahkan `salah += 1`. Pakai `>` dan bukan `>=`, karena berat yang sama tidak salah."
+    - "Di akhir: `if salah == 0:` cetak `Sudah urut`, selain itu `print(f\"Belum urut: {salah} pasangan salah\")`."
+  tests:
+    - input: "5\n1\n3\n2\n5\n4"
+      output: "Belum urut: 2 pasangan salah"
+    - input: "4\n2\n2\n5\n9"
+      output: "Sudah urut"
+    - input: "0"
+      output: "Sudah urut"
+    - input: "3\n9\n5\n1"
+      output: "Belum urut: 2 pasangan salah"
+    - input: "1\n4"
+      output: "Sudah urut"
+  solution: |
+    n = int(input())
+    berat = []
+    for _ in range(n):
+        berat.append(int(input()))
+
+    salah = 0
+    for i in range(n - 1):
+        if berat[i] > berat[i + 1]:
+            salah += 1
+
+    if salah == 0:
+        print("Sudah urut")
+    else:
+        print(f"Belum urut: {salah} pasangan salah")
+
+- slug: the-number-of-comparisons
+  type: choice
+  title: Jumlah perbandingan
+  prompt: Selection sort seperti di pelajaran dijalankan pada daftar berisi **5** paket. Berapa kali dua berat dibandingkan (baris `if berat[j] < berat[kecil]`) sampai selesai?
+  options:
+    - "4"
+    - "5"
+    - "10"
+    - "25"
+  correct: [2]
+  hint: Putaran pertama membandingkan 4 kali. Putaran berikutnya satu lebih sedikit.
+  explanation: "Putaran pertama membandingkan 4 kali, lalu 3, 2, dan 1, jadi 4 + 3 + 2 + 1 = 10. Jumlah ini tidak bergantung pada isi daftarnya: daftar yang sudah urut pun tetap dibandingkan 10 kali."

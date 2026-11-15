@@ -1,17 +1,31 @@
 slug: python-basics
-title: Python Basics for a Coffee Shop
+title: Python Dasar untuk Warung Kopi
 language: python
-locale: en
-level: Beginner
+locale: id
+level: Pemula
 kind: course
 price_idr: 0
 status: published
-position: 2
+position: 1
 summary: >-
-  Learn Python from scratch through the everyday work of a small coffee shop:
-  showing the menu, adding up receipts, giving discounts, summarising sales,
-  and building a report.
+  Belajar Python dari nol lewat pekerjaan sehari-hari di sebuah warung kopi:
+  menampilkan menu, menghitung struk, memberi diskon, merekap penjualan, sampai
+  membuat laporan.
 perks:
-  - 8 lessons, 15 coding exercises and 10 multiple-choice questions
-  - Every exercise runs right in your browser, nothing to install
-  - A completion certificate from tolie.space, signed by Christianto Lie
+  - 8 pelajaran, 15 latihan kode, dan 10 soal pilihan ganda
+  - Semua latihan dijalankan langsung di browser
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie
+translations:
+  en:
+    title: Python Basics for a Coffee Shop
+    level: Beginner
+    summary: 'Learn Python from scratch through the everyday work of a small coffee shop:
+      showing the menu, adding up receipts, giving discounts, summarising sales, and building
+      a report.'
+    perks:
+    - 8 lessons, 15 coding exercises and 10 multiple-choice questions
+    - Every exercise runs right in your browser, nothing to install
+    - A completion certificate from tolie.space, signed by Christianto Lie
+# The Indonesian course that used to be separate (the English one had this slug); its learners' progress moves here.
+replaces:
+  - python-dasar

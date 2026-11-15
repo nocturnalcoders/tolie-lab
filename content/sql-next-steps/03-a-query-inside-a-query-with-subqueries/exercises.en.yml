@@ -1,0 +1,126 @@
+- slug: above-the-average
+  type: code
+  title: Above the average
+  prompt: |
+    Show the `name` and `price` of every menu item whose price is **higher** than the average price of all items. The average must be worked out from the table, because the menu can change. Sort from the highest `price`. When equal, sort by `name` in alphabetical order.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+  starter: |
+    -- the number 14286 is typed by hand; replace it with a subquery that works out the average
+    SELECT name, price
+    FROM menu
+    WHERE price > 14286
+    ORDER BY price DESC, name;
+  hints:
+    - "A number typed by hand is only right for as long as the menu does not change. Let the database work out the average."
+    - "The average price is `SELECT AVG(price) FROM menu`. Put that statement inside brackets, in the place of the number 14286."
+    - "The condition: `WHERE price > (SELECT AVG(price) FROM menu)`."
+  tests:
+    - output: |
+        name|price
+        Fried Rice|25000
+        Toast|18000
+        Milk Coffee|15000
+    - input: |
+        INSERT INTO menu VALUES (8, 'Breakfast Set', 'food', 60000);
+      output: |
+        name|price
+        Breakfast Set|60000
+        Fried Rice|25000
+    - input: |
+        INSERT INTO menu VALUES
+          (8, 'Mineral Water', 'drink', 5000),
+          (9, 'Crackers', 'food', 2000);
+      output: |
+        name|price
+        Fried Rice|25000
+        Toast|18000
+        Milk Coffee|15000
+        Banana Fritters|12000
+        Pulled Tea|12000
+  solution: |
+    SELECT name, price
+    FROM menu
+    WHERE price > (SELECT AVG(price) FROM menu)
+    ORDER BY price DESC, name;
+
+- slug: items-ordered-that-day
+  type: code
+  title: Items ordered that day
+  prompt: |
+    Ms. Rina wants to know which items were ordered on `2024-03-04`. Show the `name` and `price` of every menu item that has an order on that date. Every item is shown **only once**, however many times it was ordered. Sort by the item `id`.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+    CREATE TABLE orders (id INTEGER PRIMARY KEY, order_date TEXT, menu_id INTEGER, quantity INTEGER);
+    INSERT INTO orders VALUES
+      (1, '2024-03-04', 2, 2),
+      (2, '2024-03-04', 5, 1),
+      (3, '2024-03-04', 3, 3),
+      (4, '2024-03-04', 2, 1),
+      (5, '2024-03-05', 7, 2),
+      (6, '2024-03-05', 1, 4),
+      (7, '2024-03-05', 2, 3),
+      (8, '2024-03-05', 6, 2);
+  starter: |
+    -- this JOIN shows Milk Coffee twice; replace it with IN and a subquery
+    SELECT m.name, m.price
+    FROM menu m
+    JOIN orders o ON o.menu_id = m.id
+    WHERE o.order_date = '2024-03-04'
+    ORDER BY m.id;
+  hints:
+    - "A `JOIN` makes one row per order, so an item ordered twice is shown twice. What you need: read from `menu` only, then filter by the list of `menu_id` values ordered that day."
+    - "The list: `SELECT menu_id FROM orders WHERE order_date = '2024-03-04'`. Put it inside brackets after `IN`."
+    - "All of it: `SELECT name, price FROM menu WHERE id IN (SELECT menu_id FROM orders WHERE order_date = '2024-03-04') ORDER BY id;`"
+  tests:
+    - output: |
+        name|price
+        Milk Coffee|15000
+        Pulled Tea|12000
+        Toast|18000
+    - input: |
+        INSERT INTO orders VALUES
+          (9, '2024-03-04', 7, 1),
+          (10, '2024-03-04', 2, 2),
+          (11, '2024-03-06', 4, 3);
+      output: |
+        name|price
+        Milk Coffee|15000
+        Pulled Tea|12000
+        Toast|18000
+        Fried Rice|25000
+  solution: |
+    SELECT name, price
+    FROM menu
+    WHERE id IN (SELECT menu_id FROM orders WHERE order_date = '2024-03-04')
+    ORDER BY id;
+
+- slug: the-most-expensive-item
+  type: choice
+  title: The most expensive item
+  prompt: |
+    Ms. Rina wants to see the `name` of the item with the highest price. Which statement runs and gives the right answer, also after the menu changes?
+  options:
+    - "`SELECT name FROM menu WHERE price = MAX(price);`"
+    - "`SELECT name FROM menu WHERE price = (SELECT MAX(price) FROM menu);`"
+    - "`SELECT name FROM menu WHERE price = 25000;`"
+    - "`SELECT name FROM menu WHERE price IN (SELECT price FROM menu);`"
+  correct: [1]
+  hint: "`WHERE` may not hold an aggregate function directly, and a number typed by hand does not change along with the data."
+  explanation: "The subquery `(SELECT MAX(price) FROM menu)` gives one value, the highest price at that moment, and `WHERE` then compares every item with it. The first option fails because an aggregate may not sit directly in `WHERE`. The number 25000 is only right for today's menu. The last option shows every item, because every price is certainly in the list of prices."

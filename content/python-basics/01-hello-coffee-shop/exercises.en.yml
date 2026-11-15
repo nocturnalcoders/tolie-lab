@@ -1,0 +1,50 @@
+- slug: greet-the-customer
+  type: code
+  title: Greet the customer
+  prompt: |
+    A new customer walks in. Print this greeting exactly as written:
+
+    `Welcome to Senja Coffee Shop!`
+  language: python
+  starter: |
+    # write your code below
+  hint: Use print and wrap the text in quotes.
+  tests:
+    - input: ""
+      output: "Welcome to Senja Coffee Shop!"
+  solution: |
+    print("Welcome to Senja Coffee Shop!")
+
+- slug: two-line-menu
+  type: code
+  title: A two-line menu
+  prompt: |
+    The menu board has two lines. Print `Milk coffee` on the first line and `Pulled tea` on the second.
+  language: python
+  starter: |
+    # one print for each line
+  tests:
+    - input: ""
+      output: "Milk coffee\nPulled tea"
+  solution: |
+    print("Milk coffee")
+    print("Pulled tea")
+
+- slug: quiz-print
+  type: choice
+  title: What appears?
+  prompt: |
+    What appears on the screen after this code runs?
+
+    ```python
+    print("Hello")
+    print("Shop")
+    ```
+  options:
+    - "`Hello Shop` on a single line"
+    - "`Hello` and `Shop`, each on its own line"
+    - "`print(\"Hello\")` and `print(\"Shop\")` exactly as written"
+    - "Nothing, the code has an error"
+  correct: [1]
+  hint: Remember, every print writes a new line.
+  explanation: Every `print` writes one new line, so the result is two lines.

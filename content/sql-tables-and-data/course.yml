@@ -1,0 +1,31 @@
+slug: sql-tables-and-data
+title: "SQL: Merancang Tabel dan Mengubah Data"
+language: sql
+locale: id
+level: Pemula
+kind: course
+price_idr: 0
+status: published
+position: 13
+summary: >-
+  Lanjutan SQL Dasar: sekarang kamu yang membuat dan merawat data Warung Kopi
+  Senja. Membuat tabel dengan CREATE TABLE, menambah baris dengan INSERT,
+  mengubah dan menghapus data dengan UPDATE dan DELETE secara aman, memasang
+  aturan pada kolom, sampai merancang dua tabel yang saling berhubungan.
+perks:
+  - 6 pelajaran, 12 latihan kode, dan 6 soal pilihan ganda
+  - Semua latihan dijalankan langsung di browser
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie
+translations:
+  en:
+    title: "SQL: Designing Tables and Changing Data"
+    level: Beginner
+    summary: >-
+      The follow-up to SQL Basics: now you are the one who builds and looks
+      after the data of Senja Coffee Shop. Create tables with CREATE TABLE, add
+      rows with INSERT, change and remove data safely with UPDATE and DELETE,
+      put rules on columns, and design two tables that are linked to each other.
+    perks:
+      - 6 lessons, 12 coding exercises and 6 multiple-choice questions
+      - Every exercise runs right in your browser, nothing to install
+      - A completion certificate from tolie.space, signed by Christianto Lie

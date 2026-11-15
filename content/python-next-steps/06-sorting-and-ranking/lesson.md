@@ -1,64 +1,64 @@
 ---
-title: Sorting and ranking
+title: Mengurutkan dan membuat peringkat
 ---
-"Which item sold best this week?" To answer Ms. Rina, the data has to be **sorted** first. After that it is just a matter of taking the top few.
+"Menu apa yang paling laku minggu ini?" Untuk menjawab Bu Rina, datanya harus **diurutkan** dulu. Setelah itu tinggal mengambil beberapa yang teratas.
 
 ## sorted
 
-`sorted` gives back a **new** list in order. The original list does not change:
+`sorted` menghasilkan list **baru** yang sudah terurut. List aslinya tidak berubah:
 
 ```python
-prices = [15000, 10000, 18000]
+harga = [15000, 10000, 18000]
 
-print(sorted(prices))                 # [10000, 15000, 18000]
-print(sorted(prices, reverse=True))   # [18000, 15000, 10000]
-print(prices)                         # [15000, 10000, 18000]
+print(sorted(harga))                 # [10000, 15000, 18000]
+print(sorted(harga, reverse=True))   # [18000, 15000, 10000]
+print(harga)                         # [15000, 10000, 18000]
 ```
 
-Text is sorted alphabetically. `reverse=True` flips the order to largest first.
+Teks diurutkan menurut abjad. `reverse=True` membalik urutan menjadi dari besar ke kecil.
 
-## Sorting records with key
+## Mengurutkan catatan dengan key
 
-Python does not know how to compare two dictionaries. Tell it through `key`: a function that takes the value to compare out of one record.
+Python tidak tahu cara membandingkan dua dictionary. Beri tahu lewat `key`: sebuah fungsi yang mengambil nilai pembanding dari satu catatan.
 
 ```python
-def get_quantity(s):
-    return s["quantity"]
+def ambil_jumlah(p):
+    return p["jumlah"]
 
-sales = [
-    {"name": "milk coffee", "quantity": 10},
-    {"name": "toast", "quantity": 12},
-    {"name": "pulled tea", "quantity": 7},
+penjualan = [
+    {"nama": "kopi susu", "jumlah": 10},
+    {"nama": "roti bakar", "jumlah": 12},
+    {"nama": "teh tarik", "jumlah": 7},
 ]
-ranked = sorted(sales, key=get_quantity, reverse=True)
-print(ranked[0]["name"])   # toast
+urut = sorted(penjualan, key=ambil_jumlah, reverse=True)
+print(urut[0]["nama"])   # roti bakar
 ```
 
-Notice that `key=get_quantity` is written **without brackets**: we hand over the function, we do not call it. For a function this short there is also the shorthand `key=lambda s: s["quantity"]`, which means the same thing.
+Perhatikan `key=ambil_jumlah` ditulis **tanpa kurung**: kita menyerahkan fungsinya, bukan memanggilnya. Untuk fungsi sependek ini ada juga bentuk singkat `key=lambda p: p["jumlah"]`, artinya sama.
 
-When two values are equal, `sorted` keeps them in their original order, also when `reverse=True` is used.
+Kalau ada nilai yang sama, `sorted` mempertahankan urutan aslinya, termasuk saat memakai `reverse=True`.
 
-## Taking the top few
+## Mengambil beberapa yang teratas
 
-`[:3]` cuts a list down to at most its first three entries. If there are fewer than three, you get all of them with no error:
+`[:3]` memotong list menjadi paling banyak tiga isi pertama. Kalau isinya kurang dari tiga, semuanya diambil tanpa error:
 
 ```python
-top_three = ranked[:3]
+tiga_teratas = urut[:3]
 ```
 
-## Rank numbers
+## Nomor peringkat
 
-`enumerate(list, 1)` numbers each entry, starting from 1:
+`enumerate(list, 1)` memberi nomor urut mulai dari 1 pada setiap isi:
 
 ```python
-for number, s in enumerate(ranked, 1):
-    print(f"{number}. {s['name']}")
+for nomor, p in enumerate(urut, 1):
+    print(f"{nomor}. {p['nama']}")
 ```
 
-The result:
+Hasilnya:
 
 ```
-1. toast
-2. milk coffee
-3. pulled tea
+1. roti bakar
+2. kopi susu
+3. teh tarik
 ```

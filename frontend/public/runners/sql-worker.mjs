@@ -1,5 +1,5 @@
 // Runs in a Web Worker. Loads SQLite (sql.js) from this site (no CDN) and runs one script per message.
-// Messages in:  { id, type: 'run', code, input, setup }
+// Messages in:  { id, type: 'run', code, input, setup, check }
 // Messages out: { type: 'ready' } | { type: 'fatal', message } | { id, type: 'result', stdout, stderr, error, exitCode, truncated }
 import initSqlJs from '/sqljs/sql-wasm.mjs';
 import { run } from './sql-core.mjs';
@@ -20,6 +20,6 @@ self.onmessage = async (event) => {
   if (msg.type !== 'run') return;
   await loading;
   if (!SQL) return;
-  const result = run(SQL, msg.code, msg.input, msg.setup);
+  const result = run(SQL, msg.code, msg.input, msg.setup, msg.check);
   self.postMessage({ id: msg.id, type: 'result', ...result });
 };

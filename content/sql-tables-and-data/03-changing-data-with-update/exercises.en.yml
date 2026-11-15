@@ -1,0 +1,133 @@
+- slug: chocolate-toast
+  type: code
+  title: Chocolate Toast
+  prompt: |
+    Toast is now served with chocolate. Change the row of the `menu` table whose `id` is 5 with **one** `UPDATE` statement:
+
+    - `name` becomes `Chocolate Toast`
+    - `price` becomes 20000
+
+    No other row may change. The checker shows `id`, `name`, `price` of the whole `menu` table, sorted by `id`.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+  check: |
+    SELECT id, name, price FROM menu ORDER BY id;
+  starter: |
+    -- the price is already changed; change the name too, in the same statement
+    UPDATE menu
+    SET price = 20000
+    WHERE id = 5;
+  hints:
+    - "`SET` may hold more than one column."
+    - "Separate each `column = value` with a comma: `SET name = ..., price = ...`. The name is text, so use single quotes."
+    - "The `SET` line: `SET name = 'Chocolate Toast', price = 20000`, and `WHERE id = 5` stays."
+  tests:
+    - output: |
+        id|name|price
+        1|Black Coffee|10000
+        2|Milk Coffee|15000
+        3|Pulled Tea|12000
+        4|Sweet Iced Tea|8000
+        5|Chocolate Toast|20000
+        6|Banana Fritters|12000
+        7|Fried Rice|25000
+    - input: |
+        INSERT INTO menu VALUES (8, 'Orange Juice', 'drink', 14000);
+        UPDATE menu SET price = 9000 WHERE id = 4;
+      output: |
+        id|name|price
+        1|Black Coffee|10000
+        2|Milk Coffee|15000
+        3|Pulled Tea|12000
+        4|Sweet Iced Tea|9000
+        5|Chocolate Toast|20000
+        6|Banana Fritters|12000
+        7|Fried Rice|25000
+        8|Orange Juice|14000
+  solution: |
+    UPDATE menu
+    SET name = 'Chocolate Toast', price = 20000
+    WHERE id = 5;
+
+- slug: food-discount
+  type: code
+  title: Food discount
+  prompt: |
+    From today all **food** is Rp2000 cheaper. Lower `price` by 2000 on every row of the `menu` table whose `category` is `food`. Drink prices must not change.
+
+    The number of food items can grow, so pick the rows by category, not by `id`. The checker shows `id`, `name`, `category`, `price` of the whole `menu` table, sorted by `id`.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+  check: |
+    SELECT id, name, category, price FROM menu ORDER BY id;
+  starter: |
+    -- careful: this statement changes EVERY row. Limit it to food only.
+    UPDATE menu
+    SET price = price - 2000;
+  hints:
+    - "Without `WHERE`, an `UPDATE` hits every row, drinks included."
+    - "Add a `WHERE` after `SET`, with a condition on the `category` column. Text goes inside single quotes."
+    - "Add `WHERE category = 'food'` before the semicolon."
+  tests:
+    - output: |
+        id|name|category|price
+        1|Black Coffee|drink|10000
+        2|Milk Coffee|drink|15000
+        3|Pulled Tea|drink|12000
+        4|Sweet Iced Tea|drink|8000
+        5|Toast|food|16000
+        6|Banana Fritters|food|10000
+        7|Fried Rice|food|23000
+    - input: |
+        INSERT INTO menu VALUES
+          (8, 'Orange Juice', 'drink', 14000),
+          (9, 'Fried Noodles', 'food', 22000);
+      output: |
+        id|name|category|price
+        1|Black Coffee|drink|10000
+        2|Milk Coffee|drink|15000
+        3|Pulled Tea|drink|12000
+        4|Sweet Iced Tea|drink|8000
+        5|Toast|food|16000
+        6|Banana Fritters|food|10000
+        7|Fried Rice|food|23000
+        8|Orange Juice|drink|14000
+        9|Fried Noodles|food|20000
+  solution: |
+    UPDATE menu
+    SET price = price - 2000
+    WHERE category = 'food';
+
+- slug: update-without-where
+  type: choice
+  title: UPDATE without WHERE
+  prompt: |
+    The `menu` table holds 7 rows. What happens after this statement runs?
+
+    ```sql
+    UPDATE menu SET price = 5000;
+    ```
+  options:
+    - "Only the first row's price becomes 5000"
+    - "All 7 rows get a price of 5000"
+    - "Nothing changes because no row was named"
+    - "The database rejects the statement because there is no `WHERE`"
+  correct: [1]
+  hint: "`WHERE` decides which rows are affected. Here there is none."
+  explanation: "`WHERE` limits the rows that are changed. Without `WHERE` there is no limit, so every row is hit and the old prices are gone. The database does not see this as a mistake, which is why you always check the `WHERE` before running an `UPDATE`."

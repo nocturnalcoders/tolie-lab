@@ -1,14 +1,14 @@
 - slug: tidy-names
   type: code
-  title: Tidy the names
+  title: Rapikan nama
   prompt: |
-    The first line holds the number of names `n`, then `n` lines hold messy names. Print each name in tidy form: no spaces at the ends, the first letter of each word capital, the rest lower case.
+    Baris pertama berisi banyaknya nama `n`, lalu `n` baris berisi nama yang berantakan. Cetak tiap nama dalam bentuk rapi: tanpa spasi di pinggir, huruf pertama tiap kata kapital, sisanya kecil.
   language: python
   starter: |
     n = int(input())
     for _ in range(n):
-        name = input()
-        # print the tidied name
+        nama = input()
+        # cetak nama yang sudah rapi
   tests:
     - input: "3\n  budi santoso\nSITI aminah \nagus"
       output: "Budi Santoso\nSiti Aminah\nAgus"
@@ -17,24 +17,24 @@
   solution: |
     n = int(input())
     for _ in range(n):
-        name = input()
-        print(name.strip().title())
+        nama = input()
+        print(nama.strip().title())
 
 - slug: email-domain
   type: code
-  title: Email domain
+  title: Domain email
   prompt: |
-    Read one email address. Print its domain (the part after the `@`) in lower case.
+    Baca satu alamat email. Cetak bagian domainnya (setelah tanda `@`) dalam huruf kecil.
   language: python
   starter: |
     email = input()
-    # print the domain
-  hint: Split with split("@"), take the second part, then make it lower case.
+    # cetak domainnya
+  hint: Pecah dengan split("@"), ambil bagian kedua, lalu ubah ke huruf kecil.
   tests:
     - input: "budi@gmail.com"
       output: "gmail.com"
-    - input: "siti.aminah@senjacoffee.id"
-      output: "senjacoffee.id"
+    - input: "siti.aminah@warungsenja.id"
+      output: "warungsenja.id"
     - input: "Agus@Yahoo.COM"
       output: "yahoo.com"
   solution: |
@@ -43,12 +43,12 @@
 
 - slug: quiz-strip
   type: choice
-  title: The result of strip
-  prompt: What is the result of `"  coffee  ".strip()`?
+  title: Hasil strip
+  prompt: Apa hasil dari `"  kopi  ".strip()`?
   options:
-    - "`\"coffee\"`"
-    - "`\"  coffee\"`"
-    - "`\"coffee  \"`"
-    - "`\"  coffee  \"`"
+    - "`\"kopi\"`"
+    - "`\"  kopi\"`"
+    - "`\"kopi  \"`"
+    - "`\"  kopi  \"`"
   correct: [0]
-  explanation: "`.strip()` removes the spaces at both ends of the text, but spaces in the middle are left alone."
+  explanation: "`.strip()` membuang spasi di kedua ujung teks, tetapi spasi di tengah tidak disentuh."

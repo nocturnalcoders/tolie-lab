@@ -1,0 +1,168 @@
+- slug: what-does-it-print
+  type: choice
+  title: What does it print?
+  prompt: |
+    What does this program print?
+
+    ```kotlin
+    data class Order(val customer: String, val weight: Int, val paid: Boolean = false)
+
+    fun main() {
+        val first = Order("Mrs. Wati", 3)
+        val updated = first.copy(paid = true)
+        println(updated)
+    }
+    ```
+  options:
+    - "`Order(Mrs. Wati, 3, true)`"
+    - "`Order(customer=Mrs. Wati, weight=3, paid=true)`"
+    - "`Order(customer=Mrs. Wati, weight=3, paid=false)`"
+    - "`Order(paid=true)`"
+  correct: [1]
+  hint: "`copy` copies every property and replaces only the ones you name. A data class's `toString` writes `name=value`."
+  explanation: >-
+    `first` is created without `paid`, so it is `false`. `copy(paid = true)` makes a new object
+    that copies `customer` and `weight` and replaces only `paid`. A data class's `toString`
+    writes the class name and then every property as `name=value`, so the result is
+    `Order(customer=Mrs. Wati, weight=3, paid=true)`. The form without property names is never
+    used, and `paid=false` is what `first` holds, not `updated`.
+
+- slug: which-line-is-rejected
+  type: choice
+  title: Which line is rejected?
+  prompt: |
+    One line stops this program from compiling. Which line, and why?
+
+    ```kotlin
+    class Order(val customer: String, var weight: Int) {
+        fun total(rate: Int) = weight * rate
+    }
+
+    fun main() {
+        val order = Order("Mrs. Wati", 3)   // line 1
+        order.weight = 4                    // line 2
+        println(order.total(7000))          // line 3
+        order.customer = "Mrs. Wati S."     // line 4
+    }
+    ```
+  options:
+    - "Line 1: an object must be created with `new Order(...)`"
+    - "Line 2: `order` is a `val`, so nothing inside it may change"
+    - "Line 3: `total` does not write its return type"
+    - "Line 4: `customer` is a `val` property, so it cannot be reassigned"
+  correct: [3]
+  hint: Look at the word in front of each parameter on the `class` line.
+  explanation: >-
+    In the constructor, `customer` is written with `val` and `weight` with `var`. That is why
+    line 4 is rejected while line 2 is valid. `val order` only means the variable `order` cannot
+    be pointed at another object; a `var` property inside the object may still change. Kotlin
+    does not use `new`, and the return type of a single-expression function may be inferred.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Fill in the blank
+  prompt: |
+    This program must print `28000`. What goes in place of `____`?
+
+    ```kotlin
+    class Order(val customer: String, val weight: Int) {
+        fun total(rate: Int): Int = ____
+    }
+
+    fun main() {
+        val order = Order("Mr. Joko", 4)
+        println(order.total(7000))
+    }
+    ```
+  options:
+    - "`weight * rate`"
+    - "`self.weight * rate`"
+    - "`Order.weight * rate`"
+    - "`weight + rate`"
+  correct: [0]
+  hint: Inside a method, the object's properties are used directly by name.
+  explanation: >-
+    Inside a method, the property `weight` can be used directly, so `weight * rate` gives
+    4 * 7000 = 28000. `self` is a Python habit and Kotlin does not know it (its counterpart is
+    `this`, which may be left out). `Order.weight` is rejected because `weight` belongs to an
+    object, not to the class itself. `weight + rate` is valid but gives 7004.
+
+- slug: what-the-word-data-means
+  type: choice
+  title: What the word data means
+  prompt: |
+    Dimas changed the first line into the second:
+
+    ```kotlin
+    class Order(val customer: String, val weight: Int)
+    data class Order(val customer: String, val weight: Int)
+    ```
+
+    What changes?
+  options:
+    - "Every property becomes reassignable, even though it is written with `val`"
+    - "The class may no longer have methods"
+    - "The class gets a `toString` that shows its contents, an `==` that compares contents, and `copy`"
+    - "Its objects are saved automatically and survive closing the app"
+  correct: [2]
+  hint: Remember what is printed when a data class is passed to `println`.
+  explanation: >-
+    The word `data` asks Kotlin to generate a tidy `toString` (`Order(customer=..., weight=...)`),
+    an `==` that compares the properties' contents, and a `copy` function. A `val` property
+    still cannot be reassigned; to "change" the data you make a copy with `copy`. A data class
+    may still have methods, and the word `data` has nothing to do with saving to storage.
+
+- slug: practice-order-class
+  type: code
+  required: false
+  title: "Practice: an Order data class"
+  prompt: |
+    Complete the `Order` data class: add the properties `kg` and `pricePerKg` (both `Int`) to the constructor, and write a `total()` method that returns `kg` × `pricePerKg`. `main` already creates the object and prints `<name>: Rp<total>`.
+
+    This exercise is optional. Your code runs on the server, and the daily allowance is small.
+  starter: |
+    data class Order(val name: String) {
+        fun total(): Int = 0
+    }
+
+    fun main() {
+        val name = readln()
+        val kg = readln().toInt()
+        val pricePerKg = readln().toInt()
+        val order = Order(name)
+        println("${order.name}: Rp${order.total()}")
+    }
+  hints:
+    - "Properties go inside the constructor's parentheses, separated by commas: `data class Order(val name: String, val kg: Int, ...)`."
+    - "Once the properties are there, change `total()` to `= kg * pricePerKg` and create the object with `Order(name, kg, pricePerKg)`."
+  tests:
+    - input: |
+        Bu Ani
+        3
+        7000
+      output: |
+        Bu Ani: Rp21000
+    - input: |
+        Dimas
+        10
+        6000
+      output: |
+        Dimas: Rp60000
+    - input: |
+        Pak Joko
+        0
+        7000
+      output: |
+        Pak Joko: Rp0
+  solution: |
+    data class Order(val name: String, val kg: Int, val pricePerKg: Int) {
+        fun total(): Int = kg * pricePerKg
+    }
+
+    fun main() {
+        val name = readln()
+        val kg = readln().toInt()
+        val pricePerKg = readln().toInt()
+        val order = Order(name, kg, pricePerKg)
+        println("${order.name}: Rp${order.total()}")
+    }

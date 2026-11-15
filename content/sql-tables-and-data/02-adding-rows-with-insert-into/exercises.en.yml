@@ -1,0 +1,128 @@
+- slug: a-new-item
+  type: code
+  title: A new item
+  prompt: |
+    Senja Coffee Shop starts selling juice. Add one row to the `menu` table:
+
+    - `id`: 8
+    - `name`: `Orange Juice`
+    - `category`: `drink`
+    - `price`: 14000
+
+    Leave the other rows alone. The checker shows `id`, `name`, `category`, `price` of the whole `menu` table, sorted by `id`.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+  check: |
+    SELECT id, name, category, price FROM menu ORDER BY id;
+  starter: |
+    -- write the INSERT INTO for Orange Juice here
+
+    SELECT * FROM menu ORDER BY id;
+  hints:
+    - "The shape is `INSERT INTO table (column, ...) VALUES (value, ...);`. The values follow the order of the columns."
+    - "The columns are `(id, name, category, price)`. Text such as the name and category goes inside single quotes, numbers do not."
+    - "The values are `(8, 'Orange Juice', 'drink', 14000)`, so: `INSERT INTO menu (id, name, category, price) VALUES (8, 'Orange Juice', 'drink', 14000);`."
+  tests:
+    - output: |
+        id|name|category|price
+        1|Black Coffee|drink|10000
+        2|Milk Coffee|drink|15000
+        3|Pulled Tea|drink|12000
+        4|Sweet Iced Tea|drink|8000
+        5|Toast|food|18000
+        6|Banana Fritters|food|12000
+        7|Fried Rice|food|25000
+        8|Orange Juice|drink|14000
+    - input: |
+        UPDATE menu SET price = 11000 WHERE id = 1;
+        DELETE FROM menu WHERE id = 6;
+      output: |
+        id|name|category|price
+        1|Black Coffee|drink|11000
+        2|Milk Coffee|drink|15000
+        3|Pulled Tea|drink|12000
+        4|Sweet Iced Tea|drink|8000
+        5|Toast|food|18000
+        7|Fried Rice|food|25000
+        8|Orange Juice|drink|14000
+  solution: |
+    INSERT INTO menu (id, name, category, price)
+    VALUES (8, 'Orange Juice', 'drink', 14000);
+
+- slug: three-new-customers
+  type: code
+  title: Three new customers
+  prompt: |
+    Three new customers signed up today. Add them to the `customers` table with **one** `INSERT` statement, in this order:
+
+    | name | city |
+    |---|---|
+    | Dewi | Bandung |
+    | Rudi | Bogor |
+    | Tono | Jakarta |
+
+    Do not fill in the `id` column: list only the `name` and `city` columns and let the database hand out the numbers. The checker shows `id`, `name`, `city` of the whole `customers` table, sorted by `id`.
+  setup: |
+    CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT, city TEXT);
+    INSERT INTO customers VALUES
+      (1, 'Sari', 'Bandung'),
+      (2, 'Budi', 'Jakarta');
+  check: |
+    SELECT id, name, city FROM customers ORDER BY id;
+  starter: |
+    -- only one customer so far; add Rudi and Tono in the same statement
+    INSERT INTO customers (name, city) VALUES
+      ('Dewi', 'Bandung');
+  hints:
+    - "One `INSERT` may carry several rows. Each row has its own brackets."
+    - "Separate the rows with commas: `VALUES ('Dewi', 'Bandung'), (...), (...);`. The semicolon only comes at the end."
+    - "After `('Dewi', 'Bandung')` add `, ('Rudi', 'Bogor'), ('Tono', 'Jakarta')`."
+  tests:
+    - output: |
+        id|name|city
+        1|Sari|Bandung
+        2|Budi|Jakarta
+        3|Dewi|Bandung
+        4|Rudi|Bogor
+        5|Tono|Jakarta
+    - input: |
+        INSERT INTO customers VALUES (3, 'Wati', 'Depok');
+      output: |
+        id|name|city
+        1|Sari|Bandung
+        2|Budi|Jakarta
+        3|Wati|Depok
+        4|Dewi|Bandung
+        5|Rudi|Bogor
+        6|Tono|Jakarta
+  solution: |
+    INSERT INTO customers (name, city) VALUES
+      ('Dewi', 'Bandung'),
+      ('Rudi', 'Bogor'),
+      ('Tono', 'Jakarta');
+
+- slug: columns-you-leave-out
+  type: choice
+  title: Columns you leave out
+  prompt: |
+    The `menu` table has the columns `id`, `name`, `category`, `price`, with no extra rules on `category` and `price`. What do `category` and `price` hold in the row this statement creates?
+
+    ```sql
+    INSERT INTO menu (id, name) VALUES (9, 'Doughnut');
+    ```
+  options:
+    - "`category` holds empty text and `price` holds 0"
+    - "Both are `NULL`"
+    - "Both are copied from the previous row"
+    - "The statement fails because the columns are incomplete"
+  correct: [1]
+  hint: "Remember what empty means in SQL."
+  explanation: "A column that is not in the list is left without a value, which is `NULL`. `NULL` is not 0 and not empty text. The statement still succeeds because the column list and the value list have the same length."

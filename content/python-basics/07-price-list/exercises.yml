@@ -1,45 +1,45 @@
 - slug: check-price
   type: code
-  title: Check a menu price
+  title: Cek harga menu
   prompt: |
-    Read a menu item name (lower case). If it is in `menu`, print `Rp<price>`. If it is not, print `Not on the menu`.
+    Baca nama menu (huruf kecil). Jika ada di `menu`, cetak `Rp<harga>`. Jika tidak ada, cetak `Menu tidak ada`.
   language: python
   starter: |
-    menu = {"milk coffee": 15000, "pulled tea": 12000, "toast": 18000}
-    name = input()
-    # check whether name is on the menu, then print the result
+    menu = {"kopi susu": 15000, "teh tarik": 12000, "roti bakar": 18000}
+    nama = input()
+    # cek apakah nama ada di menu, lalu cetak hasilnya
   tests:
-    - input: "milk coffee"
+    - input: "kopi susu"
       output: "Rp15000"
-    - input: "pulled tea"
+    - input: "teh tarik"
       output: "Rp12000"
-    - input: "fried rice"
-      output: "Not on the menu"
+    - input: "nasi goreng"
+      output: "Menu tidak ada"
   solution: |
-    menu = {"milk coffee": 15000, "pulled tea": 12000, "toast": 18000}
-    name = input()
-    if name in menu:
-        print(f"Rp{menu[name]}")
+    menu = {"kopi susu": 15000, "teh tarik": 12000, "roti bakar": 18000}
+    nama = input()
+    if nama in menu:
+        print(f"Rp{menu[nama]}")
     else:
-        print("Not on the menu")
+        print("Menu tidak ada")
 
 - slug: order-total
   type: code
-  title: Total of an order
+  title: Total pesanan
   prompt: |
-    The first line holds the number of items ordered `n`, then `n` lines hold menu item names (all of them are in `menu`). Print `Total: Rp<sum of the prices of all items>`.
+    Baris pertama berisi banyaknya pesanan `n`, lalu `n` baris berisi nama menu (semuanya ada di `menu`). Cetak `Total: Rp<jumlah harga semua pesanan>`.
   language: python
   starter: |
-    menu = {"milk coffee": 15000, "pulled tea": 12000, "toast": 18000}
+    menu = {"kopi susu": 15000, "teh tarik": 12000, "roti bakar": 18000}
     n = int(input())
-    # add up the prices of all the items
+    # jumlahkan harga semua pesanan
   tests:
-    - input: "2\nmilk coffee\ntoast"
+    - input: "2\nkopi susu\nroti bakar"
       output: "Total: Rp33000"
-    - input: "3\npulled tea\npulled tea\nmilk coffee"
+    - input: "3\nteh tarik\nteh tarik\nkopi susu"
       output: "Total: Rp39000"
   solution: |
-    menu = {"milk coffee": 15000, "pulled tea": 12000, "toast": 18000}
+    menu = {"kopi susu": 15000, "teh tarik": 12000, "roti bakar": 18000}
     n = int(input())
     total = 0
     for _ in range(n):
@@ -48,17 +48,17 @@
 
 - slug: quiz-dict
   type: choice
-  title: A key that is missing
+  title: Kunci yang tidak ada
   prompt: |
-    What is the result of this expression if `"orange juice"` is not in `menu`?
+    Apa hasil dari ekspresi ini jika `"es jeruk"` tidak ada di `menu`?
 
     ```python
-    menu.get("orange juice", 0)
+    menu.get("es jeruk", 0)
     ```
   options:
-    - "A `KeyError`"
+    - "Error `KeyError`"
     - "`0`"
     - "`None`"
-    - "`\"orange juice\"`"
+    - "`\"es jeruk\"`"
   correct: [1]
-  explanation: "`.get` returns the fallback value, `0`, when the key is missing. Without a fallback the result is `None`, and it never raises an error."
+  explanation: "`.get` mengembalikan nilai cadangan, yaitu `0`, bila kunci tidak ada. Tanpa nilai cadangan hasilnya `None`, dan tidak pernah error."

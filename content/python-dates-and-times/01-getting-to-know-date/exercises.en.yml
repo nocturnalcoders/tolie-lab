@@ -1,0 +1,126 @@
+- slug: the-invoice-date
+  type: code
+  title: The invoice date
+  prompt: |
+    Ms. Rina types the date of an invoice on three lines: the year, the month, then the day. Build a `date` from them and print three lines:
+
+    ```
+    Date: <the date, printed as it is>
+    Month <month> of <year>
+    Start of month: <yes or no>
+    ```
+
+    `Start of month` is `yes` when the day is 5 or less, otherwise `no`.
+  language: python
+  starter: |
+    from datetime import date
+
+    year = int(input())
+    month = int(input())
+    day = int(input())
+
+    # build the date, then print three lines
+  hints:
+    - "Build the date with `invoice = date(year, month, day)`. Printing `invoice` directly already gives the `2025-03-14` format."
+    - "The second line uses parts of the date: `print(f\"Month {invoice.month} of {invoice.year}\")`."
+    - "For the third line: `if invoice.day <= 5:` print `Start of month: yes`, otherwise print `Start of month: no`."
+  tests:
+    - input: "2025\n3\n14"
+      output: "Date: 2025-03-14\nMonth 3 of 2025\nStart of month: no"
+    - input: "2025\n1\n1"
+      output: "Date: 2025-01-01\nMonth 1 of 2025\nStart of month: yes"
+    - input: "2024\n2\n29"
+      output: "Date: 2024-02-29\nMonth 2 of 2024\nStart of month: no"
+    - input: "2024\n12\n5"
+      output: "Date: 2024-12-05\nMonth 12 of 2024\nStart of month: yes"
+  solution: |
+    from datetime import date
+
+    year = int(input())
+    month = int(input())
+    day = int(input())
+
+    invoice = date(year, month, day)
+    print(f"Date: {invoice}")
+    print(f"Month {invoice.month} of {invoice.year}")
+    if invoice.day <= 5:
+        print("Start of month: yes")
+    else:
+        print("Start of month: no")
+
+- slug: which-day-is-the-shift
+  type: code
+  title: Which day is the shift?
+  prompt: |
+    A shift is planned for a date typed on three lines: year, month, day. The shop is busier at the weekend, so Ms. Rina wants to know the day.
+
+    Print two lines:
+
+    ```
+    Day: <the English day name>
+    Shift: <weekend or weekday>
+    ```
+
+    Saturday and Sunday are `weekend`, every other day is `weekday`.
+  language: python
+  starter: |
+    from datetime import date
+
+    DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+    year = int(input())
+    month = int(input())
+    day = int(input())
+
+    # find the day name, then decide weekend or weekday
+  hints:
+    - "First build `shift = date(year, month, day)`, then keep `number = shift.weekday()`. Remember: 0 means Monday, 6 means Sunday."
+    - "The day name is `DAYS[number]`. Print it with `print(f\"Day: {DAYS[number]}\")`."
+    - "Saturday is number 5 and Sunday is 6, so `if number >= 5:` print `Shift: weekend`, otherwise print `Shift: weekday`."
+  tests:
+    - input: "2025\n3\n14"
+      output: "Day: Friday\nShift: weekday"
+    - input: "2025\n8\n17"
+      output: "Day: Sunday\nShift: weekend"
+    - input: "2024\n2\n29"
+      output: "Day: Thursday\nShift: weekday"
+    - input: "2025\n6\n7"
+      output: "Day: Saturday\nShift: weekend"
+    - input: "2025\n3\n10"
+      output: "Day: Monday\nShift: weekday"
+  solution: |
+    from datetime import date
+
+    DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+    year = int(input())
+    month = int(input())
+    day = int(input())
+
+    shift = date(year, month, day)
+    number = shift.weekday()
+    print(f"Day: {DAYS[number]}")
+    if number >= 5:
+        print("Shift: weekend")
+    else:
+        print("Shift: weekday")
+
+- slug: the-number-from-weekday
+  type: choice
+  title: The number from weekday
+  prompt: |
+    10 March 2025 is a Monday. What does this code show?
+
+    ```python
+    from datetime import date
+
+    print(date(2025, 3, 10).weekday())
+    ```
+  options:
+    - "`0`"
+    - "`1`"
+    - "`Monday`"
+    - "`10`"
+  correct: [0]
+  hint: weekday() starts counting on Monday, and Python likes to start counting from zero.
+  explanation: "`weekday()` returns a number, not a day name: 0 for Monday up to 6 for Sunday. We pick the name ourselves from a list, for example `DAYS[0]`."

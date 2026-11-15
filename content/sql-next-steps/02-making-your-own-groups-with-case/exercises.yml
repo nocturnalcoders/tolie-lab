@@ -1,0 +1,159 @@
+- slug: price-groups
+  type: code
+  title: Kelompok harga
+  prompt: |
+    Bu Rina ingin setiap menu diberi kelompok harga. Dari tabel `menu`, tampilkan `nama`, `harga`, dan kolom `kelompok` yang berisi:
+
+    - `murah` bila harga di bawah 10000
+    - `sedang` bila harga 10000 sampai 15000
+    - `mahal` bila harga di atas 15000
+
+    Urutkan menurut `id`.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, nama TEXT, kategori TEXT, harga INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Kopi Hitam', 'minuman', 10000),
+      (2, 'Kopi Susu', 'minuman', 15000),
+      (3, 'Teh Tarik', 'minuman', 12000),
+      (4, 'Es Teh Manis', 'minuman', 8000),
+      (5, 'Roti Bakar', 'makanan', 18000),
+      (6, 'Pisang Goreng', 'makanan', 12000),
+      (7, 'Nasi Goreng', 'makanan', 25000);
+  starter: |
+    -- baru ada dua kelompok; tambahkan kelompok sedang
+    SELECT nama, harga,
+      CASE
+        WHEN harga < 10000 THEN 'murah'
+        ELSE 'mahal'
+      END AS kelompok
+    FROM menu
+    ORDER BY id;
+  hints:
+    - "`CASE` boleh punya lebih dari satu `WHEN`. Syarat diperiksa dari atas, dan yang pertama benar yang dipakai."
+    - "Tambahkan satu `WHEN` di antara `murah` dan `ELSE`. Karena harga di bawah 10000 sudah tertangkap baris pertama, syarat kedua cukup memeriksa batas atasnya."
+    - "Baris tambahannya: `WHEN harga <= 15000 THEN 'sedang'`."
+  tests:
+    - output: |
+        nama|harga|kelompok
+        Kopi Hitam|10000|sedang
+        Kopi Susu|15000|sedang
+        Teh Tarik|12000|sedang
+        Es Teh Manis|8000|murah
+        Roti Bakar|18000|mahal
+        Pisang Goreng|12000|sedang
+        Nasi Goreng|25000|mahal
+    - input: |
+        INSERT INTO menu VALUES
+          (8, 'Air Mineral', 'minuman', 5000),
+          (9, 'Mie Rebus', 'makanan', 16000);
+      output: |
+        nama|harga|kelompok
+        Kopi Hitam|10000|sedang
+        Kopi Susu|15000|sedang
+        Teh Tarik|12000|sedang
+        Es Teh Manis|8000|murah
+        Roti Bakar|18000|mahal
+        Pisang Goreng|12000|sedang
+        Nasi Goreng|25000|mahal
+        Air Mineral|5000|murah
+        Mie Rebus|16000|mahal
+  solution: |
+    SELECT nama, harga,
+      CASE
+        WHEN harga < 10000 THEN 'murah'
+        WHEN harga <= 15000 THEN 'sedang'
+        ELSE 'mahal'
+      END AS kelompok
+    FROM menu
+    ORDER BY id;
+
+- slug: drink-and-food-revenue-per-day
+  type: code
+  title: Omzet minuman dan makanan per hari
+  prompt: |
+    Buat rekap harian yang memisahkan omzet minuman dan makanan. Gabungkan `pesanan` dengan `menu`, lalu tampilkan satu baris per tanggal dengan tiga kolom:
+
+    - `tanggal`
+    - `minuman`: jumlah harga dikali jumlah untuk menu berkategori `minuman`
+    - `makanan`: jumlah harga dikali jumlah untuk menu berkategori `makanan`
+
+    Hari tanpa pesanan di salah satu kategori harus tampil `0`, bukan `NULL`. Urutkan menurut `tanggal`.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, nama TEXT, kategori TEXT, harga INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Kopi Hitam', 'minuman', 10000),
+      (2, 'Kopi Susu', 'minuman', 15000),
+      (3, 'Teh Tarik', 'minuman', 12000),
+      (4, 'Es Teh Manis', 'minuman', 8000),
+      (5, 'Roti Bakar', 'makanan', 18000),
+      (6, 'Pisang Goreng', 'makanan', 12000),
+      (7, 'Nasi Goreng', 'makanan', 25000);
+    CREATE TABLE pesanan (id INTEGER PRIMARY KEY, tanggal TEXT, menu_id INTEGER, jumlah INTEGER);
+    INSERT INTO pesanan VALUES
+      (1, '2024-03-04', 2, 2),
+      (2, '2024-03-04', 5, 1),
+      (3, '2024-03-04', 3, 3),
+      (4, '2024-03-04', 2, 1),
+      (5, '2024-03-05', 7, 2),
+      (6, '2024-03-05', 1, 4),
+      (7, '2024-03-05', 2, 3),
+      (8, '2024-03-05', 6, 2);
+  starter: |
+    -- kolom minuman masih menjumlahkan semua pesanan; pisahkan dengan CASE
+    SELECT p.tanggal,
+      SUM(m.harga * p.jumlah) AS minuman
+    FROM pesanan p
+    JOIN menu m ON m.id = p.menu_id
+    GROUP BY p.tanggal
+    ORDER BY p.tanggal;
+  hints:
+    - "Taruh `CASE` di dalam `SUM`: pesanan yang kategorinya cocok menyumbang `m.harga * p.jumlah`, pesanan lain menyumbang 0."
+    - "Kolom minuman: `SUM(CASE WHEN m.kategori = 'minuman' THEN m.harga * p.jumlah ELSE 0 END) AS minuman`. Jangan lupa `ELSE 0`, supaya hari tanpa minuman tidak menjadi `NULL`."
+    - "Kolom makanan sama persis, hanya `'minuman'` diganti `'makanan'` dan namanya `AS makanan`. Pisahkan kedua kolom dengan koma."
+  tests:
+    - output: |
+        tanggal|minuman|makanan
+        2024-03-04|81000|18000
+        2024-03-05|85000|74000
+    - input: |
+        INSERT INTO pesanan VALUES
+          (9, '2024-03-05', 5, 1),
+          (10, '2024-03-06', 1, 2),
+          (11, '2024-03-06', 4, 3);
+      output: |
+        tanggal|minuman|makanan
+        2024-03-04|81000|18000
+        2024-03-05|85000|92000
+        2024-03-06|44000|0
+  solution: |
+    SELECT p.tanggal,
+      SUM(CASE WHEN m.kategori = 'minuman' THEN m.harga * p.jumlah ELSE 0 END) AS minuman,
+      SUM(CASE WHEN m.kategori = 'makanan' THEN m.harga * p.jumlah ELSE 0 END) AS makanan
+    FROM pesanan p
+    JOIN menu m ON m.id = p.menu_id
+    GROUP BY p.tanggal
+    ORDER BY p.tanggal;
+
+- slug: the-order-of-when
+  type: choice
+  title: Urutan WHEN
+  prompt: |
+    Harga Nasi Goreng 25000. Apa isi kolom `kelompok` untuk Nasi Goreng?
+
+    ```sql
+    SELECT nama,
+      CASE
+        WHEN harga >= 10000 THEN 'sedang'
+        WHEN harga >= 20000 THEN 'mahal'
+        ELSE 'murah'
+      END AS kelompok
+    FROM menu;
+    ```
+  options:
+    - "`mahal`"
+    - "`sedang`"
+    - "`murah`"
+    - "`NULL`"
+  correct: [1]
+  hint: "`CASE` berhenti di syarat pertama yang benar, dibaca dari atas."
+  explanation: "25000 memenuhi `harga >= 10000`, jadi `CASE` langsung memakai `sedang` dan tidak pernah sampai ke baris kedua. Dengan urutan ini tidak ada menu yang bisa menjadi `mahal`. Perbaikannya: tulis syarat yang paling ketat lebih dulu, yaitu `harga >= 20000`."

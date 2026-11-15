@@ -1,0 +1,97 @@
+- slug: a-tidy-customers-table
+  type: code
+  title: A tidy customers table
+  prompt: |
+    Create the `customers` table with three columns and their rules:
+
+    - `id`: `INTEGER`, the row's identifier (`PRIMARY KEY`)
+    - `name`: `TEXT`, may not be empty
+    - `phone`: `TEXT`, no two customers may have the same number
+
+    The checker tries to insert four customers without giving an `id`: Sari (phone `0811`), a customer without a name, Budi with the phone `0811` that Sari already uses, and Dewi (phone `0833`). The two rows that break a rule must be rejected. Then it shows `id`, `name`, `phone` of the `customers` table, sorted by `phone`.
+  check: |
+    INSERT INTO customers (name, phone) VALUES ('Sari', '0811');
+    INSERT OR IGNORE INTO customers (name, phone) VALUES (NULL, '0822');
+    INSERT OR IGNORE INTO customers (name, phone) VALUES ('Budi', '0811');
+    INSERT INTO customers (name, phone) VALUES ('Dewi', '0833');
+    SELECT id, name, phone FROM customers ORDER BY phone;
+  starter: |
+    -- the columns are there; add a rule after each type
+    CREATE TABLE customers (
+      id INTEGER,
+      name TEXT,
+      phone TEXT
+    );
+  hints:
+    - "A rule is written after the column type, before the comma. Each column here needs one rule."
+    - "`id` is the identifier, so `PRIMARY KEY`. A column that may not be empty uses `NOT NULL`. A column whose values may not repeat uses `UNIQUE`."
+    - "Inside the brackets: `id INTEGER PRIMARY KEY, name TEXT NOT NULL, phone TEXT UNIQUE`."
+  tests:
+    - output: |
+        id|name|phone
+        1|Sari|0811
+        2|Dewi|0833
+  solution: |
+    CREATE TABLE customers (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      phone TEXT UNIQUE
+    );
+
+- slug: a-tidy-menu-table
+  type: code
+  title: A tidy menu table
+  prompt: |
+    Create the `menu` table with four columns and their rules:
+
+    - `id`: `INTEGER`, `PRIMARY KEY`
+    - `name`: `TEXT`, may not be empty
+    - `category`: `TEXT`, holds `'drink'` when it is left out of an `INSERT`
+    - `price`: `INTEGER`, must be greater than 0
+
+    The checker tries to insert: Black Coffee at 10000 without giving a category, Toast at 0, Pulled Tea at -12000, a food item without a name, and Fried Rice (food) at 25000. The rows that break a rule must be rejected. Then it shows `id`, `name`, `category`, `price` of the `menu` table, sorted by `id`.
+  check: |
+    INSERT INTO menu (name, price) VALUES ('Black Coffee', 10000);
+    INSERT OR IGNORE INTO menu (name, category, price) VALUES ('Toast', 'food', 0);
+    INSERT OR IGNORE INTO menu (name, category, price) VALUES ('Pulled Tea', 'drink', -12000);
+    INSERT OR IGNORE INTO menu (name, category, price) VALUES (NULL, 'food', 9000);
+    INSERT INTO menu (name, category, price) VALUES ('Fried Rice', 'food', 25000);
+    SELECT id, name, category, price FROM menu ORDER BY id;
+  starter: |
+    -- id and name are done; add the rules for category and price
+    CREATE TABLE menu (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      category TEXT,
+      price INTEGER
+    );
+  hints:
+    - "Two rules are still unused: `DEFAULT` for a fallback value, and `CHECK` for a condition on the value."
+    - "`DEFAULT` is followed by its value, and text goes inside single quotes. `CHECK` is followed by a condition in brackets, written like a `WHERE` condition."
+    - "The last two lines: `category TEXT DEFAULT 'drink',` and `price INTEGER CHECK (price > 0)`."
+  tests:
+    - output: |
+        id|name|category|price
+        1|Black Coffee|drink|10000
+        2|Fried Rice|food|25000
+  solution: |
+    CREATE TABLE menu (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      category TEXT DEFAULT 'drink',
+      price INTEGER CHECK (price > 0)
+    );
+
+- slug: the-right-rule
+  type: choice
+  title: The right rule
+  prompt: |
+    Ms. Rina wants every customer to have a different email address: no two customers may use the same email. Which rule goes on the `email` column?
+  options:
+    - "`NOT NULL`"
+    - "`DEFAULT`"
+    - "`UNIQUE`"
+    - "`CHECK (email > 0)`"
+  correct: [2]
+  hint: "What is forbidden is a repeated value, not an empty one."
+  explanation: "`UNIQUE` rejects a new row whose value is already used by another row. `NOT NULL` only forbids an empty column, `DEFAULT` only supplies a fallback value, and `CHECK` tests the value of that one row by itself without comparing it with other rows."

@@ -1,0 +1,284 @@
+- slug: the-menu
+  type: code
+  title: The menu
+  prompt: |
+    Write the body of the `Menu` class. Every item is stored in the dictionary `self.items`, with the item's name as the key.
+
+    - `add(item)` stores one `MenuItem`
+    - `find(name)` tidies `name` with `.strip().lower()`, then returns the matching item. If there is none, raise a `ValueError` with the message `Not on the menu: <the tidied name>`
+
+    The program below reads `m`, then `m` lines `name,price` to fill the menu. After that it reads `k`, then `k` names to look up, and prints the item or the error message.
+  language: python
+  starter: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+        def __str__(self):
+            return f"{self.name}: Rp{self.price}"
+
+
+    class Menu:
+        def __init__(self):
+            self.items = {}
+
+        def add(self, item):
+            # store the item in self.items with its name as the key
+            pass
+
+        def find(self, name):
+            # tidy the name, then return the item or raise a ValueError
+            pass
+
+
+    menu = Menu()
+    m = int(input())
+    for _ in range(m):
+        name, price = input().split(",")
+        menu.add(MenuItem(name, int(price)))
+
+    k = int(input())
+    for _ in range(k):
+        try:
+            print(menu.find(input()))
+        except ValueError as e:
+            print(e)
+  hints:
+    - "`add` fills the dictionary, `find` reads from it. The key is `item.name`, and the value is the `item` object itself."
+    - "The body of `add`: `self.items[item.name] = item`. In `find`, start with `key = name.strip().lower()`."
+    - "The rest of `find`: `if key not in self.items:` then `raise ValueError(f\"Not on the menu: {key}\")`. After that `return self.items[key]`."
+  tests:
+    - input: "3\nmilk coffee,15000\npulled tea,12000\ntoast,18000\n2\npulled tea\nfried rice"
+      output: "pulled tea: Rp12000\nNot on the menu: fried rice"
+    - input: "2\nmilk coffee,15000\norange juice,10000\n3\n Milk Coffee \nORANGE JUICE\ncoffee"
+      output: "milk coffee: Rp15000\norange juice: Rp10000\nNot on the menu: coffee"
+    - input: "0\n1\n Toast"
+      output: "Not on the menu: toast"
+    - input: "2\nmilk coffee,15000\nmilk coffee,16000\n1\nmilk coffee"
+      output: "milk coffee: Rp16000"
+  solution: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+        def __str__(self):
+            return f"{self.name}: Rp{self.price}"
+
+
+    class Menu:
+        def __init__(self):
+            self.items = {}
+
+        def add(self, item):
+            self.items[item.name] = item
+
+        def find(self, name):
+            key = name.strip().lower()
+            if key not in self.items:
+                raise ValueError(f"Not on the menu: {key}")
+            return self.items[key]
+
+
+    menu = Menu()
+    m = int(input())
+    for _ in range(m):
+        name, price = input().split(",")
+        menu.add(MenuItem(name, int(price)))
+
+    k = int(input())
+    for _ in range(k):
+        try:
+            print(menu.find(input()))
+        except ValueError as e:
+            print(e)
+
+- slug: the-till-receipt
+  type: code
+  title: The till receipt
+  prompt: |
+    The classes `MenuItem`, `Menu` and `OrderLine` are provided, and the shop's menu is already filled in. Complete the `Order` class:
+
+    - `add(item, quantity)` raises a `ValueError` with the message `Quantity must be more than 0` if `quantity` is 0 or less. If it is valid, add one `OrderLine` to `self.lines`.
+    - `total()` returns the sum of every line's subtotal
+    - `print_receipt()` prints the receipt:
+
+    ```
+    == Receipt for Siti ==
+    2 x milk coffee = Rp30000
+    1 x toast = Rp18000
+    Total: Rp48000
+    ```
+
+    The program below reads the customer's name, then `n`, then `n` lines `item name,quantity`. A rejected line is printed as `Skipped: <message>` before the receipt.
+  language: python
+  starter: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+
+    class Menu:
+        def __init__(self):
+            self.items = {}
+
+        def add(self, item):
+            self.items[item.name] = item
+
+        def find(self, name):
+            key = name.strip().lower()
+            if key not in self.items:
+                raise ValueError(f"Not on the menu: {key}")
+            return self.items[key]
+
+
+    class OrderLine:
+        def __init__(self, item, quantity):
+            self.item = item
+            self.quantity = quantity
+
+        def subtotal(self):
+            return self.item.price * self.quantity
+
+
+    class Order:
+        def __init__(self, customer):
+            self.customer = customer
+            self.lines = []
+
+        def add(self, item, quantity):
+            # reject a quantity of 0 or less, then add an OrderLine
+            pass
+
+        def total(self):
+            # add up the subtotal of every line
+            pass
+
+        def print_receipt(self):
+            # print the receipt heading, every line, then the total
+            pass
+
+
+    menu = Menu()
+    menu.add(MenuItem("milk coffee", 15000))
+    menu.add(MenuItem("pulled tea", 12000))
+    menu.add(MenuItem("toast", 18000))
+    menu.add(MenuItem("orange juice", 10000))
+
+    order = Order(input())
+    n = int(input())
+    for _ in range(n):
+        name, quantity = input().split(",")
+        try:
+            order.add(menu.find(name), int(quantity))
+        except ValueError as e:
+            print(f"Skipped: {e}")
+    order.print_receipt()
+  hints:
+    - "Work on one method at a time: `add` (check first, store afterwards), `total` (a loop and a sum), then `print_receipt`, which uses both."
+    - "`add`: `if quantity <= 0: raise ValueError(\"Quantity must be more than 0\")`, then `self.lines.append(OrderLine(item, quantity))`. `total`: add up `line.subtotal()` for each `line` in `self.lines`, then `return`."
+    - "`print_receipt`: `print(f\"== Receipt for {self.customer} ==\")`, then for each `line` print `f\"{line.quantity} x {line.item.name} = Rp{line.subtotal()}\"`, and finally `print(f\"Total: Rp{self.total()}\")`."
+  tests:
+    - input: "Siti\n2\nmilk coffee,2\ntoast,1"
+      output: "== Receipt for Siti ==\n2 x milk coffee = Rp30000\n1 x toast = Rp18000\nTotal: Rp48000"
+    - input: "Budi\n3\n Pulled Tea ,3\nfried rice,1\norange juice,0"
+      output: "Skipped: Not on the menu: fried rice\nSkipped: Quantity must be more than 0\n== Receipt for Budi ==\n3 x pulled tea = Rp36000\nTotal: Rp36000"
+    - input: "Dewi\n3\norange juice,1\nmilk coffee,1\norange juice,2"
+      output: "== Receipt for Dewi ==\n1 x orange juice = Rp10000\n1 x milk coffee = Rp15000\n2 x orange juice = Rp20000\nTotal: Rp45000"
+    - input: "Agus\n2\ntoast,-1\nboiled noodles,2"
+      output: "Skipped: Quantity must be more than 0\nSkipped: Not on the menu: boiled noodles\n== Receipt for Agus ==\nTotal: Rp0"
+    - input: "Rina\n0"
+      output: "== Receipt for Rina ==\nTotal: Rp0"
+  solution: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+
+    class Menu:
+        def __init__(self):
+            self.items = {}
+
+        def add(self, item):
+            self.items[item.name] = item
+
+        def find(self, name):
+            key = name.strip().lower()
+            if key not in self.items:
+                raise ValueError(f"Not on the menu: {key}")
+            return self.items[key]
+
+
+    class OrderLine:
+        def __init__(self, item, quantity):
+            self.item = item
+            self.quantity = quantity
+
+        def subtotal(self):
+            return self.item.price * self.quantity
+
+
+    class Order:
+        def __init__(self, customer):
+            self.customer = customer
+            self.lines = []
+
+        def add(self, item, quantity):
+            if quantity <= 0:
+                raise ValueError("Quantity must be more than 0")
+            self.lines.append(OrderLine(item, quantity))
+
+        def total(self):
+            result = 0
+            for line in self.lines:
+                result += line.subtotal()
+            return result
+
+        def print_receipt(self):
+            print(f"== Receipt for {self.customer} ==")
+            for line in self.lines:
+                print(f"{line.quantity} x {line.item.name} = Rp{line.subtotal()}")
+            print(f"Total: Rp{self.total()}")
+
+
+    menu = Menu()
+    menu.add(MenuItem("milk coffee", 15000))
+    menu.add(MenuItem("pulled tea", 12000))
+    menu.add(MenuItem("toast", 18000))
+    menu.add(MenuItem("orange juice", 10000))
+
+    order = Order(input())
+    n = int(input())
+    for _ in range(n):
+        name, quantity = input().split(",")
+        try:
+            order.add(menu.find(name), int(quantity))
+        except ValueError as e:
+            print(f"Skipped: {e}")
+    order.print_receipt()
+
+- slug: where-the-error-goes
+  type: choice
+  title: Where the error goes
+  prompt: |
+    With the `Menu` class from this lesson (the menu holds only `milk coffee`), what is shown?
+
+    ```python
+    try:
+        item = menu.find("fried rice")
+        print("A")
+    except ValueError as e:
+        print("B")
+    print("C")
+    ```
+  options:
+    - "`A`, then `C`"
+    - "`B`, then `C`"
+    - "Only `C`, because `find` returns `None`"
+    - "The program stops with a `ValueError` and prints nothing"
+  correct: [1]
+  hint: "`raise` inside a method sends the error to the code that called the method."
+  explanation: "`find` raises a `ValueError` because `fried rice` is not there. The error leaves the method and reaches the `try` that called it, so `print(\"A\")` is skipped and `except` prints `B`. Because the error has been caught, the program carries on and prints `C`."

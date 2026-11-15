@@ -1,0 +1,125 @@
+- slug: sort-from-the-cheapest
+  type: code
+  title: Sort from the cheapest
+  prompt: |
+    Buyers want to see the products from the cheapest up. Write a function `cheapestFirst(products)` that takes an array of `{ name, price }` objects and returns an array with the product **names**, sorted from the lowest price to the highest.
+
+    Example result: `["Scented Candle","Paper Lantern","Desk Lamp"]`.
+
+    Two more rules:
+
+    - If two prices are the same, the product that comes first in the array stays first.
+    - The `products` array you are given **must not change** its order.
+  language: javascript
+  starter: |
+    const cheapestFirst = (products) => {
+      // sort a copy by price, then take the names
+      return products.map((p) => p.name);
+    };
+  hints:
+    - 'There are three steps: copy the array, sort that copy by price, then take the names with `map`.'
+    - 'Copy with `[...products]`, then sort with a compare function that compares prices: `.sort((a, b) => a.price - b.price)`.'
+    - 'In full: `return [...products].sort((a, b) => a.price - b.price).map((p) => p.name);`. If you write `products.sort(...)` without copying, the original array changes too.'
+  tests:
+    - input: |
+        {
+          const data = [{ name: "Desk Lamp", price: 85000 }, { name: "Scented Candle", price: 30000 }, { name: "Paper Lantern", price: 45000 }];
+          console.log(cheapestFirst(data));
+          console.log(data[0].name);
+        }
+      output: |
+        ["Scented Candle","Paper Lantern","Desk Lamp"]
+        Desk Lamp
+    - input: |
+        {
+          const data = [{ name: "Paper Lantern", price: 45000 }, { name: "String Lights", price: 25000 }, { name: "Pillar Candle", price: 45000 }, { name: "Scented Candle", price: 30000 }];
+          console.log(cheapestFirst(data));
+          console.log(data[0].name);
+        }
+      output: |
+        ["String Lights","Scented Candle","Paper Lantern","Pillar Candle"]
+        Paper Lantern
+    - input: |
+        {
+          const data = [{ name: "Rattan Lampshade", price: 120000 }, { name: "Gas Lighter", price: 9000 }, { name: "Desk Lamp", price: 85000 }];
+          console.log(cheapestFirst(data));
+          console.log(data[0].name);
+        }
+      output: |
+        ["Gas Lighter","Desk Lamp","Rattan Lampshade"]
+        Rattan Lampshade
+    - input: 'console.log(cheapestFirst([]))'
+      output: '[]'
+  solution: |
+    const cheapestFirst = (products) =>
+      [...products].sort((a, b) => a.price - b.price).map((p) => p.name);
+
+- slug: best-seller-ranking
+  type: code
+  title: Best seller ranking
+  prompt: |
+    Write a function `ranking(sales, n)` that takes an array of `{ name, sold }` objects and a number `n`, and returns an **array of texts** with at most `n` best sellers, most units sold first, each with a rank number:
+
+    ```
+    1. Paper Lantern (12)
+    2. Desk Lamp (10)
+    3. Rattan Lampshade (8)
+    ```
+
+    Each line above is one entry of the array. If there are fewer than `n` products, include them all. If two products sold the same number, the one that comes first in the array gets the higher rank.
+  language: javascript
+  starter: |
+    const ranking = (sales, n) => {
+      // sort from the most units sold, take the top n,
+      // then add the numbers
+      return sales.map((p, i) => `${i + 1}. ${p.name} (${p.sold})`);
+    };
+  hints:
+    - 'The starter code already builds the numbered texts correctly. What is missing are two steps before `map`: sorting and cutting.'
+    - 'Sort a copy from large to small: `[...sales].sort((a, b) => b.sold - a.sold)`, then cut it with `.slice(0, n)`.'
+    - 'Chain it all: `[...sales].sort(...).slice(0, n).map((p, i) => ...)`. The rank numbers have to be worked out after sorting, so `map` goes last.'
+  tests:
+    - input: 'console.log(ranking([{ name: "Desk Lamp", sold: 10 }, { name: "Scented Candle", sold: 7 }, { name: "Paper Lantern", sold: 12 }, { name: "String Lights", sold: 3 }, { name: "Rattan Lampshade", sold: 8 }], 3).join("\n"))'
+      output: |
+        1. Paper Lantern (12)
+        2. Desk Lamp (10)
+        3. Rattan Lampshade (8)
+    - input: 'console.log(ranking([{ name: "String Lights", sold: 3 }, { name: "Scented Candle", sold: 9 }], 3).join("\n"))'
+      output: |
+        1. Scented Candle (9)
+        2. String Lights (3)
+    - input: 'console.log(ranking([{ name: "Desk Lamp", sold: 5 }, { name: "Scented Candle", sold: 9 }, { name: "Paper Lantern", sold: 5 }, { name: "String Lights", sold: 5 }], 3).join("\n"))'
+      output: |
+        1. Scented Candle (9)
+        2. Desk Lamp (5)
+        3. Paper Lantern (5)
+    - input: 'console.log(ranking([], 3))'
+      output: '[]'
+    - input: 'console.log(ranking([{ name: "Scented Candle", sold: 7 }, { name: "Desk Lamp", sold: 10 }], 1))'
+      output: '["1. Desk Lamp (10)"]'
+  solution: |
+    const ranking = (sales, n) =>
+      [...sales]
+        .sort((a, b) => b.sold - a.sold)
+        .slice(0, n)
+        .map((p, i) => `${i + 1}. ${p.name} (${p.sold})`);
+
+- slug: sort-without-a-compare-function
+  type: choice
+  title: sort without a compare function
+  prompt: |
+    What is shown after this code runs?
+
+    ```javascript
+    const stock = [5, 25, 100, 1];
+    stock.sort();
+    console.log(stock);
+    ```
+  options:
+    - "`[1,5,25,100]`"
+    - "`[1,100,25,5]`"
+    - "`[100,25,5,1]`"
+    - "`[5,25,100,1]`"
+  correct: [1]
+  hint: Without a compare function, sort compares the entries as text, character by character.
+  explanation: 'Without a compare function, `sort` orders the entries as text: `"1"`, `"100"`, `"25"`, `"5"`, like words in a dictionary. To sort them as numbers, write `stock.sort((a, b) => a - b)`. The last option is wrong as well, because `sort` changes the original array.'

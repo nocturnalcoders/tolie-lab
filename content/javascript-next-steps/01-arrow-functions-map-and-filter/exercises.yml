@@ -1,0 +1,82 @@
+- slug: product-price-labels
+  type: code
+  title: Label harga produk
+  prompt: |
+    Mbak Laras ingin label harga untuk setiap produk. Buat fungsi `labelProduk(produk)` yang menerima array objek `{ nama, harga }` dan **mengembalikan** array baru berisi teks berformat `<nama>: Rp<harga>`.
+
+    Contoh: `labelProduk([{ nama: "Lampu Meja", harga: 85000 }])` menghasilkan `["Lampu Meja: Rp85000"]`.
+
+    Array kosong menghasilkan array kosong.
+  language: javascript
+  starter: |
+    const labelProduk = (produk) => {
+      // kembalikan array baru berisi teks "<nama>: Rp<harga>"
+      return produk;
+    };
+  hints:
+    - 'Setiap produk diubah menjadi satu teks, dan jumlah isinya tetap sama. Itu pekerjaan `map`.'
+    - 'Tulis `produk.map((p) => ...)`. Di dalam fungsinya, `p` adalah satu objek produk, jadi namanya `p.nama` dan harganya `p.harga`.'
+    - 'Gabungkan dengan template literal: di antara dua backtick tulis `${p.nama}: Rp${p.harga}`. Jangan lupa `return` hasil `map`-nya.'
+  tests:
+    - input: 'console.log(labelProduk([{ nama: "Lampu Meja", harga: 85000 }, { nama: "Lilin Aroma", harga: 30000 }]))'
+      output: '["Lampu Meja: Rp85000","Lilin Aroma: Rp30000"]'
+    - input: 'console.log(labelProduk([{ nama: "Lampion Kertas", harga: 45000 }]))'
+      output: '["Lampion Kertas: Rp45000"]'
+    - input: 'console.log(labelProduk([{ nama: "Kap Lampu Rotan", harga: 120000 }, { nama: "Lampu Tumblr", harga: 25000 }, { nama: "Lilin Aroma", harga: 30000 }]))'
+      output: '["Kap Lampu Rotan: Rp120000","Lampu Tumblr: Rp25000","Lilin Aroma: Rp30000"]'
+    - input: 'console.log(labelProduk([]))'
+      output: '[]'
+  solution: |
+    const labelProduk = (produk) => produk.map((p) => `${p.nama}: Rp${p.harga}`);
+
+- slug: products-still-available
+  type: code
+  title: Produk yang masih tersedia
+  prompt: |
+    Halaman depan toko hanya menampilkan produk yang masih ada stoknya. Buat fungsi `namaTersedia(produk)` yang menerima array objek `{ nama, stok }` dan mengembalikan array berisi **nama** produk yang `stok`-nya lebih dari 0, dalam urutan aslinya.
+
+    Contoh: jika hanya Lilin Aroma yang stoknya 0, hasilnya `["Lampu Meja","Lampion Kertas"]`.
+
+    Jika tidak ada yang tersedia, kembalikan array kosong.
+  language: javascript
+  starter: |
+    const namaTersedia = (produk) => {
+      // saat ini semua nama ikut, termasuk yang stoknya habis
+      return produk.map((p) => p.nama);
+    };
+  hints:
+    - 'Ada dua langkah: pilih dulu produk yang stoknya masih ada, baru ambil namanya.'
+    - 'Memilih sebagian isi array adalah pekerjaan `filter`: `produk.filter((p) => p.stok > 0)`.'
+    - 'Sambungkan `.map((p) => p.nama)` setelah `filter`, lalu kembalikan hasilnya: `return produk.filter(...).map(...)`.'
+  tests:
+    - input: 'console.log(namaTersedia([{ nama: "Lampu Meja", stok: 4 }, { nama: "Lilin Aroma", stok: 0 }, { nama: "Lampion Kertas", stok: 7 }]))'
+      output: '["Lampu Meja","Lampion Kertas"]'
+    - input: 'console.log(namaTersedia([{ nama: "Lampu Tumblr", stok: 1 }, { nama: "Kap Lampu Rotan", stok: 2 }]))'
+      output: '["Lampu Tumblr","Kap Lampu Rotan"]'
+    - input: 'console.log(namaTersedia([{ nama: "Lilin Aroma", stok: 0 }, { nama: "Lampu Meja", stok: 0 }]))'
+      output: '[]'
+    - input: 'console.log(namaTersedia([]))'
+      output: '[]'
+  solution: |
+    const namaTersedia = (produk) =>
+      produk.filter((p) => p.stok > 0).map((p) => p.nama);
+
+- slug: the-result-of-filter-then-map
+  type: choice
+  title: Hasil filter lalu map
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```javascript
+    const stok = [4, 0, 7, 2];
+    const hasil = stok.filter((s) => s > 2).map((s) => s * 10);
+    console.log(hasil);
+    ```
+  options:
+    - "`[40,0,70,20]`"
+    - "`[4,7]`"
+    - "`[40,70]`"
+    - "`[40,70,20]`"
+  correct: [2]
+  hint: Kerjakan berurutan. Angka mana saja yang lolos dari filter sebelum map berjalan?
+  explanation: '`filter` hanya meloloskan angka yang lebih dari 2, yaitu `4` dan `7` (angka `2` sendiri tidak lolos). Setelah itu `map` mengalikan masing-masing dengan 10, sehingga hasilnya `[40,70]`.'

@@ -1,0 +1,144 @@
+- slug: what-does-it-print
+  type: choice
+  title: What does it print?
+  prompt: |
+    What does this program print?
+
+    ```kotlin
+    fun main() {
+        val name = "Bersih Wangi Laundry"
+        var queue = 3
+        queue = queue + 2
+        println("$name: $queue in the queue")
+    }
+    ```
+  options:
+    - "`Bersih Wangi Laundry: 3 in the queue`"
+    - "`$name: $queue in the queue`"
+    - "`Bersih Wangi Laundry: 5 in the queue`"
+    - "Nothing: the program is rejected because `queue` is reassigned"
+  correct: [2]
+  hint: "`queue` is declared with `var`. What does it hold when the `println` line runs?"
+  explanation: >-
+    `queue` is a `var`, so it may be reassigned: 3 + 2 = 5. Inside the text, `$name` and
+    `$queue` are replaced by the variables' values, so the program prints
+    `Bersih Wangi Laundry: 5 in the queue`. The answer with 3 forgets the reassignment line,
+    and the program is valid because the thing being reassigned is a `var`, not a `val`.
+
+- slug: which-line-is-rejected
+  type: choice
+  title: Which line is rejected?
+  prompt: |
+    One line stops this program from compiling. Which line, and why?
+
+    ```kotlin
+    fun main() {
+        val rate = 7000          // line 1
+        var weight = 3           // line 2
+        weight = 4               // line 3
+        rate = 8000              // line 4
+        println(rate * weight)   // line 5
+    }
+    ```
+  options:
+    - "Line 2: a `var` must be written with its type"
+    - "Line 3: `weight` already has a value, so it cannot get another one"
+    - "Line 5: `println` cannot take a calculation"
+    - "Line 4: `rate` is a `val`, so it cannot be reassigned"
+  correct: [3]
+  hint: Compare the word in front of `rate` and in front of `weight` where they are declared.
+  explanation: >-
+    `rate` is declared with `val`, so its value is fixed. Line 4 tries to reassign it and the
+    compiler rejects that (`Val cannot be reassigned`). Line 3 is fine because `weight` is
+    declared with `var`. Writing the type is optional, and `println` happily takes a calculation.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Fill in the blank
+  prompt: |
+    This program must print `Total: Rp21000`. What goes in place of `____`?
+
+    ```kotlin
+    fun main() {
+        val weight = 3
+        val rate = 7000
+        println(____)
+    }
+    ```
+  options:
+    - '`"Total: Rp${weight * rate}"`'
+    - '`"Total: Rp$weight * rate"`'
+    - "`'Total: Rp${weight * rate}'`"
+    - '`f"Total: Rp{weight * rate}"`'
+  correct: [0]
+  hint: A calculation inside text needs curly braces after the `$` sign.
+  explanation: >-
+    A calculation inside text is written in `${ }`, so `"Total: Rp${weight * rate}"` prints
+    `Total: Rp21000`. Without the curly braces only `$weight` is replaced, so the output would
+    be `Total: Rp3 * rate`. Single quotes in Kotlin are only for one character, and the `f`
+    prefix is the Python way, not Kotlin.
+
+- slug: val-or-var
+  type: choice
+  title: val or var
+  prompt: |
+    Dimas wrote these two lines:
+
+    ```kotlin
+    val ratePerKg = 7000
+    var loadCount = 0
+    ```
+
+    Which statement is true?
+  options:
+    - "`val` is for numbers, `var` is for text"
+    - "`ratePerKg` cannot be reassigned, while `loadCount` can"
+    - "`var` means `loadCount` may later hold text, like a Python variable"
+    - "`val` is only fixed inside `main`; other functions may change its value"
+  correct: [1]
+  hint: What `val` and `var` distinguish is whether reassignment is allowed, not the kind of value.
+  explanation: >-
+    `val` makes a fixed value and `var` makes a variable that may be reassigned; both can hold
+    numbers or text. `var` does not mean the type is free: `loadCount` holds a whole number, so
+    it can only be given another whole number. That is the difference from Python, which lets
+    a variable switch from a number to text.
+
+- slug: practice-order-label
+  type: code
+  required: false
+  title: "Practice: an order label"
+  prompt: |
+    The program already reads a customer's name and the weight of the laundry (kg). Print **one line** shaped like `<name> - <weight> kg` with a string template, for example `Bu Ani - 3 kg`.
+
+    This exercise is optional. Your code runs on the server, and the daily allowance is small.
+  starter: |
+    fun main() {
+        val name = readln()
+        val kg = readln().toInt()
+        // print: <name> - <kg> kg
+    }
+  hints:
+    - "One `println(...)` is enough."
+    - "Inside the quotes, `$name` and `$kg` are replaced by their values: `println(\"$name - $kg kg\")`."
+  tests:
+    - input: |
+        Bu Ani
+        3
+      output: |
+        Bu Ani - 3 kg
+    - input: |
+        Dimas
+        12
+      output: |
+        Dimas - 12 kg
+    - input: |
+        Pak Joko Susilo
+        1
+      output: |
+        Pak Joko Susilo - 1 kg
+  solution: |
+    fun main() {
+        val name = readln()
+        val kg = readln().toInt()
+        println("$name - $kg kg")
+    }

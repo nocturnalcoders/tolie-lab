@@ -1,0 +1,171 @@
+- slug: customers-and-their-orders
+  type: code
+  title: Pelanggan dan pesanannya
+  prompt: |
+    Tabel `pelanggan` beserta tiga pelanggannya sudah ditulis di editor. Lengkapi dengan dua hal.
+
+    **1.** Buat tabel `pesanan` dengan kolom, dalam urutan ini:
+
+    - `id`: `INTEGER PRIMARY KEY`
+    - `pelanggan_id`: `INTEGER`, foreign key ke `pelanggan(id)`
+    - `menu`: `TEXT`
+    - `jumlah`: `INTEGER`
+
+    **2.** Isi tabel `pesanan` dengan lima baris ini. Yang disimpan di `pelanggan_id` adalah `id` pemesannya, bukan namanya:
+
+    | id | pemesan | menu | jumlah |
+    |---|---|---|---|
+    | 1 | Sari | Kopi Susu | 2 |
+    | 2 | Budi | Roti Bakar | 1 |
+    | 3 | Budi | Kopi Hitam | 1 |
+    | 4 | Dewi | Teh Tarik | 3 |
+    | 5 | Sari | Pisang Goreng | 1 |
+
+    Pemeriksa menampilkan dua tabel: foreign key yang dimiliki `pesanan` (tabel tujuan, kolom, kolom tujuan), lalu setiap pesanan dengan nama pemesannya, urut menurut `id` pesanan.
+  check: |
+    SELECT lower("table") AS tabel_tujuan, lower("from") AS kolom, lower("to") AS kolom_tujuan FROM pragma_foreign_key_list('pesanan');
+    SELECT p.id, c.nama, p.menu, p.jumlah FROM pesanan p JOIN pelanggan c ON c.id = p.pelanggan_id ORDER BY p.id;
+  starter: |
+    CREATE TABLE pelanggan (
+      id INTEGER PRIMARY KEY,
+      nama TEXT NOT NULL
+    );
+
+    INSERT INTO pelanggan (id, nama) VALUES
+      (1, 'Sari'),
+      (2, 'Budi'),
+      (3, 'Dewi');
+
+    -- 1. buat tabel pesanan
+
+    -- 2. isi tabel pesanan dengan lima baris
+  hints:
+    - "Foreign key ditulis sebagai aturan di belakang tipe kolom: `REFERENCES tabel(kolom)`. Lalu lihat `id` tiap pelanggan: Sari 1, Budi 2, Dewi 3."
+    - "Kolom keduanya `pelanggan_id INTEGER REFERENCES pelanggan(id)`. Baris pertama pesanan adalah `(1, 1, 'Kopi Susu', 2)`: pesanan 1, milik pelanggan 1."
+    - "`INSERT INTO pesanan (id, pelanggan_id, menu, jumlah) VALUES (1, 1, 'Kopi Susu', 2), (2, 2, 'Roti Bakar', 1), (3, 2, 'Kopi Hitam', 1), (4, 3, 'Teh Tarik', 3), (5, 1, 'Pisang Goreng', 1);`"
+  tests:
+    - output: |
+        tabel_tujuan|kolom|kolom_tujuan
+        pelanggan|pelanggan_id|id
+
+        id|nama|menu|jumlah
+        1|Sari|Kopi Susu|2
+        2|Budi|Roti Bakar|1
+        3|Budi|Kopi Hitam|1
+        4|Dewi|Teh Tarik|3
+        5|Sari|Pisang Goreng|1
+  solution: |
+    CREATE TABLE pelanggan (
+      id INTEGER PRIMARY KEY,
+      nama TEXT NOT NULL
+    );
+
+    INSERT INTO pelanggan (id, nama) VALUES
+      (1, 'Sari'),
+      (2, 'Budi'),
+      (3, 'Dewi');
+
+    CREATE TABLE pesanan (
+      id INTEGER PRIMARY KEY,
+      pelanggan_id INTEGER REFERENCES pelanggan(id),
+      menu TEXT,
+      jumlah INTEGER
+    );
+
+    INSERT INTO pesanan (id, pelanggan_id, menu, jumlah) VALUES
+      (1, 1, 'Kopi Susu', 2),
+      (2, 2, 'Roti Bakar', 1),
+      (3, 2, 'Kopi Hitam', 1),
+      (4, 3, 'Teh Tarik', 3),
+      (5, 1, 'Pisang Goreng', 1);
+
+- slug: tidying-up-todays-records
+  type: code
+  title: Merapikan catatan hari ini
+  prompt: |
+    Di akhir hari Bu Rina menemukan tiga hal yang harus dibereskan di tabel `pelanggan` dan `pesanan`. Penjagaan foreign key sedang menyala, jadi urutan perintah berpengaruh.
+
+    1. Pesanan dengan `id` 4 salah catat: `jumlah`-nya seharusnya 2.
+    2. Budi (pelanggan dengan `id` 2) membatalkan semuanya. Hapus **semua** pesanan Budi, berapa pun banyaknya, lalu hapus Budi dari tabel `pelanggan`.
+    3. Ada pelanggan baru: tambahkan `Rudi` ke `pelanggan` dengan `id` 4. Lalu tambahkan pesanannya: 1 `Nasi Goreng`. Jangan isi `id` pesanan, biarkan database yang memberi nomor.
+
+    Pemeriksa menampilkan `id`, `nama` dari `pelanggan`, lalu `id`, `pelanggan_id`, `menu`, `jumlah` dari `pesanan`, masing-masing urut menurut `id`.
+  setup: |
+    PRAGMA foreign_keys = ON;
+    CREATE TABLE pelanggan (id INTEGER PRIMARY KEY, nama TEXT NOT NULL);
+    CREATE TABLE pesanan (id INTEGER PRIMARY KEY, pelanggan_id INTEGER REFERENCES pelanggan(id), menu TEXT, jumlah INTEGER);
+    INSERT INTO pelanggan VALUES (1, 'Sari'), (2, 'Budi'), (3, 'Dewi');
+    INSERT INTO pesanan VALUES
+      (1, 1, 'Kopi Susu', 2),
+      (2, 2, 'Roti Bakar', 1),
+      (3, 2, 'Kopi Hitam', 1),
+      (4, 3, 'Teh Tarik', 3),
+      (5, 1, 'Pisang Goreng', 1);
+  check: |
+    SELECT id, nama FROM pelanggan ORDER BY id;
+    SELECT id, pelanggan_id, menu, jumlah FROM pesanan ORDER BY id;
+  starter: |
+    -- 1. perbaiki jumlah pesanan 4
+    UPDATE pesanan SET jumlah = 2 WHERE id = 4;
+
+    -- 2. hapus semua pesanan Budi, lalu hapus Budi
+
+    -- 3. tambahkan Rudi, lalu pesanannya
+  hints:
+    - "Langkah 2: pesanan Budi adalah baris `pesanan` yang `pelanggan_id`-nya 2. Hapus itu dulu, baru baris Budi di `pelanggan`. Langkah 3 kebalikannya: pelanggan dulu, baru pesanan."
+    - "Langkah 2: `DELETE FROM pesanan WHERE pelanggan_id = 2;` lalu `DELETE FROM pelanggan WHERE id = 2;`. Langkah 3 dimulai dengan `INSERT INTO pelanggan (id, nama) VALUES (4, 'Rudi');`."
+    - "Perintah terakhir tidak menyebut `id`: `INSERT INTO pesanan (pelanggan_id, menu, jumlah) VALUES (4, 'Nasi Goreng', 1);`."
+  tests:
+    - output: |
+        id|nama
+        1|Sari
+        3|Dewi
+        4|Rudi
+
+        id|pelanggan_id|menu|jumlah
+        1|1|Kopi Susu|2
+        4|3|Teh Tarik|2
+        5|1|Pisang Goreng|1
+        6|4|Nasi Goreng|1
+    - input: |
+        INSERT INTO pesanan VALUES
+          (6, 2, 'Es Teh Manis', 2),
+          (7, 3, 'Kopi Susu', 1);
+      output: |
+        id|nama
+        1|Sari
+        3|Dewi
+        4|Rudi
+
+        id|pelanggan_id|menu|jumlah
+        1|1|Kopi Susu|2
+        4|3|Teh Tarik|2
+        5|1|Pisang Goreng|1
+        7|3|Kopi Susu|1
+        8|4|Nasi Goreng|1
+  solution: |
+    UPDATE pesanan SET jumlah = 2 WHERE id = 4;
+
+    DELETE FROM pesanan WHERE pelanggan_id = 2;
+    DELETE FROM pelanggan WHERE id = 2;
+
+    INSERT INTO pelanggan (id, nama) VALUES (4, 'Rudi');
+    INSERT INTO pesanan (pelanggan_id, menu, jumlah) VALUES (4, 'Nasi Goreng', 1);
+
+- slug: deleting-a-customer
+  type: choice
+  title: Menghapus pelanggan
+  prompt: |
+    Penjagaan foreign key menyala. Tabel `pesanan` masih punya dua baris dengan `pelanggan_id` 1. Apa yang terjadi saat perintah ini dijalankan?
+
+    ```sql
+    DELETE FROM pelanggan WHERE id = 1;
+    ```
+  options:
+    - "Pelanggan 1 terhapus, dan dua pesanannya ikut terhapus otomatis"
+    - "Pelanggan 1 terhapus, dan `pelanggan_id` di dua pesanannya menjadi 0"
+    - "Perintahnya ditolak dengan `FOREIGN KEY constraint failed`, dan tidak ada yang terhapus"
+    - "Pelanggan 1 terhapus, dan dua pesanannya tetap ada tanpa masalah"
+  correct: [2]
+  hint: "Foreign key menjaga supaya tidak ada pesanan yang menunjuk ke pelanggan yang tidak ada."
+  explanation: "Kalau pelanggan 1 dihapus, dua pesanan itu akan menunjuk ke pelanggan yang tidak ada. Database menolak perintahnya dan tidak mengubah apa pun. Urutan yang benar: hapus dulu pesanannya dengan `DELETE FROM pesanan WHERE pelanggan_id = 1;`, baru pelanggannya."

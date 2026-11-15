@@ -1,0 +1,126 @@
+- slug: the-invoice-date
+  type: code
+  title: Tanggal tagihan
+  prompt: |
+    Bu Rina mengetik tanggal sebuah tagihan dalam tiga baris: tahun, bulan, lalu hari. Buat sebuah `date` dari ketiganya, lalu cetak tiga baris:
+
+    ```
+    Tanggal: <tanggalnya, dicetak apa adanya>
+    Bulan ke-<bulan> tahun <tahun>
+    Awal bulan: <ya atau tidak>
+    ```
+
+    `Awal bulan` bernilai `ya` jika harinya 5 atau kurang, selain itu `tidak`.
+  language: python
+  starter: |
+    from datetime import date
+
+    tahun = int(input())
+    bulan = int(input())
+    hari = int(input())
+
+    # buat tanggalnya, lalu cetak tiga baris
+  hints:
+    - "Buat tanggalnya dengan `tagihan = date(tahun, bulan, hari)`. Mencetak `tagihan` langsung sudah menghasilkan format `2025-03-14`."
+    - "Baris kedua memakai bagian tanggal: `print(f\"Bulan ke-{tagihan.month} tahun {tagihan.year}\")`."
+    - "Untuk baris ketiga: `if tagihan.day <= 5:` cetak `Awal bulan: ya`, selain itu cetak `Awal bulan: tidak`."
+  tests:
+    - input: "2025\n3\n14"
+      output: "Tanggal: 2025-03-14\nBulan ke-3 tahun 2025\nAwal bulan: tidak"
+    - input: "2025\n1\n1"
+      output: "Tanggal: 2025-01-01\nBulan ke-1 tahun 2025\nAwal bulan: ya"
+    - input: "2024\n2\n29"
+      output: "Tanggal: 2024-02-29\nBulan ke-2 tahun 2024\nAwal bulan: tidak"
+    - input: "2024\n12\n5"
+      output: "Tanggal: 2024-12-05\nBulan ke-12 tahun 2024\nAwal bulan: ya"
+  solution: |
+    from datetime import date
+
+    tahun = int(input())
+    bulan = int(input())
+    hari = int(input())
+
+    tagihan = date(tahun, bulan, hari)
+    print(f"Tanggal: {tagihan}")
+    print(f"Bulan ke-{tagihan.month} tahun {tagihan.year}")
+    if tagihan.day <= 5:
+        print("Awal bulan: ya")
+    else:
+        print("Awal bulan: tidak")
+
+- slug: which-day-is-the-shift
+  type: code
+  title: Hari apa shift itu?
+  prompt: |
+    Sebuah shift dijadwalkan pada tanggal yang diketik dalam tiga baris: tahun, bulan, hari. Warung lebih ramai di akhir pekan, jadi Bu Rina ingin tahu harinya.
+
+    Cetak dua baris:
+
+    ```
+    Hari: <nama hari dalam bahasa Indonesia>
+    Shift: <akhir pekan atau hari kerja>
+    ```
+
+    Sabtu dan Minggu adalah `akhir pekan`, hari lainnya `hari kerja`.
+  language: python
+  starter: |
+    from datetime import date
+
+    HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+
+    tahun = int(input())
+    bulan = int(input())
+    hari = int(input())
+
+    # cari nama harinya, lalu tentukan akhir pekan atau hari kerja
+  hints:
+    - "Buat dulu `shift = date(tahun, bulan, hari)`, lalu simpan `nomor = shift.weekday()`. Ingat: 0 berarti Senin, 6 berarti Minggu."
+    - "Nama harinya adalah `HARI[nomor]`. Cetak dengan `print(f\"Hari: {HARI[nomor]}\")`."
+    - "Sabtu bernomor 5 dan Minggu 6, jadi `if nomor >= 5:` cetak `Shift: akhir pekan`, selain itu cetak `Shift: hari kerja`."
+  tests:
+    - input: "2025\n3\n14"
+      output: "Hari: Jumat\nShift: hari kerja"
+    - input: "2025\n8\n17"
+      output: "Hari: Minggu\nShift: akhir pekan"
+    - input: "2024\n2\n29"
+      output: "Hari: Kamis\nShift: hari kerja"
+    - input: "2025\n6\n7"
+      output: "Hari: Sabtu\nShift: akhir pekan"
+    - input: "2025\n3\n10"
+      output: "Hari: Senin\nShift: hari kerja"
+  solution: |
+    from datetime import date
+
+    HARI = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+
+    tahun = int(input())
+    bulan = int(input())
+    hari = int(input())
+
+    shift = date(tahun, bulan, hari)
+    nomor = shift.weekday()
+    print(f"Hari: {HARI[nomor]}")
+    if nomor >= 5:
+        print("Shift: akhir pekan")
+    else:
+        print("Shift: hari kerja")
+
+- slug: the-number-from-weekday
+  type: choice
+  title: Angka dari weekday
+  prompt: |
+    Tanggal 10 Maret 2025 jatuh pada hari Senin. Apa yang ditampilkan kode ini?
+
+    ```python
+    from datetime import date
+
+    print(date(2025, 3, 10).weekday())
+    ```
+  options:
+    - "`0`"
+    - "`1`"
+    - "`Senin`"
+    - "`10`"
+  correct: [0]
+  hint: Hitungan weekday() dimulai dari hari Senin, dan Python suka mulai menghitung dari nol.
+  explanation: "`weekday()` mengembalikan angka, bukan nama hari: 0 untuk Senin sampai 6 untuk Minggu. Nama harinya kita ambil sendiri dari list, misalnya `HARI[0]`."

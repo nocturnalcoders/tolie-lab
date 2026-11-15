@@ -1,0 +1,35 @@
+slug: python-algorithms
+title: Logika dan Algoritma Dasar dengan Python
+language: python
+locale: id
+level: Menengah
+kind: course
+price_idr: 0
+status: published
+position: 16
+summary: >-
+  Belajar berpikir langkah demi langkah lewat pekerjaan di gudang Ekspedisi
+  Kilat Jaya: mencari paket di rak, pencarian biner pada data terurut,
+  mengurutkan dengan tangan sendiri, total berjalan dan rekor, rekursi untuk
+  kardus bersarang, sampai laporan paket harian. Kamu juga menghitung jumlah
+  langkah, supaya tahu mengapa satu cara lebih cepat daripada cara lain.
+perks:
+  - 6 pelajaran, 12 latihan kode, dan 6 soal pilihan ganda
+  - Petunjuk bertahap di setiap latihan kode, dari arahan ringan sampai hampir jawabannya
+  - Semua latihan dijalankan langsung di browser
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie
+translations:
+  en:
+    title: Logic and Basic Algorithms with Python
+    level: Intermediate
+    summary: >-
+      Learn to think step by step through jobs in the Kilat Jaya Express
+      warehouse: finding a parcel on the shelves, binary search on sorted data,
+      sorting by hand, running totals and records, recursion for nested boxes,
+      all the way to a daily parcel report. You also count the steps, so you
+      know why one way is faster than another.
+    perks:
+      - 6 lessons, 12 coding exercises and 6 multiple-choice questions
+      - Step-by-step hints on every coding exercise, from a gentle nudge to nearly the answer
+      - Every exercise runs right in your browser, nothing to install
+      - A completion certificate from tolie.space, signed by Christianto Lie

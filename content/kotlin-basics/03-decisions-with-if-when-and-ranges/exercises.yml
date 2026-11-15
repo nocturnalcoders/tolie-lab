@@ -1,0 +1,159 @@
+- slug: if-as-an-expression
+  type: choice
+  title: if sebagai ekspresi
+  prompt: |
+    Dimas menulis:
+
+    ```kotlin
+    val tarif = if (berat >= 5) 6000 else 7000
+    ```
+
+    Pernyataan mana yang benar tentang baris ini?
+  options:
+    - "Kedua cabang dijalankan dulu, lalu Kotlin memilih salah satu hasilnya"
+    - "`if` menghasilkan nilai, sehingga hasilnya bisa langsung disimpan ke `val`; karena itu `else` wajib ada"
+    - "`tarif` seharusnya `var`, karena nilainya ditentukan oleh `if`"
+    - "Ini hanya singkatan; Kotlin juga punya bentuk `berat >= 5 ? 6000 : 7000`"
+  correct: [1]
+  hint: Berapa kali `tarif` diisi pada baris itu?
+  explanation: >-
+    Di Kotlin `if` adalah ekspresi: ia menghasilkan nilai dari cabang yang terpilih, dan hanya
+    cabang itu yang dijalankan. Karena harus selalu ada nilainya, `else` wajib ditulis. `tarif`
+    tetap boleh `val`, sebab ia hanya diisi satu kali. Kotlin tidak punya operator `? :`;
+    `if`-`else` inilah penggantinya.
+
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang dicetak?
+  prompt: |
+    Apa yang dicetak program ini?
+
+    ```kotlin
+    fun main() {
+        val berat = 10
+        val kategori = when (berat) {
+            in 1..4 -> "Kecil"
+            in 5..10 -> "Sedang"
+            else -> "Besar"
+        }
+        println(kategori)
+    }
+    ```
+  options:
+    - "`Sedang`"
+    - "`Besar`"
+    - "`Sedang`, lalu `Besar` di baris berikutnya"
+    - "`Kecil`"
+  correct: [0]
+  hint: Apakah angka terakhir pada rentang `5..10` ikut terhitung?
+  explanation: >-
+    Rentang `5..10` mencakup 10, jadi cabang kedua cocok dan `kategori` berisi `Sedang`. Jawaban
+    `Besar` muncul kalau kamu mengira rentang berhenti sebelum angka terakhir seperti `range()`
+    di Python; di Kotlin itu perilaku `until`. `when` hanya menjalankan satu cabang, jadi `else`
+    tidak ikut dijalankan.
+
+- slug: which-line-is-rejected
+  type: choice
+  title: Baris mana yang ditolak?
+  prompt: |
+    Satu baris membuat program ini gagal dikompilasi. Baris mana, dan mengapa?
+
+    ```kotlin
+    fun main() {
+        val berat = 12                                      // baris 1
+        val ukuran = if (berat > 10) "besar" else "biasa"   // baris 2
+        val diskon = if (berat > 10) 5000                   // baris 3
+        for (i in 1..3) println(i)                          // baris 4
+        println("$ukuran $diskon")                          // baris 5
+    }
+    ```
+  options:
+    - "Baris 2: hasil `if` tidak bisa disimpan ke `val`"
+    - "Baris 4: `for` harus memakai kurung kurawal"
+    - "Baris 3: `if` yang dipakai sebagai nilai harus punya `else`"
+    - "Baris 5: dua variabel tidak boleh berada dalam satu teks"
+  correct: [2]
+  hint: Kalau `berat` bernilai 8, apa isi `diskon`?
+  explanation: >-
+    Di baris 3, `if` dipakai sebagai nilai untuk `diskon` tetapi tidak punya `else`. Kotlin tidak
+    tahu isi `diskon` saat kondisinya salah, jadi baris itu ditolak. Tidak penting bahwa kali ini
+    `berat` bernilai 12: kompilator memeriksa semua kemungkinan. Baris 2 adalah bentuk yang
+    benar, dan `for` dengan satu perintah boleh ditulis tanpa kurung kurawal.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Lengkapi baris yang kosong
+  prompt: |
+    Program ini harus mencetak tepat tiga baris: `Rak 1`, `Rak 2`, `Rak 3`.
+    Apa yang mengisi bagian `____`?
+
+    ```kotlin
+    fun main() {
+        for (rak in ____) {
+            println("Rak $rak")
+        }
+    }
+    ```
+  options:
+    - "`1 until 3`"
+    - "`range(1, 4)`"
+    - "`0..3`"
+    - "`1..3`"
+  correct: [3]
+  hint: "`..` menyertakan angka terakhir, sedangkan `until` tidak."
+  explanation: >-
+    `1..3` berisi 1, 2, 3, jadi tercetak tepat tiga baris. `1 until 3` berhenti sebelum 3 dan
+    hanya mencetak `Rak 1` dan `Rak 2`. `0..3` mencetak empat baris, mulai dari `Rak 0`.
+    `range(1, 4)` adalah cara Python; Kotlin tidak punya fungsi itu.
+
+- slug: practice-price-tiers
+  type: code
+  required: false
+  title: "Latihan: tarif bertingkat dengan when"
+  prompt: |
+    Tarif laundry tergantung berat: 1 sampai 3 kg `7000` per kg, 4 sampai 10 kg `6000` per kg, di atas itu `5000` per kg. Lengkapi `when` supaya `rate` benar. Program mencetak `Rp<berat × tarif>`.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    fun main() {
+        val kg = readln().toInt()
+        val rate = when (kg) {
+            // 1 to 3 -> 7000, 4 to 10 -> 6000
+            else -> 5000
+        }
+        println("Rp${kg * rate}")
+    }
+  hints:
+    - "Cabang `when` boleh berupa rentang: `in 1..3 -> ...`."
+    - "Tambahkan dua cabang sebelum `else`: `in 1..3 -> 7000` dan `in 4..10 -> 6000`."
+  tests:
+    - input: |
+        2
+      output: |
+        Rp14000
+    - input: |
+        3
+      output: |
+        Rp21000
+    - input: |
+        4
+      output: |
+        Rp24000
+    - input: |
+        10
+      output: |
+        Rp60000
+    - input: |
+        11
+      output: |
+        Rp55000
+  solution: |
+    fun main() {
+        val kg = readln().toInt()
+        val rate = when (kg) {
+            in 1..3 -> 7000
+            in 4..10 -> 6000
+            else -> 5000
+        }
+        println("Rp${kg * rate}")
+    }

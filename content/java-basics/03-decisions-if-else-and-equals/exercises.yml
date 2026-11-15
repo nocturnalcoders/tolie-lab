@@ -1,0 +1,194 @@
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang tercetak?
+  prompt: |
+    Seorang anggota berbelanja tepat Rp150.000. Apa yang dicetak program ini?
+
+    ```java
+    public class Bonus {
+        public static void main(String[] args) {
+            int total = 150000;
+            boolean anggota = true;
+
+            if (total > 150000) {
+                System.out.println("Diskon 10%");
+            } else if (total >= 100000 && anggota) {
+                System.out.println("Diskon 5%");
+            } else if (total >= 100000) {
+                System.out.println("Gratis pembatas buku");
+            } else {
+                System.out.println("Tanpa bonus");
+            }
+        }
+    }
+    ```
+  options:
+    - "`Diskon 10%`"
+    - "`Diskon 5%`, lalu `Gratis pembatas buku`"
+    - "`Diskon 5%`"
+    - "`Gratis pembatas buku`"
+  correct: [2]
+  hint: Periksa kondisi satu per satu dari atas. Apakah 150000 lebih besar dari 150000? Lalu, apa yang terjadi setelah satu cabang dijalankan?
+  explanation: >-
+    `total > 150000` bernilai `false` karena 150000 tidak lebih besar dari 150000; tanda `>` tidak
+    mencakup "sama dengan". Cabang kedua benar (`150000 >= 100000` dan `anggota` bernilai `true`), jadi
+    tercetak `Diskon 5%`. Setelah satu cabang dijalankan, sisa rangkaian `else if` dilewati, sehingga
+    `Gratis pembatas buku` tidak ikut tercetak walaupun kondisinya juga benar. `Diskon 10%` adalah
+    jebakan batas: itu baru benar kalau kondisinya `total >= 150000`.
+
+- slug: which-line-does-the-compiler-reject
+  type: choice
+  title: Baris mana yang ditolak compiler?
+  prompt: |
+    Sari menulis program ini dengan kebiasaan lamanya, dan `javac` menolak. Baris mana penyebabnya?
+
+    ```java
+    public class CekStok {
+        public static void main(String[] args) {
+            int stok = 3;                               // baris 3
+            if (stok == 0) {                            // baris 4
+                System.out.println("Habis");
+            } elif (stok < 5) {                         // baris 6
+                System.out.println("Hampir habis");
+            } else {                                    // baris 8
+                System.out.println("Aman");
+            }
+        }
+    }
+    ```
+  options:
+    - "Baris 6, karena Java tidak mengenal `elif`; yang benar `else if`"
+    - "Baris 4, karena angka harus dibandingkan dengan `.equals`, bukan `==`"
+    - "Baris 4, karena setelah kondisi harus ada titik dua `:`"
+    - "Baris 8, karena `else` harus punya kondisi"
+  correct: [0]
+  hint: Satu kata di program ini adalah kata Python, bukan kata Java.
+  explanation: >-
+    `elif` adalah kata kunci Python. Di Java pilihan berikutnya ditulis `else if`, dua kata, sehingga
+    baris 6 ditolak compiler. Baris 4 benar: untuk `int`, `==` memang cara membandingkan nilai;
+    `.equals` dipakai untuk objek seperti `String`. Java tidak memakai titik dua setelah kondisi
+    karena bloknya ditandai `{ }`. Dan `else` justru tidak boleh punya kondisi: ia menangkap semua
+    yang tersisa.
+
+- slug: which-condition-fills-the-blank
+  type: choice
+  title: Kondisi mana yang mengisi bagian kosong?
+  prompt: |
+    `jawaban` diketik orang saat program dijalankan (misalnya `java Bungkus ya`).
+    Kondisi mana yang dengan andal memeriksa apakah isinya `ya`?
+
+    ```java
+    public class Bungkus {
+        public static void main(String[] args) {
+            String jawaban = args[0];
+            if (_____) {
+                System.out.println("Buku dibungkus kado");
+            } else {
+                System.out.println("Buku tidak dibungkus");
+            }
+        }
+    }
+    ```
+  options:
+    - '`jawaban == "ya"`'
+    - '`jawaban = "ya"`'
+    - "`jawaban.equals('ya')`"
+    - '`jawaban.equals("ya")`'
+  correct: [3]
+  hint: Yang ingin dibandingkan adalah isi teksnya, bukan apakah keduanya objek yang sama.
+  explanation: >-
+    `jawaban.equals("ya")` membandingkan **isi** teks, jadi benar dari mana pun teks itu berasal.
+    `jawaban == "ya"` paling menggoda dan lolos kompilasi, tetapi ia memeriksa apakah keduanya objek
+    yang sama. Teks yang diketik pengguna adalah objek baru, sehingga hasilnya `false` dan program
+    mencetak `Buku tidak dibungkus` walaupun yang diketik persis `ya`. `jawaban = "ya"` adalah
+    penyimpanan nilai, bukan perbandingan, dan ditolak karena kondisi harus `boolean`. `'ya'` dengan
+    kutip tunggal juga ditolak: kutip tunggal hanya untuk satu karakter.
+
+- slug: and-equals
+  type: choice
+  multiple: true
+  title: == dan equals
+  prompt: |
+    Perhatikan empat variabel ini. Pernyataan mana saja yang **benar**? (Bisa lebih dari satu.)
+
+    ```java
+    String rak = "A1";
+    String tujuan = new String("A1");
+    int stok = 5;
+    int minimal = 5;
+    ```
+  options:
+    - "`rak == tujuan` bernilai `true` karena isi keduanya sama"
+    - "`rak.equals(tujuan)` bernilai `true` karena isi keduanya sama"
+    - "`stok == minimal` bernilai `true`; untuk `int`, `==` membandingkan nilainya"
+    - '`rak.equals("a1")` bernilai `false` karena huruf besar dan kecil dibedakan'
+  correct: [1, 2, 3]
+  hint: "Untuk `String`, `==` tidak melihat isi. Ia bertanya: apakah dua nama ini menunjuk objek yang sama?"
+  explanation: >-
+    `new String("A1")` membuat objek baru, jadi `rak` dan `tujuan` adalah dua objek berbeda yang
+    kebetulan berisi sama. `rak == tujuan` karena itu bernilai `false`, sedangkan
+    `rak.equals(tujuan)` bernilai `true`. Untuk `int` tidak ada objek yang perlu dibedakan: `==`
+    langsung membandingkan nilai, jadi `stok == minimal` bernilai `true`. `equals` juga membedakan
+    huruf besar dan kecil, sehingga `"A1"` tidak sama dengan `"a1"`; untuk mengabaikannya ada
+    `equalsIgnoreCase`.
+
+- slug: practice-member-price
+  type: code
+  required: false
+  title: "Latihan: harga member"
+  prompt: |
+    Program membaca sebuah kode dan total belanja. Kalau kodenya persis `MEMBER`, total dipotong 10%. Cetak `Rp<bayar>`. Kode lain (termasuk `member` huruf kecil) tidak mendapat potongan.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            String code = in.next();
+            int total = in.nextInt();
+            int pay = total;
+            // members pay 90% of the total
+            System.out.println("Rp" + pay);
+        }
+    }
+  hints:
+    - "Bandingkan isi teks dengan `equals`, bukan `==`."
+    - "`if (code.equals(\"MEMBER\")) { pay = total * 90 / 100; }`"
+  tests:
+    - input: |
+        MEMBER
+        100000
+      output: |
+        Rp90000
+    - input: |
+        UMUM
+        100000
+      output: |
+        Rp100000
+    - input: |
+        member
+        50000
+      output: |
+        Rp50000
+    - input: |
+        MEMBER
+        85000
+      output: |
+        Rp76500
+  solution: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            String code = in.next();
+            int total = in.nextInt();
+            int pay = total;
+            if (code.equals("MEMBER")) {
+                pay = total * 90 / 100;
+            }
+            System.out.println("Rp" + pay);
+        }
+    }

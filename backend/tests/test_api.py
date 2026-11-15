@@ -116,27 +116,27 @@ check("another address is not affected", Client("10.1.0.98").post("/api/login", 
 
 # ---------------------------------------------------------------- catalog
 courses = anon.get("/api/courses").json["courses"]
-py = next(c for c in courses if c["slug"] == "python-dasar")
+py = next(c for c in courses if c["slug"] == "python-basics")
 check("catalog lists the Python course", py["lesson_count"] == 8 and py["exercise_count"] == 25, py)
 check("catalog has no progress when signed out", py["progress"] is None)
-check("catalog shows progress when signed in", budi.get("/api/courses").json["courses"][0]["progress"] == {"done": 0, "total": 8, "percent": 0, "next": "01-halo-warung".split("-", 1)[1]})
-detail = anon.get("/api/courses/python-dasar").json
-check("course page lists the lessons in order", [x["slug"] for x in detail["lessons"]][:2] == ["halo-warung", "harga-dan-angka"] and not detail["lessons"][0]["locked"])
+check("catalog shows progress when signed in", budi.get("/api/courses").json["courses"][0]["progress"] == {"done": 0, "total": 8, "percent": 0, "next": "hello-coffee-shop"})
+detail = anon.get("/api/courses/python-basics").json
+check("course page lists the lessons in order", [x["slug"] for x in detail["lessons"]][:2] == ["hello-coffee-shop", "prices-and-numbers"] and not detail["lessons"][0]["locked"])
 check("unknown course is a 404", anon.get("/api/courses/nope").status_code == 404)
 
 # ---------------------------------------------------------------- lesson content
-r = budi.get("/api/courses/python-dasar/lessons/halo-warung")
+r = budi.get("/api/courses/python-basics/lessons/hello-coffee-shop")
 lesson = r.json
 text = json.dumps(lesson)
 check("lesson page is served as html", r.status_code == 200 and "<h2>" in lesson["lesson"]["html"] and "codehilite" in lesson["lesson"]["html"])
 ex = {e["slug"]: e for e in lesson["exercises"]}
 check("lesson has 2 code and 1 choice exercise", [e["type"] for e in lesson["exercises"]] == ["code", "code", "choice"])
-check("code exercise carries starter and tests", "tulis kodemu" in ex["sapa-pelanggan"]["code"]["starter"] and ex["sapa-pelanggan"]["code"]["tests"][0]["output"].startswith("Selamat datang"))
+check("code exercise carries starter and tests", "tulis kodemu" in ex["greet-the-customer"]["code"]["starter"] and ex["greet-the-customer"]["code"]["tests"][0]["output"].startswith("Selamat datang"))
 check("author solutions are not exposed", 'print("Selamat datang' not in text and "solution" not in text)
-quiz = ex["kuis-print"]
+quiz = ex["quiz-print"]
 check("quiz does not leak the answer", "correct" not in json.dumps(quiz["choice"]) and "explanation" not in json.dumps(quiz) and "hint" not in json.dumps(quiz["choice"]))
 check("quiz options are rendered with inline code", "<code>Halo</code>" in quiz["choice"]["options_html"][1] and not quiz["choice"]["options_html"][1].startswith("<p>"))
-check("lesson page names previous and next", lesson["prev"] is None and lesson["next"]["slug"] == "harga-dan-angka" and len(lesson["trail"]) == 8)
+check("lesson page names previous and next", lesson["prev"] is None and lesson["next"]["slug"] == "prices-and-numbers" and len(lesson["trail"]) == 8)
 
 # ---------------------------------------------------------------- multiple choice grading
 qid = quiz["id"]
@@ -153,15 +153,15 @@ right = budi.post(f"/api/exercises/{qid}/answer", {"choice": [1]}).json
 check("the right answer is accepted with its explanation", right["correct"] is True and "dua baris" in right["explanation_html"] and right["correct_options"] == [1], right)
 check("attempts are counted", right["attempts"] == 4)
 # multiple-select: exact set required
-types_lesson = budi.get("/api/courses/python-dasar/lessons/harga-dan-angka").json
-multi = next(e for e in types_lesson["exercises"] if e["slug"] == "kuis-tipe")
+types_lesson = budi.get("/api/courses/python-basics/lessons/prices-and-numbers").json
+multi = next(e for e in types_lesson["exercises"] if e["slug"] == "quiz-types")
 check("multi-select quiz is flagged", multi["choice"]["multiple"] is True)
 check("one of two correct options is not enough", budi.post(f"/api/exercises/{multi['id']}/answer", {"choice": [0]}).json["correct"] is False)
 check("all the correct options pass", budi.post(f"/api/exercises/{multi['id']}/answer", {"choice": [2, 0]}).json["correct"] is True)
 
 # ---------------------------------------------------------------- code results
-sid = ex["sapa-pelanggan"]["id"]
-did = ex["dua-baris-menu"]["id"]
+sid = ex["greet-the-customer"]["id"]
+did = ex["two-line-menu"]["id"]
 check("a result with the wrong test count is refused", budi.post(f"/api/exercises/{sid}/result", {"code": "x", "passed": 1, "total": 5}).status_code == 400)
 check("a result passing more tests than exist is refused", budi.post(f"/api/exercises/{sid}/result", {"code": "x", "passed": 2, "total": 1}).status_code == 400)
 check("a result without code is refused", budi.post(f"/api/exercises/{sid}/result", {"passed": 1, "total": 1}).status_code == 400)
@@ -169,23 +169,23 @@ check("an oversized code is refused", budi.post(f"/api/exercises/{sid}/result", 
 check("a result is refused for a quiz", budi.post(f"/api/exercises/{qid}/result", {"code": "x", "passed": 1, "total": 1}).status_code == 400)
 fail_res = budi.post(f"/api/exercises/{sid}/result", {"code": "print()", "passed": 0, "total": 1}).json
 check("a failing result is recorded but not passed", fail_res["recorded"] and fail_res["passed"] is False)
-check("lesson is not done yet", budi.get("/api/courses/python-dasar/lessons/halo-warung").json["lesson"]["done"] is False)
+check("lesson is not done yet", budi.get("/api/courses/python-basics/lessons/hello-coffee-shop").json["lesson"]["done"] is False)
 ok1 = budi.post(f"/api/exercises/{sid}/result", {"code": 'print("Selamat datang di Warung Kopi Senja!")', "passed": 1, "total": 1}).json
 check("a passing result is accepted", ok1["passed"] is True and ok1["lesson_done"] is False)
 ok2 = budi.post(f"/api/exercises/{did}/result", {"code": "print('a')", "passed": 1, "total": 1}).json
-check("lesson is done once every required exercise passed", ok2["lesson_done"] is True and ok2["progress"]["done"] == 1 and ok2["progress"]["next"] == "harga-dan-angka", ok2)
-again = budi.get("/api/courses/python-dasar/lessons/halo-warung").json
+check("lesson is done once every required exercise passed", ok2["lesson_done"] is True and ok2["progress"]["done"] == 1 and ok2["progress"]["next"] == "prices-and-numbers", ok2)
+again = budi.get("/api/courses/python-basics/lessons/hello-coffee-shop").json
 check("saved code and passed flags come back", again["lesson"]["done"] and all(e["passed"] for e in again["exercises"]) and again["exercises"][0]["code"]["saved"].startswith("print("))
 check("submissions are stored", sql("SELECT count(*) AS n FROM submissions")[0]["n"] >= 8)
 
 # drafts
-check("a draft can be saved", budi.post(f"/api/exercises/{ex['sapa-pelanggan']['id']}/draft", {"code": "print('draft')"}).json["ok"])
-check("the draft comes back", budi.get("/api/courses/python-dasar/lessons/halo-warung").json["exercises"][0]["code"]["saved"] == "print('draft')")
+check("a draft can be saved", budi.post(f"/api/exercises/{ex['greet-the-customer']['id']}/draft", {"code": "print('draft')"}).json["ok"])
+check("the draft comes back", budi.get("/api/courses/python-basics/lessons/hello-coffee-shop").json["exercises"][0]["code"]["saved"] == "print('draft')")
 check("a draft does not count as an attempt", sql("SELECT attempts FROM exercise_progress WHERE exercise_id = %s", (sid,))[0]["attempts"] == 2)
 
 # ---------------------------------------------------------------- my courses
 mine = budi.get("/api/me/courses").json
-check("my courses lists the started course with progress", mine["courses"][0]["slug"] == "python-dasar" and mine["courses"][0]["progress"]["done"] == 1)
+check("my courses lists the started course with progress", mine["courses"][0]["slug"] == "python-basics" and mine["courses"][0]["progress"]["done"] == 1)
 check("my courses needs a sign-in", anon.get("/api/me/courses").status_code == 401)
 fresh, _ = new_user("10.1.0.5")
 check("a new learner has no courses yet", fresh.get("/api/me/courses").json["courses"] == [])
@@ -241,7 +241,7 @@ with psycopg.connect(lab.DATABASE_URL, row_factory=psycopg.rows.dict_row) as con
     conn.execute(f'SET search_path TO "{lab.DB_SCHEMA}"')
     lab.sync_content(conn, cl.load_all(lab.CONTENT_DIR))
 check("syncing content twice changes nothing", sql("SELECT count(*) AS n FROM exercises")[0]["n"] == before)
-check("progress survives a content sync", budi.get("/api/courses/python-dasar").json["progress"]["done"] == 1)
+check("progress survives a content sync", budi.get("/api/courses/python-basics").json["progress"]["done"] == 1)
 
 # ---------------------------------------------------------------- content validation
 def course_in(tmp, course_yml, lesson_md, exercises):
@@ -286,7 +286,7 @@ rejects("a choice question without explanation", exercises=CHOICE.replace("{c}",
 # ================================================================ perks and plans
 plans = anon.get("/api/plans").json["plans"]
 check("the plans comparison is served", [p["id"] for p in plans] == ["gratis", "modul-berbayar"] and plans[1]["highlight"] is True and len(plans[0]["perks"]) >= 4)
-cd = anon.get("/api/courses/python-dasar").json["course"]
+cd = anon.get("/api/courses/python-basics").json["course"]
 check("a course page carries its perks and certificate flag", len(cd["perks"]) == 3 and cd["certificate"] is True)
 with tempfile.TemporaryDirectory() as tmp:
     (Path(tmp) / "plans.yml").write_text("id:\n  - id: a\n    name: A\n    price: Rp0\n    tagline: t\n    perks: []\n")
@@ -298,26 +298,26 @@ with tempfile.TemporaryDirectory() as tmp:
 
 # ================================================================ certificates
 grad, grad_email = new_user("10.2.0.1", name="Siti Aminah")
-check("the certificate status says not yet eligible", grad.get("/api/courses/python-dasar/certificate").json["eligible"] is False)
-check("claiming early is refused", grad.post("/api/courses/python-dasar/certificate", {"name": "Siti Aminah"}).status_code == 400)
+check("the certificate status says not yet eligible", grad.get("/api/courses/python-basics/certificate").json["eligible"] is False)
+check("claiming early is refused", grad.post("/api/courses/python-basics/certificate", {"name": "Siti Aminah"}).status_code == 400)
 sql("""INSERT INTO exercise_progress (user_id, exercise_id, attempts, passed_at)
        SELECT u.id, e.id, 1, now() FROM users u, exercises e JOIN lessons l ON l.id = e.lesson_id JOIN courses c ON c.id = l.course_id
-       WHERE u.email = %s AND c.slug = 'python-dasar' AND e.required""", (grad_email,))
-st = grad.get("/api/courses/python-dasar/certificate").json
+       WHERE u.email = %s AND c.slug = 'python-basics' AND e.required""", (grad_email,))
+st = grad.get("/api/courses/python-basics/certificate").json
 check("finishing every lesson makes the learner eligible", st["eligible"] is True and st["certificate"] is None and st["default_name"] == "Siti Aminah", st)
-check("anonymous visitors cannot claim", anon.post("/api/courses/python-dasar/certificate", {"name": "X Y"}).status_code in (400, 401))
-check("a one-letter name is refused", grad.post("/api/courses/python-dasar/certificate", {"name": "S"}).status_code == 400)
-check("a name with control characters is refused", grad.post("/api/courses/python-dasar/certificate", {"name": "Siti\x07 Aminah"}).status_code == 400)
-check("a name without letters is refused", grad.post("/api/courses/python-dasar/certificate", {"name": "12345"}).status_code == 400)
+check("anonymous visitors cannot claim", anon.post("/api/courses/python-basics/certificate", {"name": "X Y"}).status_code in (400, 401))
+check("a one-letter name is refused", grad.post("/api/courses/python-basics/certificate", {"name": "S"}).status_code == 400)
+check("a name with control characters is refused", grad.post("/api/courses/python-basics/certificate", {"name": "Siti\x07 Aminah"}).status_code == 400)
+check("a name without letters is refused", grad.post("/api/courses/python-basics/certificate", {"name": "12345"}).status_code == 400)
 lab.EMAIL_VERIFICATION = True
 sql("UPDATE users SET email_verified_at = NULL WHERE email = %s", (grad_email,))
-check("an unverified email cannot claim when verification is on", grad.post("/api/courses/python-dasar/certificate", {"name": "Siti Aminah"}).status_code == 403)
+check("an unverified email cannot claim when verification is on", grad.post("/api/courses/python-basics/certificate", {"name": "Siti Aminah"}).status_code == 403)
 lab.EMAIL_VERIFICATION = False
-claim = grad.post("/api/courses/python-dasar/certificate", {"name": "  Siti   Aminah "})
+claim = grad.post("/api/courses/python-basics/certificate", {"name": "  Siti   Aminah "})
 cert = claim.json["certificate"]
 check("claiming works and tidies the name", claim.status_code == 201 and cert["name"] == "Siti Aminah" and re.fullmatch(r"LAB-[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}", cert["id"]), claim.json)
 check("the certificate knows its course size", cert["lessons"] == 8 and cert["exercises"] == 25 and cert["course"]["title"].startswith("Python Dasar"))
-again = grad.post("/api/courses/python-dasar/certificate", {"name": "Nama Lain Sekali"})
+again = grad.post("/api/courses/python-basics/certificate", {"name": "Nama Lain Sekali"})
 check("claiming twice returns the same certificate and keeps the name", again.status_code == 200 and again.json["certificate"]["id"] == cert["id"] and again.json["certificate"]["name"] == "Siti Aminah")
 check("my certificates lists it", grad.get("/api/me/certificates").json["certificates"][0]["id"] == cert["id"])
 pub = anon.get(f"/api/certificates/{cert['id']}")
@@ -342,13 +342,13 @@ check("only admins can revoke", grad.post(f"/api/admin/certificates/{cert['id']}
 check("an admin can revoke", admin.post(f"/api/admin/certificates/{cert['id']}/revoke").json["revoked"] is True)
 check("a revoked certificate says so", anon.get(f"/api/certificates/{cert['id']}").json["certificate"]["revoked"] is True)
 check("a revoked certificate has no pdf", anon.get(f"/api/certificates/{cert['id']}/pdf").status_code == 410)
-check("a revoked certificate cannot be claimed again", grad.post("/api/courses/python-dasar/certificate", {"name": "Siti Aminah"}).status_code == 403)
+check("a revoked certificate cannot be claimed again", grad.post("/api/courses/python-basics/certificate", {"name": "Siti Aminah"}).status_code == 403)
 admin.post(f"/api/admin/certificates/{cert['id']}/restore")
 check("restoring brings the pdf back", anon.get(f"/api/certificates/{cert['id']}/pdf").status_code == 200)
-sql("UPDATE courses SET certificate = false WHERE slug = 'python-dasar'")
+sql("UPDATE courses SET certificate = false WHERE slug = 'python-basics'")
 other, other_email = new_user("10.2.0.2")
-check("a course can switch certificates off", other.post("/api/courses/python-dasar/certificate", {"name": "Budi Santoso"}).status_code == 400)
-sql("UPDATE courses SET certificate = true WHERE slug = 'python-dasar'")
+check("a course can switch certificates off", other.post("/api/courses/python-basics/certificate", {"name": "Budi Santoso"}).status_code == 400)
+sql("UPDATE courses SET certificate = true WHERE slug = 'python-basics'")
 flood = Client("10.2.0.50")
 codes = [flood.get("/api/certificates/LAB-AAAA-AAAA-AAAA").status_code for _ in range(62)]
 check("verifying is rate limited per address", codes[:60] == [404] * 60 and codes[60] == 429, codes[58:])
@@ -358,7 +358,7 @@ check("the admin api needs a sign-in", anon.get("/api/admin/overview").status_co
 check("learners cannot use the admin api", grad.get("/api/admin/overview").status_code == 403)
 check("admin writes need the csrf header", admin.post("/api/admin/courses", {"title": "X"}, csrf=False).status_code == 400)
 ov = admin.get("/api/admin/overview").json
-mine = next(c for c in ov["courses"] if c["slug"] == "python-dasar")
+mine = next(c for c in ov["courses"] if c["slug"] == "python-basics")
 check("the overview counts lessons, exercises and learners", mine["lessons"] == 8 and mine["exercises"] == 25 and mine["learners"] >= 1 and mine["certificates"] >= 1, mine)
 check("the overview lists recent certificates", any(c["public_id"] == cert["id"] for c in ov["certificates"]))
 
@@ -454,13 +454,39 @@ check("the granted learner can open the module", grad.get("/api/courses/modul-la
 
 # ================================================================ two languages
 cats = {c["slug"]: c for c in anon.get("/api/courses").json["courses"]}
-check("the catalog carries each course's language", cats["python-dasar"]["locale"] == "id" and cats["python-basics"]["locale"] == "en")
-check("without a language filter every course is listed", {"python-dasar", "python-basics"} <= set(cats))
-en_only = [c["slug"] for c in anon.get("/api/courses?lang=en").json["courses"]]
-check("lang=en lists the English courses and not the Indonesian one", "python-basics" in en_only and "python-dasar" not in en_only, en_only)
-ids_only = [c["slug"] for c in anon.get("/api/courses?lang=id").json["courses"]]
-check("lang=id lists the Indonesian courses and not the English one", "python-dasar" in ids_only and "python-basics" not in ids_only, ids_only)
-check("the English course is complete", cats["python-basics"]["lesson_count"] == 8 and cats["python-basics"]["exercise_count"] == 25)
+# One course, two languages: the visitor's language (X-Lang) picks the texts.
+check("a course is listed once, with the languages it has", cats["python-basics"]["locale"] == "id" and cats["python-basics"]["locales"] == ["id", "en"]
+      and "python-dasar" not in cats)
+en_cl = Client("10.3.0.20", lang="en")
+cats_en = {c["slug"]: c for c in en_cl.get("/api/courses?lang=en").json["courses"]}
+check("an English visitor gets the same course in English", cats_en["python-basics"]["title"] == "Python Basics for a Coffee Shop"
+      and cats_en["python-basics"]["locale"] == "en" and cats_en["python-basics"]["level"] == "Beginner" and "from scratch" in cats_en["python-basics"]["summary"], cats_en["python-basics"])
+check("the Indonesian visitor still gets Indonesian", cats["python-basics"]["title"] == "Python Dasar untuk Warung Kopi")
+sql("""INSERT INTO courses (slug, title, language, locale, level, kind, price_idr, status, position, summary, source)
+       VALUES ('hanya-indonesia', 'Hanya Indonesia', 'python', 'id', 'Pemula', 'course', 0, 'published', 90, 'Tanpa terjemahan', 'admin')""")
+check("lang=en leaves out a course without an English version", "hanya-indonesia" not in [c["slug"] for c in en_cl.get("/api/courses?lang=en").json["courses"]])
+both = {c["slug"]: c for c in en_cl.get("/api/courses?lang=all").json["courses"]}
+check("lang=all lists it too, in the language it has", both["hanya-indonesia"]["locale"] == "id" and both["hanya-indonesia"]["title"] == "Hanya Indonesia" and both["python-basics"]["locale"] == "en")
+check("lang=id lists every Indonesian course", {"python-basics", "hanya-indonesia"} <= {c["slug"] for c in anon.get("/api/courses?lang=id").json["courses"]})
+sql("UPDATE courses SET status = 'draft' WHERE slug = 'hanya-indonesia'")
+page_en = en_cl.get("/api/courses/python-basics").json
+check("the course page is translated", page_en["course"]["title"] == "Python Basics for a Coffee Shop" and page_en["lessons"][0]["title"] == "Hello, Coffee Shop!"
+      and page_en["lessons"][0]["slug"] == "hello-coffee-shop" and page_en["course"]["perks"][0].startswith("8 lessons"), page_en["lessons"][0])
+les_en = en_cl.get("/api/courses/python-basics/lessons/hello-coffee-shop").json
+les_id = anon.get("/api/courses/python-basics/lessons/hello-coffee-shop").json
+exs_en = {e["slug"]: e for e in les_en["exercises"]}
+check("a lesson is translated: title, text, trail", les_en["lesson"]["title"] == "Hello, Coffee Shop!" and "Senja Coffee Shop" in les_en["lesson"]["html"]
+      and les_en["trail"][1]["title"] != les_id["trail"][1]["title"] and les_en["course"]["title"] == "Python Basics for a Coffee Shop")
+check("its exercises are translated but keep their identity", [e["id"] for e in les_en["exercises"]] == [e["id"] for e in les_id["exercises"]]
+      and exs_en["greet-the-customer"]["title"] == "Greet the customer" and exs_en["greet-the-customer"]["code"]["tests"][0]["output"].startswith("Welcome")
+      and les_id["exercises"][0]["code"]["tests"][0]["output"].startswith("Selamat datang"), exs_en["greet-the-customer"])
+check("translated quiz options are served", exs_en["quiz-print"]["choice"]["options_html"] != les_id["exercises"][2]["choice"]["options_html"])
+enq, _ = new_user("10.3.0.21", name="Quinn")
+enq.lang = "en"
+a_en = enq.post(f"/api/exercises/{exs_en['quiz-print']['id']}/answer", {"choice": [1]}).json
+check("a quiz is graded the same and explained in English", a_en["correct"] is True and "dua baris" not in a_en["explanation_html"] and "line" in a_en["explanation_html"], a_en)
+enq.lang = None
+check("progress is shared between the languages", next(e for e in enq.get("/api/courses/python-basics/lessons/hello-coffee-shop").json["exercises"] if e["slug"] == "quiz-print")["passed"] is True)
 check("English plans come with the English header", [p["id"] for p in Client("10.3.0.1", lang="en").get("/api/plans").json["plans"]] == ["free", "paid-modules"])
 check("an unknown language falls back to Indonesian plans", [p["id"] for p in Client("10.3.0.2", lang="xx").get("/api/plans").json["plans"]] == ["gratis", "modul-berbayar"])
 
@@ -480,27 +506,30 @@ check("the translation does not touch successful answers", en.get("/api/courses"
 # every learner-facing message has an English version
 import re as _re
 missing = []
-for f in ("app.py", "certificates.py", "payments.py"):
+for f in ("app.py", "certificates.py", "payments.py", "judge.py"):
     src = (HERE.parent / f).read_text(encoding="utf-8")
     for m in _re.finditer(r'(?:error=|bad\()\s*(f?)(["\'])((?:(?!\2).)*)\2', src):
         if not m.group(1) and m.group(3) not in __import__("i18n").EN:
             missing.append(m.group(3))
 check("every learner-facing error message has an English translation", not missing, missing)
 check("no English entry is left without a message in the code", all(
-    any(k in (HERE.parent / f).read_text(encoding="utf-8") for f in ("app.py", "certificates.py", "payments.py")) for k in __import__("i18n").EN))
+    any(k in (HERE.parent / f).read_text(encoding="utf-8") for f in ("app.py", "certificates.py", "payments.py", "judge.py")) for k in __import__("i18n").EN))
 
-# English course certificate
+# A certificate is issued in the language the learner uses when claiming it
+grad_en = Client("10.3.0.9", lang="en")
+grad_en.post("/api/register", {"name": "Siti Aminah", "email": "grad-en@example.test", "password": "correct horse battery"})
 sql("""INSERT INTO exercise_progress (user_id, exercise_id, attempts, passed_at)
        SELECT u.id, e.id, 1, now() FROM users u, exercises e JOIN lessons l ON l.id = e.lesson_id JOIN courses c ON c.id = l.course_id
-       WHERE u.email = %s AND c.slug = 'python-basics' AND e.required""", (grad_email,))
-grad_en = Client("10.3.0.9", lang="en")
-grad_en.post("/api/login", {"email": grad_email, "password": "correct horse battery"})
+       WHERE u.email = %s AND c.slug = 'python-basics' AND e.required ON CONFLICT DO NOTHING""", ("grad-en@example.test",))
 early = Client("10.3.0.10", lang="en")
 early.post("/api/register", {"name": "Early Bird", "email": "early@example.test", "password": "a long password here"})
 check("claiming early gives an English message", early.post("/api/courses/python-basics/certificate", {"name": "Early Bird"}).json["error"] == "Finish all the lessons first. The certificate is issued once every lantern is lit.")
 claim_en = grad_en.post("/api/courses/python-basics/certificate", {"name": "Siti Aminah"})
 cert_en = claim_en.json["certificate"]
-check("the English course issues an English-language certificate", claim_en.status_code == 201 and cert_en["course"]["locale"] == "en")
+check("an English learner gets an English-language certificate", claim_en.status_code == 201 and cert_en["course"]["locale"] == "en"
+      and cert_en["course"]["title"] == "Python Basics for a Coffee Shop", cert_en)
+check("the certificate stays English for an Indonesian visitor", anon.get(f"/api/certificates/{cert_en['id']}").json["certificate"]["course"]["title"] == "Python Basics for a Coffee Shop")
+check("an Indonesian certificate stays Indonesian for an English visitor", en_cl.get(f"/api/certificates/{cert['id']}").json["certificate"]["course"]["title"] == "Python Dasar untuk Warung Kopi")
 pdf_en = anon.get(f"/api/certificates/{cert_en['id']}/pdf")
 check("its PDF is in English", pdf_en.status_code == 200)
 try:
@@ -577,8 +606,8 @@ for label, extra in [("four hints", {"hints": ["a", "b", "c", "d"]}), ("an empty
         check(f"the loader rejects {label}", False)
     except cl.ContentError:
         check(f"the loader rejects {label}", True)
-hl = anon.get("/api/courses/python-dasar/lessons/diskon").json
-hx = next(e for e in hl["exercises"] if e["slug"] == "hitung-diskon")
+hl = anon.get("/api/courses/python-basics/lessons/discounts").json
+hx = next(e for e in hl["exercises"] if e["slug"] == "apply-discount")
 check("a lesson sends the hints as a list", hx["code"]["hints"] == ["Bayar 90% dari total dengan total * 90 // 100."] and "hint" not in hx["code"])
 sqlx = cl.validate_exercise({"slug": "q", "type": "code", "title": "Q", "prompt": "p", "solution": "SELECT 1", "setup": "CREATE TABLE t (a);", "tests": [{"output": "1"}]}, "t", "sql")
 check("an sql exercise keeps its setup", sqlx["config"]["setup"] == "CREATE TABLE t (a);" and sqlx["config"]["language"] == "sql")
@@ -619,7 +648,7 @@ def fake_stripe(key, path, params):
 payments.stripe_post = fake_stripe
 check("checkout needs a sign-in", anon.post("/api/courses/modul-berbayar/checkout").status_code in (400, 401))
 check("checkout needs the csrf header", pay.post("/api/courses/modul-berbayar/checkout", csrf=False).status_code == 400)
-check("a free course cannot be bought", pay.post("/api/courses/python-dasar/checkout").status_code == 409)
+check("a free course cannot be bought", pay.post("/api/courses/python-basics/checkout").status_code == 409)
 check("someone with access cannot buy again", buyer.post("/api/courses/modul-berbayar/checkout").status_code == 409)
 co = pay.post("/api/courses/modul-berbayar/checkout")
 check("checkout returns the Stripe page", co.status_code == 200 and co.json["url"].startswith("https://checkout.stripe.com/"), co.json)
@@ -674,6 +703,106 @@ halo = next(x for x in stats["lessons"] if x["title"] == lesson["lesson"]["title
 check("stats show how many started and finished a lesson", halo["started"] >= halo["finished"] >= 1, halo)
 check("stats rank the hardest exercises first", stats["hardest"] and all(0 <= x["passed"] <= x["learners"] for x in stats["hardest"])
       and [x["passed"] / x["learners"] for x in stats["hardest"]] == sorted(x["passed"] / x["learners"] for x in stats["hardest"]), stats["hardest"][:3])
+
+# ---------------------------------------------------------------- translations in the content files
+TR_COURSE = GOOD_COURSE + "translations:\n  en:\n    title: T en\n    level: L en\n    summary: S en\n"
+TR_CHOICE = "- slug: q\n  type: choice\n  title: Q\n  prompt: P\n  options: [a, b, c]\n  correct: [1]\n  explanation: E\n"
+
+
+def translated(label, en_lesson="---\ntitle: Lesson en\n---\nBody en\n", en_exercises=None, base_exercises=GOOD_CODE, course_yml=TR_COURSE, needle=None):
+    """Loads a one-lesson course with English files next to the originals; `needle` is the expected error."""
+    with tempfile.TemporaryDirectory() as tmp:
+        folder = course_in(tmp, course_yml, GOOD_LESSON, base_exercises)
+        lesson_dir = next(p for p in folder.iterdir() if p.is_dir())
+        if en_lesson is not None:
+            (lesson_dir / "lesson.en.md").write_text(en_lesson, encoding="utf-8")
+        if en_exercises is not None:
+            (lesson_dir / "exercises.en.yml").write_text(en_exercises, encoding="utf-8")
+        try:
+            course = cl.load_course(folder)
+        except cl.ContentError as exc:
+            check(f"content check rejects {label}", needle is not None and needle in str(exc), str(exc))
+            return None
+        check(f"content check accepts {label}" if needle is None else f"content check rejects {label}", needle is None, "was accepted")
+        return course
+
+
+EN_CODE = GOOD_CODE.replace("title: A", "title: A en").replace("prompt: P", "prompt: P en")
+tc = translated("a complete translation", en_exercises=EN_CODE)
+check("the translation is loaded next to the original", tc["i18n"]["en"]["title"] == "T en" and tc["lessons"][0]["i18n"]["en"] == {"title": "Lesson en", "body": "Body en\n"}
+      and tc["lessons"][0]["exercises"][0]["i18n"]["en"]["title"] == "A en" and tc["lessons"][0]["exercises"][0]["title"] == "A", tc["lessons"][0])
+translated("a translation without its lesson file", en_lesson=None, en_exercises=EN_CODE, needle="lesson.en.md is missing")
+translated("a translation without its exercises", needle="same exercise slugs")
+translated("translated exercises under another slug", en_exercises=EN_CODE.replace("slug: a", "slug: b"), needle="same exercise slugs")
+translated("a translation with a different number of tests", en_exercises=EN_CODE.replace("    - output: '1'\n", "    - output: '1'\n    - output: '2'\n"), needle="tests")
+translated("a translated quiz with another answer", base_exercises=TR_CHOICE, en_exercises=TR_CHOICE.replace("correct: [1]", "correct: [2]"), needle="same `correct`")
+translated("a translated quiz with fewer options", base_exercises=TR_CHOICE, en_exercises=TR_CHOICE.replace("[a, b, c]", "[a, b]"), needle="same number of options")
+translated("translation files the course does not declare", en_exercises=EN_CODE, course_yml=GOOD_COURSE, needle="has no `translations: en:`")
+translated("a translation into the course's own language", en_exercises=EN_CODE, course_yml=TR_COURSE.replace("  en:", "  id:"), needle="translations")
+rejects("a required code exercise in a language that runs on the remote compiler", GOOD_COURSE.replace("python", "kotlin"), needle="required: false")
+with tempfile.TemporaryDirectory() as tmp:
+    ktc = cl.load_course(course_in(tmp, GOOD_COURSE.replace("python", "kotlin"), GOOD_LESSON, GOOD_CODE + "  required: false\n"))
+    check("an optional Kotlin code exercise loads", ktc["lessons"][0]["exercises"][0]["config"]["language"] == "kotlin")
+with tempfile.TemporaryDirectory() as tmp:
+    kt = cl.load_course(course_in(tmp, GOOD_COURSE.replace("python", "kotlin"), GOOD_LESSON, TR_CHOICE))
+    check("a Kotlin course with multiple choice only loads", kt["language"] == "kotlin" and kt["lessons"][0]["exercises"][0]["type"] == "choice")
+sqlc = cl.validate_exercise({"slug": "q", "type": "code", "title": "Q", "prompt": "p", "solution": "INSERT INTO t VALUES (1)", "setup": "CREATE TABLE t (a);", "check": "SELECT a FROM t;", "tests": [{"output": "a\n1"}]}, "t", "sql")
+check("an sql exercise keeps its check query", sqlc["config"]["check"] == "SELECT a FROM t;")
+
+# ---------------------------------------------------------------- editing a translated lesson in the admin
+row = sql("SELECT l.id, l.i18n FROM lessons l JOIN courses c ON c.id = l.course_id WHERE c.slug = 'python-next-steps' ORDER BY l.position LIMIT 1")[0]
+check("a file lesson carries its translation", "en" in row["i18n"])
+r = admin.put(f"/api/admin/lessons/{row['id']}", {"title": "Judul baru", "slug": "judul-baru", "body": "Isi baru"})
+after = sql("SELECT i18n, source FROM lessons WHERE id = %s", (row["id"],))[0]
+check("editing it in the admin drops the stale translation", r.status_code == 200 and after["i18n"] == {} and after["source"] == "admin")
+check("everyone then sees the edited text", en_cl.get("/api/courses/python-next-steps/lessons/judul-baru").json["lesson"]["title"] == "Judul baru")
+
+# ---------------------------------------------------------------- a course that replaces its separate translation
+def tiny(slug, locale, replaces=(), i18n=None):
+    ex = lambda n: {"slug": f"{slug}-x{n}", "type": "code", "title": f"X{n}", "prompt": "p", "required": True, "i18n": {},
+                    "config": {"language": "python", "solution": "print(1)", "starter": "", "tests": [{"input": "", "output": "1"}], "hints": [], "hint": ""}}
+    return {"slug": slug, "title": slug, "language": "python", "locale": locale, "level": "L", "kind": "course", "price_idr": 0, "status": "published",
+            "position": 80, "summary": "S", "perks": [], "certificate": True, "i18n": i18n or {}, "replaces": list(replaces),
+            "lessons": [{"slug": f"{slug}-l1", "title": "L1", "body": "b", "i18n": {}, "exercises": [ex(1), ex(2)]},
+                        {"slug": f"{slug}-l2", "title": "L2", "body": "b", "i18n": {}, "exercises": []}]}
+
+
+def sync(*courses):
+    with psycopg.connect(lab.DATABASE_URL, row_factory=psycopg.rows.dict_row) as conn:
+        conn.execute(f'SET search_path TO "{lab.DB_SCHEMA}"')
+        lab.sync_content(conn, list(courses))
+
+
+sync(tiny("lama-en", "en"), tiny("gabung", "id"))
+mover, mover_email = new_user("10.7.0.1", name="Mover")
+old_l = mover.get("/api/courses/lama-en/lessons/lama-en-l1").json
+for e in old_l["exercises"]:
+    mover.post(f"/api/exercises/{e['id']}/result", {"code": f"print('{e['slug']}')", "passed": 1, "total": 1})
+mover.post(f"/api/lessons/{mover.get('/api/courses/lama-en/lessons/lama-en-l2').json['lesson']['id']}/complete")
+old_cert = mover.post("/api/courses/lama-en/certificate", {"name": "Mover Lama"}).json["certificate"]
+new_l = mover.get("/api/courses/gabung/lessons/gabung-l1").json
+mover.post(f"/api/exercises/{new_l['exercises'][0]['id']}/result", {"code": "x", "passed": 0, "total": 1})  # one failed try in the new course
+sync(tiny("gabung", "id", replaces=["lama-en"], i18n={"en": {"title": "Merged", "level": "L", "summary": "S", "perks": []}}))
+check("the replaced course is gone", anon.get("/api/courses/lama-en").status_code == 404 and not sql("SELECT 1 FROM courses WHERE slug = 'lama-en'"))
+moved = mover.get("/api/courses/gabung").json
+check("its learner's progress moved to the matching lessons", moved["progress"] == {"done": 2, "total": 2, "percent": 100, "next": None}, moved["progress"])
+ml = mover.get("/api/courses/gabung/lessons/gabung-l1").json["exercises"]
+check("passes, attempts and code moved to the matching exercises", [e["passed"] for e in ml] == [True, True] and [e["attempts"] for e in ml] == [2, 1]
+      and ml[1]["code"]["saved"] == "print('lama-en-x2')", ml)
+mc = anon.get(f"/api/certificates/{old_cert['id']}").json["certificate"]
+check("the certificate moved and keeps its language", mc["course"]["slug"] == "gabung" and mc["course"]["locale"] == "en" and mc["course"]["title"] == "Merged" and mc["name"] == "Mover Lama", mc)
+check("the learner is enrolled in the new course", "gabung" in [c["slug"] for c in mover.get("/api/me/courses").json["courses"]])
+subs = sql("SELECT count(*) AS n FROM submissions s JOIN users u ON u.id = s.user_id WHERE u.email = %s", (mover_email,))[0]["n"]
+sync(tiny("gabung", "id", replaces=["lama-en"]))
+check("syncing again changes nothing", [e["attempts"] for e in mover.get("/api/courses/gabung/lessons/gabung-l1").json["exercises"]] == [2, 1]
+      and sql("SELECT count(*) AS n FROM submissions s JOIN users u ON u.id = s.user_id WHERE u.email = %s", (mover_email,))[0]["n"] == subs == 3)
+sql("UPDATE courses SET status = 'draft' WHERE slug = 'gabung'")
+
+# certificates issued before courses had two languages get the language of their course, once
+sql("UPDATE certificates SET locale = NULL WHERE public_id = %s", (cert["id"],))
+sql(lab.SCHEMA_SQL)
+check("an older certificate is given its course's language", sql("SELECT locale FROM certificates WHERE public_id = %s", (cert["id"],))[0]["locale"] == "id"
+      and sql("SELECT locale FROM certificates WHERE public_id = %s", (cert_en["id"],))[0]["locale"] == "en")
 
 print("\nall passed" if not failed else f"\n{failed} FAILED")
 sys.exit(1 if failed else 0)

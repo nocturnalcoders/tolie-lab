@@ -1,0 +1,86 @@
+- slug: the-customers-table
+  type: code
+  title: The customers table
+  prompt: |
+    Ms. Rina wants to start keeping track of her regulars. Create a table named `customers` with three columns, in this order:
+
+    - `id` of type `INTEGER`
+    - `name` of type `TEXT`
+    - `city` of type `TEXT`
+
+    The checker reads the column list of the `customers` table (names and types), so the table name, the column names and their order must match exactly.
+  check: |
+    SELECT name AS column_name, upper(type) AS type FROM pragma_table_info('customers') ORDER BY cid;
+  starter: |
+    -- add the name and city columns
+    CREATE TABLE customers (
+      id INTEGER
+    );
+  hints:
+    - "Each column is written as its name followed by its type, and columns are separated by commas inside the brackets."
+    - "After `id INTEGER` put a comma, then `name TEXT`, another comma, then the last column with no comma after it."
+    - "Inside the brackets: `id INTEGER, name TEXT, city TEXT`."
+  tests:
+    - output: |
+        column_name|type
+        id|INTEGER
+        name|TEXT
+        city|TEXT
+  solution: |
+    CREATE TABLE customers (
+      id INTEGER,
+      name TEXT,
+      city TEXT
+    );
+
+- slug: the-stock-table
+  type: code
+  title: The stock table
+  prompt: |
+    The ingredients in the kitchen need recording too. Create a table named `stock` with four columns, in this order:
+
+    - `id`: a running number, a whole number
+    - `ingredient`: the ingredient's name, text
+    - `amount`: how much there is, possibly with decimals such as 2.5
+    - `unit`: text such as `kg` or `litre`
+
+    Choose the right type for each column yourself. The checker inserts two rows into the `stock` table, then shows its contents together with the type of the value in the `amount` column.
+  check: |
+    INSERT INTO stock (id, ingredient, amount, unit) VALUES (1, 'Coffee Beans', 2.5, 'kg'), (2, 'Milk', 6, 'litre');
+    SELECT id, ingredient, amount, unit, typeof(amount) AS amount_type FROM stock ORDER BY id;
+  starter: |
+    -- add the amount and unit columns with the right types
+    CREATE TABLE stock (
+      id INTEGER,
+      ingredient TEXT
+    );
+  hints:
+    - "You know three types: `INTEGER` for whole numbers, `TEXT` for text, `REAL` for numbers with decimals."
+    - "`amount` can be 2.5, so its type is `REAL`. `unit` holds text, so `TEXT`."
+    - "Inside the brackets: `id INTEGER, ingredient TEXT, amount REAL, unit TEXT`."
+  tests:
+    - output: |
+        id|ingredient|amount|unit|amount_type
+        1|Coffee Beans|2.5|kg|real
+        2|Milk|6|litre|real
+  solution: |
+    CREATE TABLE stock (
+      id INTEGER,
+      ingredient TEXT,
+      amount REAL,
+      unit TEXT
+    );
+
+- slug: choosing-a-column-type
+  type: choice
+  title: Choosing a column type
+  prompt: |
+    Ms. Rina buys sugar in amounts such as 0.25 kg and 1.5 kg. Which type fits the `weight_kg` column best?
+  options:
+    - "`INTEGER`"
+    - "`TEXT`"
+    - "`REAL`"
+    - "The column needs no type because it holds numbers"
+  correct: [2]
+  hint: "Check whether the values are always whole."
+  explanation: "0.25 and 1.5 have decimals, so the type is `REAL`. `INTEGER` is for whole numbers only, and `TEXT` would treat the numbers as text, which makes them hard to calculate with and to sort."

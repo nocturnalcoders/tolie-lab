@@ -1,0 +1,239 @@
+- slug: parse-an-invoice
+  type: code
+  title: Urai tagihan
+  prompt: |
+    Tulis fungsi `urai(baris)` untuk baris berformat `pemasok,tanggal tagihan,tempo,jumlah`, misalnya `Kopi Gayo Jaya,12/02/2025,30,1250000`. Tanggal tagihan berformat `hari/bulan/tahun` dan tempo dihitung dalam hari.
+
+    Untuk baris yang sah, kembalikan dictionary dengan kunci `pemasok` (dirapikan dengan `.strip()`), `jatuh_tempo` (sebuah `date`: tanggal tagihan ditambah tempo), dan `jumlah` (angka). Teks tanggal bisa diapit spasi, jadi rapikan juga dengan `.strip()`.
+
+    Kembalikan `None` jika baris rusak: kolomnya bukan empat, tanggalnya tidak sah, tempo atau jumlahnya bukan angka, temponya negatif, atau jumlahnya 0 atau kurang.
+
+    Program di bawahnya sudah mencetak setiap tagihan sah dan menghitung baris sah serta rusak.
+  language: python
+  starter: |
+    from datetime import datetime, timedelta
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    def urai(baris):
+        # kembalikan dictionary untuk baris sah, None untuk baris rusak
+        pass
+
+
+    n = int(input())
+    sah = 0
+    rusak = 0
+    for _ in range(n):
+        t = urai(input())
+        if t is None:
+            rusak += 1
+        else:
+            sah += 1
+            print(f"{t['pemasok']} | {t['jatuh_tempo']} | {rupiah(t['jumlah'])}")
+    print(f"Tagihan sah: {sah}")
+    print(f"Baris rusak: {rusak}")
+  hints:
+    - "Semua yang bisa menimbulkan `ValueError` masuk ke dalam satu `try`: memecah menjadi empat kolom, `strptime`, dan dua kali `int`. Di `except ValueError:` tulis `return None`."
+    - "Di dalam `try`: `pemasok, teks, tempo, jumlah = baris.split(\",\")`, lalu `tagihan = datetime.strptime(teks.strip(), \"%d/%m/%Y\").date()`, `tempo = int(tempo)`, dan `jumlah = int(jumlah)`."
+    - "Setelah try/except: jika `tempo < 0 or jumlah <= 0`, `return None`. Selain itu kembalikan `{\"pemasok\": pemasok.strip(), \"jatuh_tempo\": tagihan + timedelta(days=tempo), \"jumlah\": jumlah}`."
+  tests:
+    - input: "3\nKopi Gayo Jaya,12/02/2025,30,1250000\nSusu Segar, 07/03/2025 ,7,300000\nRoti Makmur,30/02/2025,14,450000"
+      output: "Kopi Gayo Jaya | 2025-03-14 | Rp1.250.000\nSusu Segar | 2025-03-14 | Rp300.000\nTagihan sah: 2\nBaris rusak: 1"
+    - input: "3\nGula Manis,18/12/2025,14,200000\nSusu Segar,22/02/2024,7,300000\nRoti Makmur,01/03/2025,empat belas,450000"
+      output: "Gula Manis | 2026-01-01 | Rp200.000\nSusu Segar | 2024-02-29 | Rp300.000\nTagihan sah: 2\nBaris rusak: 1"
+    - input: "4\nKopi Gayo Jaya,12/02/2025,30\nSusu Segar,2025-03-07,7,300000\nRoti Makmur,01/03/2025,14,0\nAir Galon,10/03/2025,-5,120000"
+      output: "Tagihan sah: 0\nBaris rusak: 4"
+    - input: "2\n Roti Makmur ,01/03/2025,0,450000\nGula Manis,31/01/2024,30,75000"
+      output: "Roti Makmur | 2025-03-01 | Rp450.000\nGula Manis | 2024-03-01 | Rp75.000\nTagihan sah: 2\nBaris rusak: 0"
+  solution: |
+    from datetime import datetime, timedelta
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    def urai(baris):
+        try:
+            pemasok, teks, tempo, jumlah = baris.split(",")
+            tagihan = datetime.strptime(teks.strip(), "%d/%m/%Y").date()
+            tempo = int(tempo)
+            jumlah = int(jumlah)
+        except ValueError:
+            return None
+        if tempo < 0 or jumlah <= 0:
+            return None
+        return {
+            "pemasok": pemasok.strip(),
+            "jatuh_tempo": tagihan + timedelta(days=tempo),
+            "jumlah": jumlah,
+        }
+
+
+    n = int(input())
+    sah = 0
+    rusak = 0
+    for _ in range(n):
+        t = urai(input())
+        if t is None:
+            rusak += 1
+        else:
+            sah += 1
+            print(f"{t['pemasok']} | {t['jatuh_tempo']} | {rupiah(t['jumlah'])}")
+    print(f"Tagihan sah: {sah}")
+    print(f"Baris rusak: {rusak}")
+
+- slug: project-invoice-reminder-report
+  type: code
+  title: Proyek laporan pengingat tagihan
+  prompt: |
+    Baris pertama berisi tanggal **hari ini** (`tahun-bulan-hari`), baris kedua `n`, lalu `n` baris tagihan berformat `pemasok,tanggal tagihan,tempo,jumlah`. Fungsi `urai` dan `rupiah` sudah tersedia, dan kode awal sudah mengumpulkan tagihan sah ke dalam list `daftar`.
+
+    Cetak satu baris untuk setiap tagihan sah, urut dari jatuh tempo **paling awal**. Jika jatuh temponya sama, urutkan menurut nama pemasok.
+
+    ```
+    <jatuh tempo> | <pemasok> | <jumlah dalam format rupiah> | <status>
+    ```
+
+    Statusnya `terlambat <n> hari`, `hari ini`, atau `<n> hari lagi`. Setelah itu cetak tiga baris ringkasan:
+
+    ```
+    Terlambat: <banyaknya tagihan terlambat> tagihan, <jumlah uangnya>
+    Jatuh tempo 7 hari ke depan: <jumlah uang tagihan yang jatuh tempo hari ini sampai 7 hari lagi>
+    Baris rusak: <banyaknya baris rusak>
+    ```
+  language: python
+  starter: |
+    from datetime import datetime, timedelta
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    def urai(baris):
+        try:
+            pemasok, teks, tempo, jumlah = baris.split(",")
+            tagihan = datetime.strptime(teks.strip(), "%d/%m/%Y").date()
+            tempo = int(tempo)
+            jumlah = int(jumlah)
+        except ValueError:
+            return None
+        if tempo < 0 or jumlah <= 0:
+            return None
+        return {
+            "pemasok": pemasok.strip(),
+            "jatuh_tempo": tagihan + timedelta(days=tempo),
+            "jumlah": jumlah,
+        }
+
+
+    hari_ini = datetime.strptime(input(), "%Y-%m-%d").date()
+    n = int(input())
+    daftar = []
+    rusak = 0
+    for _ in range(n):
+        t = urai(input())
+        if t is None:
+            rusak += 1
+        else:
+            daftar.append(t)
+
+    # urutkan daftar, cetak setiap tagihan dengan statusnya, lalu cetak ringkasannya
+    print(f"Baris rusak: {rusak}")
+  hints:
+    - "Buat fungsi kunci `urutan(t)` yang mengembalikan `(t[\"jatuh_tempo\"], t[\"pemasok\"])`, lalu `for t in sorted(daftar, key=urutan):`. Siapkan juga tiga variabel bernilai 0 sebelum perulangan: `terlambat`, `uang_terlambat`, dan `minggu_ini`."
+    - "Di dalam perulangan hitung `sisa = (t[\"jatuh_tempo\"] - hari_ini).days`. Jika `sisa < 0`: statusnya `f\"terlambat {-sisa} hari\"`, tambah `terlambat` dan `uang_terlambat`. Jika `sisa == 0`: statusnya `hari ini`. Selain itu `f\"{sisa} hari lagi\"`. Untuk `sisa` dari 0 sampai 7, tambahkan jumlahnya ke `minggu_ini`."
+    - "Cetak tiap tagihan dengan `print(f\"{t['jatuh_tempo']} | {t['pemasok']} | {rupiah(t['jumlah'])} | {status}\")`. Setelah perulangan: `print(f\"Terlambat: {terlambat} tagihan, {rupiah(uang_terlambat)}\")`, lalu `print(f\"Jatuh tempo 7 hari ke depan: {rupiah(minggu_ini)}\")`, lalu baris rusak."
+  tests:
+    - input: "2025-03-14\n5\nKopi Gayo Jaya,12/02/2025,30,1250000\nRoti Makmur,24/02/2025,14,450000\nSusu Segar,01/03/2025,20,300000\nGula Manis,01/03/2025,empat,90000\nAir Galon,10/03/2025,30,120000"
+      output: "2025-03-10 | Roti Makmur | Rp450.000 | terlambat 4 hari\n2025-03-14 | Kopi Gayo Jaya | Rp1.250.000 | hari ini\n2025-03-21 | Susu Segar | Rp300.000 | 7 hari lagi\n2025-04-09 | Air Galon | Rp120.000 | 26 hari lagi\nTerlambat: 1 tagihan, Rp450.000\nJatuh tempo 7 hari ke depan: Rp1.550.000\nBaris rusak: 1"
+    - input: "2025-12-30\n4\nGula Manis,18/12/2025,14,200000\nSusu Segar,30/12/2025,8,300000\nKopi Gayo Jaya,28/11/2025,30,1250000\nAir Galon,02/12/2025,30,120000"
+      output: "2025-12-28 | Kopi Gayo Jaya | Rp1.250.000 | terlambat 2 hari\n2026-01-01 | Air Galon | Rp120.000 | 2 hari lagi\n2026-01-01 | Gula Manis | Rp200.000 | 2 hari lagi\n2026-01-07 | Susu Segar | Rp300.000 | 8 hari lagi\nTerlambat: 1 tagihan, Rp1.250.000\nJatuh tempo 7 hari ke depan: Rp320.000\nBaris rusak: 0"
+    - input: "2024-03-02\n3\nSusu Segar,22/02/2024,7,300000\nRoti Makmur,15/02/2024,14,450000\nGula Manis,01/02/2024,30,75000"
+      output: "2024-02-29 | Roti Makmur | Rp450.000 | terlambat 2 hari\n2024-02-29 | Susu Segar | Rp300.000 | terlambat 2 hari\n2024-03-02 | Gula Manis | Rp75.000 | hari ini\nTerlambat: 2 tagihan, Rp750.000\nJatuh tempo 7 hari ke depan: Rp75.000\nBaris rusak: 0"
+    - input: "2025-03-14\n2\n???\nSusu Segar,31/02/2025,7,300000"
+      output: "Terlambat: 0 tagihan, Rp0\nJatuh tempo 7 hari ke depan: Rp0\nBaris rusak: 2"
+  solution: |
+    from datetime import datetime, timedelta
+
+
+    def rupiah(angka):
+        return "Rp" + f"{angka:,}".replace(",", ".")
+
+
+    def urai(baris):
+        try:
+            pemasok, teks, tempo, jumlah = baris.split(",")
+            tagihan = datetime.strptime(teks.strip(), "%d/%m/%Y").date()
+            tempo = int(tempo)
+            jumlah = int(jumlah)
+        except ValueError:
+            return None
+        if tempo < 0 or jumlah <= 0:
+            return None
+        return {
+            "pemasok": pemasok.strip(),
+            "jatuh_tempo": tagihan + timedelta(days=tempo),
+            "jumlah": jumlah,
+        }
+
+
+    def urutan(t):
+        return (t["jatuh_tempo"], t["pemasok"])
+
+
+    hari_ini = datetime.strptime(input(), "%Y-%m-%d").date()
+    n = int(input())
+    daftar = []
+    rusak = 0
+    for _ in range(n):
+        t = urai(input())
+        if t is None:
+            rusak += 1
+        else:
+            daftar.append(t)
+
+    terlambat = 0
+    uang_terlambat = 0
+    minggu_ini = 0
+    for t in sorted(daftar, key=urutan):
+        sisa = (t["jatuh_tempo"] - hari_ini).days
+        if sisa < 0:
+            status = f"terlambat {-sisa} hari"
+            terlambat += 1
+            uang_terlambat += t["jumlah"]
+        elif sisa == 0:
+            status = "hari ini"
+        else:
+            status = f"{sisa} hari lagi"
+        if 0 <= sisa <= 7:
+            minggu_ini += t["jumlah"]
+        print(f"{t['jatuh_tempo']} | {t['pemasok']} | {rupiah(t['jumlah'])} | {status}")
+
+    print(f"Terlambat: {terlambat} tagihan, {rupiah(uang_terlambat)}")
+    print(f"Jatuh tempo 7 hari ke depan: {rupiah(minggu_ini)}")
+    print(f"Baris rusak: {rusak}")
+
+- slug: a-30-day-term-is-not-one-month
+  type: choice
+  title: Tempo 30 hari bukan satu bulan
+  prompt: |
+    Sebuah tagihan bertanggal 31 Januari 2025 dengan tempo 30 hari. Tahun 2025 bukan tahun kabisat. Apa yang ditampilkan kode ini?
+
+    ```python
+    from datetime import date, timedelta
+
+    print(date(2025, 1, 31) + timedelta(days=30))
+    ```
+  options:
+    - "`2025-02-28`"
+    - "`2025-03-01`"
+    - "`2025-03-02`"
+    - "Program berhenti dengan error karena 31 Februari tidak ada"
+  correct: [2]
+  hint: Februari 2025 punya 28 hari. Habiskan dulu 28 hari itu, lalu lihat berapa hari yang tersisa dari 30.
+  explanation: "`timedelta` menghitung hari, bukan bulan. Dari 31 Januari, 28 hari membawa kita ke 28 Februari, dan dua hari sisanya ke 2 Maret. Karena itulah jatuh tempo lebih aman dihitung Python daripada dikira-kira sebagai \"bulan depan\"."

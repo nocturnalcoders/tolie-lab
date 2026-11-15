@@ -1,0 +1,86 @@
+- slug: cart-line
+  type: code
+  title: Baris keranjang
+  prompt: |
+    Setiap isi keranjang adalah objek dengan properti `nama`, `harga`, dan `jumlah`.
+
+    Buat fungsi `barisKeranjang(item)` yang mengembalikan teks dengan format `<nama> x<jumlah> = Rp<subtotal>`, dengan subtotal adalah harga dikali jumlah.
+
+    Contoh: untuk `{ nama: "Tas rajut", harga: 85000, jumlah: 2 }` hasilnya `Tas rajut x2 = Rp170000`.
+  starter: |
+    function barisKeranjang(item) {
+      // kembalikan teks satu baris keranjang
+    }
+  hints:
+    - "Properti dibaca dengan tanda titik: `item.nama`, `item.harga`, `item.jumlah`."
+    - "Hitung dulu subtotalnya ke sebuah variabel: `const subtotal = item.harga * item.jumlah;`"
+    - "Lalu kembalikan template literal: return `${item.nama} x${item.jumlah} = Rp${subtotal}`;"
+  tests:
+    - input: "console.log(barisKeranjang({ nama: 'Tas rajut', harga: 85000, jumlah: 2 }))"
+      output: "Tas rajut x2 = Rp170000"
+    - input: "console.log(barisKeranjang({ nama: 'Gantungan kunci', harga: 12000, jumlah: 5 }))"
+      output: "Gantungan kunci x5 = Rp60000"
+    - input: "console.log(barisKeranjang({ nama: 'Syal', harga: 60000, jumlah: 1 }))"
+      output: "Syal x1 = Rp60000"
+    - input: "console.log(barisKeranjang({ nama: 'Topi rajut', harga: 45000, jumlah: 0 }))"
+      output: "Topi rajut x0 = Rp0"
+  solution: |
+    function barisKeranjang(item) {
+      const subtotal = item.harga * item.jumlah;
+      return `${item.nama} x${item.jumlah} = Rp${subtotal}`;
+    }
+
+- slug: make-a-cart-item
+  type: code
+  title: Buat isi keranjang
+  prompt: |
+    Saat pembeli menekan tombol "Tambah ke keranjang", toko membuat satu objek baru.
+
+    Buat fungsi `buatItem(nama, harga, jumlah)` yang mengembalikan objek dengan empat properti, **dalam urutan ini**: `nama`, `harga`, `jumlah`, lalu `subtotal` (harga dikali jumlah).
+
+    Contoh: `buatItem("Syal", 60000, 2)` menghasilkan
+
+    ```
+    {"nama":"Syal","harga":60000,"jumlah":2,"subtotal":120000}
+    ```
+  starter: |
+    function buatItem(nama, harga, jumlah) {
+      // kembalikan objek dengan nama, harga, jumlah, subtotal
+    }
+  hints:
+    - "Objek ditulis di dalam kurung kurawal sebagai pasangan `properti: nilai`, misalnya `{ nama: nama, harga: harga }`."
+    - "Nilai sebuah properti boleh berupa hitungan: `subtotal: harga * jumlah`. Urutan properti menentukan urutan tampilnya."
+    - "Isi fungsinya: `return { nama: nama, harga: harga, jumlah: jumlah, subtotal: harga * jumlah };`"
+  tests:
+    - input: "console.log(buatItem('Syal', 60000, 2))"
+      output: '{"nama":"Syal","harga":60000,"jumlah":2,"subtotal":120000}'
+    - input: "console.log(buatItem('Tas rajut', 85000, 1))"
+      output: '{"nama":"Tas rajut","harga":85000,"jumlah":1,"subtotal":85000}'
+    - input: "console.log(buatItem('Topi rajut', 45000, 0))"
+      output: '{"nama":"Topi rajut","harga":45000,"jumlah":0,"subtotal":0}'
+    - input: "const item = buatItem('Gantungan kunci', 12000, 4); console.log(item.subtotal); console.log(item.nama)"
+      output: "48000\nGantungan kunci"
+  solution: |
+    function buatItem(nama, harga, jumlah) {
+      return { nama: nama, harga: harga, jumlah: jumlah, subtotal: harga * jumlah };
+    }
+
+- slug: objects-and-const
+  type: choice
+  title: Objek dan const
+  prompt: |
+    Apa yang tampil?
+
+    ```javascript
+    const produk = { nama: "Syal", stok: 10 };
+    produk.stok = 9;
+    console.log(produk.stok);
+    ```
+  options:
+    - "`10`, karena `const` tidak bisa diubah"
+    - "`9`"
+    - "Error, karena `produk` dibuat dengan `const`"
+    - "`undefined`"
+  correct: [1]
+  hint: Yang dilarang `const` adalah mengganti `produk` dengan nilai lain, misalnya `produk = ...`.
+  explanation: "`const` hanya melarang `produk` diganti dengan objek lain. Properti di dalam objeknya tetap boleh diubah, jadi `produk.stok` sekarang bernilai `9`."

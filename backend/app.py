@@ -18,6 +18,7 @@ server until a question has been answered.
   GET  /api/me/courses                    the learner's courses, progress and learning streak
   POST /api/courses/<slug>/checkout       start a Stripe payment for a paid module (payments.py)
   POST /api/stripe/webhook                Stripe tells us a payment went through
+  POST /api/exercises/<id>/judge          Java / Kotlin code -> run on JDoodle and graded here (judge.py)
   GET  /healthz
 """
 from __future__ import annotations
@@ -48,6 +49,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 import content_loader
 import i18n
+import judge
 
 BASE_DIR = Path(__file__).resolve().parent
 log = logging.getLogger("lab")
@@ -79,6 +81,10 @@ SMTP_PASS = os.environ.get("SMTP_PASS", "")
 SMTP_FROM = os.environ.get("SMTP_FROM", SMTP_USER)
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+JDOODLE_CLIENT_ID = os.environ.get("JDOODLE_CLIENT_ID", "")
+JDOODLE_CLIENT_SECRET = os.environ.get("JDOODLE_CLIENT_SECRET", "")
+JDOODLE_DAILY_CREDITS = int(os.environ.get("JDOODLE_DAILY_CREDITS", "20"))  # what the JDoodle plan allows per day
+JDOODLE_USER_DAILY = int(os.environ.get("JDOODLE_USER_DAILY", "5"))  # checks one learner may use per day
 TIMEZONE = os.environ.get("LAB_TIMEZONE", "Asia/Jakarta")  # a learning day starts at midnight here
 MAX_CODE = 20000
 DUMMY_HASH = generate_password_hash(secrets.token_hex(8))
@@ -214,6 +220,15 @@ CREATE TABLE IF NOT EXISTS certificates (
   revoked_at TIMESTAMPTZ,
   UNIQUE (user_id, course_id)
 );
+ALTER TABLE certificates ADD COLUMN IF NOT EXISTS locale TEXT;
+UPDATE certificates c SET locale = co.locale FROM courses co WHERE co.id = c.course_id AND c.locale IS NULL;
+ALTER TABLE courses ADD COLUMN IF NOT EXISTS i18n JSONB NOT NULL DEFAULT '{}';
+ALTER TABLE lessons ADD COLUMN IF NOT EXISTS i18n JSONB NOT NULL DEFAULT '{}';
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS i18n JSONB NOT NULL DEFAULT '{}';
+CREATE TABLE IF NOT EXISTS judge_usage (
+  day DATE PRIMARY KEY,
+  used INTEGER NOT NULL DEFAULT 0
+);
 CREATE TABLE IF NOT EXISTS orders (
   id BIGSERIAL PRIMARY KEY,
   user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -254,6 +269,63 @@ def release_db(_exc) -> None:
             pool.putconn(conn)
 
 
+# Lessons and exercises of an old course matched with those of the course that replaces it, by their order.
+PAIRS_SQL = """
+WITH lm AS (
+  SELECT o.id AS old_id, n.id AS new_id
+  FROM (SELECT id, row_number() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = %(old)s) o
+  JOIN (SELECT id, row_number() OVER (ORDER BY position, id) AS rn FROM lessons WHERE course_id = %(new)s) n USING (rn)),
+em AS (
+  SELECT o.id AS old_id, n.id AS new_id
+  FROM (SELECT e.id, lm.new_id AS lesson, row_number() OVER (PARTITION BY e.lesson_id ORDER BY e.position, e.id) AS rn
+        FROM exercises e JOIN lm ON lm.old_id = e.lesson_id) o
+  JOIN (SELECT e.id, e.lesson_id AS lesson, row_number() OVER (PARTITION BY e.lesson_id ORDER BY e.position, e.id) AS rn
+        FROM exercises e) n ON n.lesson = o.lesson AND n.rn = o.rn)
+"""
+
+
+def absorb_course(conn: psycopg.Connection, new_id: int, old_slug: str) -> None:
+    """Moves the learners of a course that became a translation of another one (`replaces:` in course.yml).
+
+    Progress, code, access and certificates go to the matching lesson and exercise of the new course.
+    Runs once: afterwards the old course is gone (or hidden, if someone holds a certificate for both).
+    """
+    old = conn.execute("SELECT id, locale FROM courses WHERE slug = %s AND status = 'published' AND id <> %s",
+                       (old_slug, new_id)).fetchone()
+    if not old:
+        return
+    ids = {"old": old["id"], "new": new_id}
+    conn.execute(PAIRS_SQL + """
+        INSERT INTO exercise_progress (user_id, exercise_id, attempts, passed_at, last_code, updated_at)
+        SELECT p.user_id, em.new_id, p.attempts, p.passed_at, p.last_code, p.updated_at
+        FROM exercise_progress p JOIN em ON em.old_id = p.exercise_id
+        ON CONFLICT (user_id, exercise_id) DO UPDATE SET
+          attempts = exercise_progress.attempts + EXCLUDED.attempts,
+          passed_at = LEAST(exercise_progress.passed_at, EXCLUDED.passed_at),
+          last_code = COALESCE(exercise_progress.last_code, EXCLUDED.last_code)""", ids)
+    conn.execute(PAIRS_SQL + "UPDATE submissions s SET exercise_id = em.new_id FROM em WHERE s.exercise_id = em.old_id", ids)
+    conn.execute(PAIRS_SQL + """
+        INSERT INTO lesson_progress (user_id, lesson_id, completed_at)
+        SELECT lp.user_id, lm.new_id, lp.completed_at FROM lesson_progress lp JOIN lm ON lm.old_id = lp.lesson_id
+        ON CONFLICT DO NOTHING""", ids)
+    conn.execute("""INSERT INTO enrollments (user_id, course_id, started_at)
+                    SELECT user_id, %(new)s, started_at FROM enrollments WHERE course_id = %(old)s ON CONFLICT DO NOTHING""", ids)
+    conn.execute("""INSERT INTO entitlements (user_id, course_id, source, granted_at)
+                    SELECT user_id, %(new)s, source, granted_at FROM entitlements WHERE course_id = %(old)s ON CONFLICT DO NOTHING""", ids)
+    conn.execute("UPDATE orders SET course_id = %(new)s WHERE course_id = %(old)s", ids)
+    # A certificate keeps the language it was issued in.
+    conn.execute("""UPDATE certificates c SET course_id = %(new)s, locale = COALESCE(c.locale, %(locale)s)
+                    WHERE c.course_id = %(old)s
+                      AND NOT EXISTS (SELECT 1 FROM certificates x WHERE x.course_id = %(new)s AND x.user_id = c.user_id)""",
+                 {**ids, "locale": old["locale"]})
+    if conn.execute("SELECT 1 FROM certificates WHERE course_id = %s", (old["id"],)).fetchone():
+        conn.execute("UPDATE courses SET status = 'draft' WHERE id = %s", (old["id"],))
+        log.warning("course %s is replaced but kept as a draft: some learners hold a certificate for both", old_slug)
+    else:
+        conn.execute("DELETE FROM courses WHERE id = %s", (old["id"],))
+    log.info("course %s was folded into its replacement", old_slug)
+
+
 def sync_content(conn: psycopg.Connection, courses: list[dict]) -> None:
     """Make the database match the content files. Progress is never deleted.
 
@@ -262,32 +334,34 @@ def sync_content(conn: psycopg.Connection, courses: list[dict]) -> None:
     kept = 0
     for c in courses:
         conn.execute(
-            """INSERT INTO courses (slug, title, language, locale, level, kind, price_idr, status, position, summary, perks, certificate, updated_at)
+            """INSERT INTO courses (slug, title, language, locale, level, kind, price_idr, status, position, summary, perks, certificate, i18n, updated_at)
                VALUES (%(slug)s, %(title)s, %(language)s, %(locale)s, %(level)s, %(kind)s, %(price_idr)s, %(status)s, %(position)s,
-                       %(summary)s, %(perks)s, %(certificate)s, now())
+                       %(summary)s, %(perks)s, %(certificate)s, %(i18n)s, now())
                ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, language = EXCLUDED.language, locale = EXCLUDED.locale,
                  level = EXCLUDED.level, kind = EXCLUDED.kind, price_idr = EXCLUDED.price_idr,
                  status = EXCLUDED.status, position = EXCLUDED.position, summary = EXCLUDED.summary,
-                 perks = EXCLUDED.perks, certificate = EXCLUDED.certificate, updated_at = now()
-               WHERE courses.source = 'file'""", {**c, "perks": Jsonb(c["perks"])})
+                 perks = EXCLUDED.perks, certificate = EXCLUDED.certificate, i18n = EXCLUDED.i18n, updated_at = now()
+               WHERE courses.source = 'file'""", {**c, "perks": Jsonb(c["perks"]), "i18n": Jsonb(c["i18n"])})
         cid = conn.execute("SELECT id FROM courses WHERE slug = %s", (c["slug"],)).fetchone()["id"]
         for li, lesson in enumerate(c["lessons"], 1):
             conn.execute(
-                """INSERT INTO lessons (course_id, slug, title, position, body_md) VALUES (%s, %s, %s, %s, %s)
+                """INSERT INTO lessons (course_id, slug, title, position, body_md, i18n) VALUES (%s, %s, %s, %s, %s, %s)
                    ON CONFLICT (course_id, slug) DO UPDATE SET title = EXCLUDED.title,
-                     position = EXCLUDED.position, body_md = EXCLUDED.body_md
-                   WHERE lessons.source = 'file'""", (cid, lesson["slug"], lesson["title"], li, lesson["body"]))
+                     position = EXCLUDED.position, body_md = EXCLUDED.body_md, i18n = EXCLUDED.i18n
+                   WHERE lessons.source = 'file'""", (cid, lesson["slug"], lesson["title"], li, lesson["body"], Jsonb(lesson["i18n"])))
             lid = conn.execute("SELECT id FROM lessons WHERE course_id = %s AND slug = %s", (cid, lesson["slug"])).fetchone()["id"]
             for ei, ex in enumerate(lesson["exercises"], 1):
                 conn.execute(
-                    """INSERT INTO exercises (lesson_id, slug, position, type, title, prompt_md, required, config)
-                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    """INSERT INTO exercises (lesson_id, slug, position, type, title, prompt_md, required, config, i18n)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                        ON CONFLICT (lesson_id, slug) DO UPDATE SET position = EXCLUDED.position,
                          type = EXCLUDED.type, title = EXCLUDED.title, prompt_md = EXCLUDED.prompt_md,
-                         required = EXCLUDED.required, config = EXCLUDED.config
+                         required = EXCLUDED.required, config = EXCLUDED.config, i18n = EXCLUDED.i18n
                        WHERE exercises.source = 'file'""",
-                    (lid, ex["slug"], ei, ex["type"], ex["title"], ex["prompt"], ex["required"], Jsonb(ex["config"])))
+                    (lid, ex["slug"], ei, ex["type"], ex["title"], ex["prompt"], ex["required"], Jsonb(ex["config"]), Jsonb(ex["i18n"])))
                 kept += 1
+        for old_slug in c["replaces"]:
+            absorb_course(conn, cid, old_slug)
     log.info("content synced: %d courses, %d exercises", len(courses), kept)
 
 
@@ -522,7 +596,7 @@ def send_reset(user: dict, lang: str = "id") -> bool:
 @app.get("/api/session")
 def api_session():
     return jsonify(user=user_json(current_user()), csrf=csrf_token(), verification=EMAIL_VERIFICATION,
-                   payments=bool(STRIPE_SECRET_KEY))
+                   payments=bool(STRIPE_SECRET_KEY), judge=bool(JDOODLE_CLIENT_ID and JDOODLE_CLIENT_SECRET))
 
 
 @app.post("/api/register")
@@ -683,10 +757,25 @@ def published_course(slug: str) -> dict:
     return row
 
 
+def translation(row: dict, lang: str | None = None) -> dict:
+    """The texts of a course, lesson or exercise in the visitor's language ({} when it has none)."""
+    return (row.get("i18n") or {}).get(lang or i18n.lang_of(request)) or {}
+
+
+def course_view(c: dict, lang: str | None = None) -> dict:
+    """A course row with its texts in the visitor's language; `shown_locale` is the language they are in."""
+    lang = lang or i18n.lang_of(request)
+    t = translation(c, lang)
+    return {**c, **{k: t[k] for k in ("title", "level", "summary", "perks") if k in t},
+            "shown_locale": lang if t else c["locale"]}
+
+
 def lesson_states(user_id: int | None, course_id: int) -> list[dict]:
     """Every lesson of a course with its exercise counts and whether the learner finished it."""
     lessons = db().execute(
-        "SELECT id, slug, title, position FROM lessons WHERE course_id = %s ORDER BY position", (course_id,)).fetchall()
+        "SELECT id, slug, title, position, i18n FROM lessons WHERE course_id = %s ORDER BY position", (course_id,)).fetchall()
+    for x in lessons:
+        x["title"] = translation(x).get("title", x["title"])
     ids = [x["id"] for x in lessons]
     counts = {}
     done_lessons: set[int] = set()
@@ -720,8 +809,11 @@ def progress_summary(lessons: list[dict]) -> dict:
 
 
 def course_json(c: dict) -> dict:
-    return {"slug": c["slug"], "title": c["title"], "language": c["language"], "locale": c["locale"], "level": c["level"],
-            "kind": c["kind"], "price_idr": c["price_idr"], "summary": c["summary"]}
+    """`locale` is the language the texts are in; `locales` are all the languages the course has."""
+    v = course_view(c)
+    return {"slug": v["slug"], "title": v["title"], "language": v["language"], "locale": v["shown_locale"],
+            "locales": [c["locale"], *sorted(c.get("i18n") or {})], "level": v["level"],
+            "kind": v["kind"], "price_idr": v["price_idr"], "summary": v["summary"]}
 
 
 @app.get("/api/courses")
@@ -729,7 +821,8 @@ def api_courses():
     user = current_user()
     lang = request.args.get("lang", "all")
     if lang in i18n.LANGS:
-        rows = db().execute("SELECT * FROM courses WHERE status = 'published' AND locale = %s ORDER BY position, id", (lang,)).fetchall()
+        rows = db().execute("SELECT * FROM courses WHERE status = 'published' AND (locale = %s OR jsonb_exists(i18n, %s)) "
+                            "ORDER BY position, id", (lang, lang)).fetchall()
     else:
         rows = db().execute("SELECT * FROM courses WHERE status = 'published' ORDER BY position, id").fetchall()
     out = []
@@ -752,22 +845,26 @@ def api_course(slug: str):
     lessons = lesson_states(user["id"] if user else None, c["id"])
     summary = progress_summary(lessons) if user else None
     return jsonify(
-        course={**course_json(c), "perks": c["perks"], "certificate": c["certificate"]}, access=access, progress=summary,
+        course={**course_json(c), "perks": course_view(c)["perks"], "certificate": c["certificate"]}, access=access, progress=summary,
         lessons=[{"slug": x["slug"], "title": x["title"], "position": x["position"],
                   "exercise_count": x["exercise_count"], "done": x["done"], "locked": not access} for x in lessons])
 
 
 def exercise_json(row: dict, prog: dict | None) -> dict:
-    cfg = row["config"]
-    out = {"id": row["id"], "slug": row["slug"], "type": row["type"], "title": row["title"],
-           "prompt_html": render_md(row["prompt_md"]), "required": row["required"],
+    t = translation(row)
+    cfg = t.get("config", row["config"])
+    out = {"id": row["id"], "slug": row["slug"], "type": row["type"], "title": t.get("title", row["title"]),
+           "prompt_html": render_md(t.get("prompt", row["prompt_md"])), "required": row["required"],
            "passed": bool(prog and prog["passed_at"]), "attempts": prog["attempts"] if prog else 0}
     if row["type"] == "code":
         hints = cfg.get("hints") or ([cfg["hint"]] if cfg.get("hint") else [])
-        out["code"] = {"language": cfg["language"], "starter": cfg["starter"], "hints": hints,
+        # `runs`: where the code is run and graded. Java and Kotlin go to the server (judge.py).
+        out["code"] = {"language": cfg["language"], "runs": "server" if cfg["language"] in judge.LANGUAGES else "browser",
+                       "starter": cfg["starter"], "hints": hints,
                        "tests": cfg["tests"], "saved": (prog or {}).get("last_code")}
         if cfg["language"] == "sql":
             out["code"]["setup"] = cfg.get("setup", "")
+            out["code"]["check"] = cfg.get("check", "")
     else:
         out["choice"] = {"options_html": [render_inline(o) for o in cfg["options"]], "multiple": cfg["multiple"]}
     return out
@@ -783,6 +880,7 @@ def api_lesson(slug: str, lesson_slug: str):
     lesson = db().execute("SELECT * FROM lessons WHERE course_id = %s AND slug = %s", (c["id"], lesson_slug)).fetchone()
     if not lesson:
         abort(404)
+    lt = translation(lesson)
     states = lesson_states(user["id"] if user else None, c["id"])
     index = next(i for i, x in enumerate(states) if x["id"] == lesson["id"])
     exercises = db().execute("SELECT * FROM exercises WHERE lesson_id = %s ORDER BY position", (lesson["id"],)).fetchall()
@@ -796,9 +894,9 @@ def api_lesson(slug: str, lesson_slug: str):
     prev_l = states[index - 1] if index > 0 else None
     next_l = states[index + 1] if index + 1 < len(states) else None
     return jsonify(
-        course={"slug": c["slug"], "title": c["title"], "language": c["language"]},
-        lesson={"id": lesson["id"], "slug": lesson["slug"], "title": lesson["title"], "position": lesson["position"],
-                "total": len(states), "html": render_md(lesson["body_md"]), "done": states[index]["done"]},
+        course={"slug": c["slug"], "title": course_view(c)["title"], "language": c["language"]},
+        lesson={"id": lesson["id"], "slug": lesson["slug"], "title": lt.get("title", lesson["title"]), "position": lesson["position"],
+                "total": len(states), "html": render_md(lt.get("body", lesson["body_md"])), "done": states[index]["done"]},
         exercises=[exercise_json(e, progress.get(e["id"])) for e in exercises],
         prev={"slug": prev_l["slug"], "title": prev_l["title"]} if prev_l else None,
         next={"slug": next_l["slug"], "title": next_l["title"]} if next_l else None,
@@ -857,7 +955,7 @@ def api_answer(exercise_id: int):
     if rate_blocked(f"run:{user['id']}", 120, 60):
         return jsonify(error="Pelan-pelan sebentar, terlalu banyak percobaan dalam semenit."), 429
     rate_hit(f"run:{user['id']}", 60)
-    cfg = ex["config"]
+    cfg = translation(ex).get("config", ex["config"])  # a translation has the same options and answers, in its own words
     chosen = json_body().get("choice")
     if (not isinstance(chosen, list) or not chosen or len(chosen) > len(cfg["options"])
             or not all(isinstance(i, int) and not isinstance(i, bool) and 0 <= i < len(cfg["options"]) for i in chosen)):
@@ -884,7 +982,7 @@ def api_answer(exercise_id: int):
 def api_result(exercise_id: int):
     user = current_user()
     ex, _course = load_exercise(exercise_id)
-    if ex["type"] != "code":
+    if ex["type"] != "code" or ex["config"]["language"] in judge.LANGUAGES:  # server-run languages are graded by /judge only
         return jsonify(error="Latihan ini bukan latihan kode."), 400
     if rate_blocked(f"run:{user['id']}", 120, 60):
         return jsonify(error="Pelan-pelan sebentar, terlalu banyak percobaan dalam semenit."), 429
@@ -1039,10 +1137,13 @@ _helpers = types.SimpleNamespace(
     db=db, current_user=current_user, login_required=login_required, check_csrf=check_csrf, json_body=json_body,
     rate_blocked=rate_blocked, rate_hit=rate_hit, client_ip=client_ip, lesson_states=lesson_states,
     progress_summary=progress_summary, published_course=published_course, has_access=has_access,
-    render_md=render_md, user_json=user_json, site_url=lambda: SITE_URL,
+    render_md=render_md, user_json=user_json, site_url=lambda: SITE_URL, course_view=course_view,
+    lang=lambda: i18n.lang_of(request),
     email_verification=lambda: EMAIL_VERIFICATION, base_dir=BASE_DIR,
     stripe_secret_key=lambda: STRIPE_SECRET_KEY, stripe_webhook_secret=lambda: STRIPE_WEBHOOK_SECRET,
-    timezone=lambda: TIMEZONE,
+    timezone=lambda: TIMEZONE, translation=translation, load_exercise=load_exercise, record=record, after_pass=after_pass,
+    max_code=lambda: MAX_CODE, judge_keys=lambda: (JDOODLE_CLIENT_ID, JDOODLE_CLIENT_SECRET),
+    judge_daily_credits=lambda: JDOODLE_DAILY_CREDITS, judge_user_daily=lambda: JDOODLE_USER_DAILY,
 )
 import certificates  # noqa: E402
 import admin  # noqa: E402
@@ -1051,6 +1152,7 @@ import payments  # noqa: E402
 certificates.register(app, _helpers)
 admin.register(app, _helpers)
 payments.register(app, _helpers)
+judge.register(app, _helpers)
 
 init_db()
 

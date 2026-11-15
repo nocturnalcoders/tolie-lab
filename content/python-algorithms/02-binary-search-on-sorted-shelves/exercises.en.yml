@@ -1,0 +1,140 @@
+- slug: how-many-steps-at-most
+  type: code
+  title: How many steps at most?
+  prompt: |
+    Mr. Darto wants to know how big the difference is before going to the trouble of sorting the shelves.
+
+    The input is one number `n`, the number of parcels in the warehouse. Print the **largest** number of steps it can take to find one parcel, in two ways:
+
+    ```
+    One by one: 1000
+    Halving: 10
+    ```
+
+    Count the halving steps with a loop: divide `n` with `// 2` again and again until it reaches 0, and count how many divisions that took.
+  language: python
+  starter: |
+    n = int(input())
+
+    steps = 0
+    # halve the remaining parcels again and again until none are left,
+    # and count how many times
+
+    print(f"One by one: {n}")
+    print(f"Halving: {steps}")
+  hints:
+    - "The first line is already right. For the second line you need `while`, because the number of repeats is not known up front."
+    - "Copy `n` into another variable first, for example `remaining = n`, so `n` is still intact when it is printed. Then repeat as long as `remaining > 0`."
+    - "The loop body is two lines: `remaining = remaining // 2` and `steps += 1`. For `n = 0` the loop never runs, so the steps are 0."
+  tests:
+    - input: "1000"
+      output: "One by one: 1000\nHalving: 10"
+    - input: "8"
+      output: "One by one: 8\nHalving: 4"
+    - input: "1"
+      output: "One by one: 1\nHalving: 1"
+    - input: "0"
+      output: "One by one: 0\nHalving: 0"
+    - input: "1000000"
+      output: "One by one: 1000000\nHalving: 20"
+  solution: |
+    n = int(input())
+
+    steps = 0
+    remaining = n
+    while remaining > 0:
+        remaining = remaining // 2
+        steps += 1
+
+    print(f"One by one: {n}")
+    print(f"Halving: {steps}")
+
+- slug: find-a-tracking-number-by-halving
+  type: code
+  title: Find a tracking number by halving
+  prompt: |
+    The first line holds `n`, then `n` lines of tracking numbers as whole numbers, **already sorted** from small to large. The last line is the tracking number to find.
+
+    Search with binary search as in the lesson: start from `left = 0` and `right = n - 1`, and each round check `middle = (left + right) // 2`. Print its position (starting from 1) and the number of steps, meaning how many times the value at `middle` was checked:
+
+    ```
+    Found at position 6
+    Steps: 2
+    ```
+
+    If the tracking number is not there, the first line becomes `Not found`.
+  language: python
+  starter: |
+    n = int(input())
+    tracking = []
+    for _ in range(n):
+        tracking.append(int(input()))
+    wanted = int(input())
+
+    left = 0
+    right = n - 1
+    position = 0
+    steps = 0
+    # repeat while left <= right: check the middle,
+    # then throw away the half that cannot hold it
+
+    if position > 0:
+        print(f"Found at position {position}")
+    else:
+        print("Not found")
+    print(f"Steps: {steps}")
+  hints:
+    - "The frame is `while left <= right:`. Inside it, work out `middle`, add to `steps`, and then there are three cases: equal to, smaller than, or larger than the wanted number."
+    - "If `tracking[middle] == wanted`: store `position = middle + 1` and `break`. If `tracking[middle] < wanted`, the parcel is to the right, so `left = middle + 1`."
+    - "The last case (`else`): `right = middle - 1`. Do not forget that `+ 1` and `- 1`. Without them the area never shrinks and the program loops forever."
+  tests:
+    - input: "7\n105\n118\n124\n131\n140\n152\n167\n152"
+      output: "Found at position 6\nSteps: 2"
+    - input: "7\n105\n118\n124\n131\n140\n152\n167\n105"
+      output: "Found at position 1\nSteps: 3"
+    - input: "7\n105\n118\n124\n131\n140\n152\n167\n130"
+      output: "Not found\nSteps: 3"
+    - input: "0\n105"
+      output: "Not found\nSteps: 0"
+    - input: "10\n11\n22\n33\n44\n55\n66\n77\n88\n99\n110\n99"
+      output: "Found at position 9\nSteps: 3"
+  solution: |
+    n = int(input())
+    tracking = []
+    for _ in range(n):
+        tracking.append(int(input()))
+    wanted = int(input())
+
+    left = 0
+    right = n - 1
+    position = 0
+    steps = 0
+    while left <= right:
+        middle = (left + right) // 2
+        steps += 1
+        if tracking[middle] == wanted:
+            position = middle + 1
+            break
+        elif tracking[middle] < wanted:
+            left = middle + 1
+        else:
+            right = middle - 1
+
+    if position > 0:
+        print(f"Found at position {position}")
+    else:
+        print("Not found")
+    print(f"Steps: {steps}")
+
+- slug: why-does-it-have-to-be-sorted
+  type: choice
+  title: Why does it have to be sorted?
+  prompt: Why may binary search only be used on data that is already sorted?
+  options:
+    - "Because Python refuses to run `while` on a shuffled list"
+    - "Because only on sorted data is one comparison in the middle enough to be sure which half cannot hold the answer"
+    - "Because sorted data uses less memory"
+    - "Because on shuffled data binary search always checks every entry"
+  correct: [1]
+  hint: Think about what we conclude after looking at the middle shelf.
+  explanation: After looking at the middle, we throw away half of the shelves without checking them. That is only valid when everything on the left is certainly smaller and everything on the right is certainly larger, in other words when the data is sorted. On shuffled data the program still runs, but it can answer "not found" for a parcel that is actually there.

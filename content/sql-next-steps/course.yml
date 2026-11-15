@@ -1,0 +1,33 @@
+slug: sql-next-steps
+title: "SQL Lanjutan: Laporan untuk Warung Kopi"
+language: sql
+locale: id
+level: Menengah
+kind: course
+price_idr: 0
+status: published
+position: 12
+summary: >-
+  Lanjutan dari SQL Dasar, masih dengan data Warung Kopi Senja: menemukan menu
+  yang belum pernah dipesan dengan LEFT JOIN, mengelompokkan dengan CASE,
+  memakai subquery, membuat laporan per hari dan per bulan, menyusun laporan
+  bertahap dengan WITH, sampai memberi peringkat menu terlaris dengan fungsi
+  window.
+perks:
+  - 6 pelajaran, 12 latihan kode, dan 6 soal pilihan ganda
+  - Semua latihan dijalankan langsung di browser
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie
+translations:
+  en:
+    title: "SQL Next Steps: Reports for a Coffee Shop"
+    level: Intermediate
+    summary: >-
+      The follow-up to SQL Basics, still with the data of Senja Coffee Shop:
+      finding menu items nobody has ordered with LEFT JOIN, grouping with CASE,
+      using subqueries, building reports per day and per month, writing
+      multi-step reports with WITH, and ranking the best sellers with a window
+      function.
+    perks:
+      - 6 lessons, 12 coding exercises and 6 multiple-choice questions
+      - Every exercise runs right in your browser, nothing to install
+      - A completion certificate from tolie.space, signed by Christianto Lie

@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getLang, langHeaders, translate } from './i18n.js';
+import { useLang } from './lang.jsx';
 
-// GET a JSON endpoint. Change `path` (or bump `reloadKey`) to fetch again.
+// GET a JSON endpoint. Change `path` (or bump `reloadKey`) to fetch again. It also fetches again
+// when the visitor switches language, because courses come back in the language that was asked for.
 export function useApi(path, reloadKey = 0) {
   const [state, setState] = useState({ data: null, error: null, loading: true });
+  const { lang } = useLang();
 
   useEffect(() => {
     if (!path) return undefined;
@@ -28,7 +31,7 @@ export function useApi(path, reloadKey = 0) {
       alive = false;
       ctl.abort();
     };
-  }, [path, reloadKey]);
+  }, [path, reloadKey, lang]);
 
   return state;
 }

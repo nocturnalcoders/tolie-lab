@@ -1,0 +1,160 @@
+- slug: if-as-an-expression
+  type: choice
+  title: if as an expression
+  prompt: |
+    Dimas wrote:
+
+    ```kotlin
+    val rate = if (weight >= 5) 6000 else 7000
+    ```
+
+    Which statement about this line is true?
+  options:
+    - "Both branches run first, then Kotlin picks one of the results"
+    - "`if` produces a value, so the result can be stored straight into a `val`; that is why the `else` is required"
+    - "`rate` should be a `var`, because its value is decided by an `if`"
+    - "This is just a shorthand; Kotlin also has the form `weight >= 5 ? 6000 : 7000`"
+  correct: [1]
+  hint: How many times is `rate` given a value on that line?
+  explanation: >-
+    In Kotlin `if` is an expression: it produces the value of the chosen branch, and only that
+    branch runs. Because there must always be a value, the `else` has to be written. `rate` can
+    stay a `val`, since it is assigned only once. Kotlin has no `? :` operator; this `if`-`else`
+    is what replaces it.
+
+- slug: what-does-it-print
+  type: choice
+  title: What does it print?
+  prompt: |
+    What does this program print?
+
+    ```kotlin
+    fun main() {
+        val weight = 10
+        val category = when (weight) {
+            in 1..4 -> "Small"
+            in 5..10 -> "Medium"
+            else -> "Large"
+        }
+        println(category)
+    }
+    ```
+  options:
+    - "`Medium`"
+    - "`Large`"
+    - "`Medium`, then `Large` on the next line"
+    - "`Small`"
+  correct: [0]
+  hint: Is the last number of the range `5..10` included?
+  explanation: >-
+    The range `5..10` includes 10, so the second branch matches and `category` holds `Medium`.
+    The answer `Large` comes from thinking a range stops before its last number, like `range()`
+    in Python; in Kotlin that is what `until` does. `when` runs only one branch, so the `else`
+    does not run as well.
+
+- slug: which-line-is-rejected
+  type: choice
+  title: Which line is rejected?
+  prompt: |
+    One line stops this program from compiling. Which line, and why?
+
+    ```kotlin
+    fun main() {
+        val weight = 12                                     // line 1
+        val size = if (weight > 10) "large" else "normal"   // line 2
+        val discount = if (weight > 10) 5000                // line 3
+        for (i in 1..3) println(i)                          // line 4
+        println("$size $discount")                          // line 5
+    }
+    ```
+  options:
+    - "Line 2: the result of an `if` cannot be stored in a `val`"
+    - "Line 4: `for` must use curly braces"
+    - "Line 3: an `if` used as a value must have an `else`"
+    - "Line 5: two variables cannot be in one piece of text"
+  correct: [2]
+  hint: If `weight` were 8, what would `discount` hold?
+  explanation: >-
+    On line 3, `if` is used as the value of `discount` but has no `else`. Kotlin would not know
+    what `discount` holds when the condition is false, so the line is rejected. It does not
+    matter that `weight` happens to be 12 this time: the compiler checks every possibility.
+    Line 2 is the correct form, and a `for` with a single statement may be written without
+    curly braces.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Fill in the blank
+  prompt: |
+    This program must print exactly three lines: `Shelf 1`, `Shelf 2`, `Shelf 3`.
+    What goes in place of `____`?
+
+    ```kotlin
+    fun main() {
+        for (shelf in ____) {
+            println("Shelf $shelf")
+        }
+    }
+    ```
+  options:
+    - "`1 until 3`"
+    - "`range(1, 4)`"
+    - "`0..3`"
+    - "`1..3`"
+  correct: [3]
+  hint: "`..` includes the last number, while `until` does not."
+  explanation: >-
+    `1..3` holds 1, 2, 3, so exactly three lines are printed. `1 until 3` stops before 3 and
+    prints only `Shelf 1` and `Shelf 2`. `0..3` prints four lines, starting with `Shelf 0`.
+    `range(1, 4)` is the Python way; Kotlin has no such function.
+
+- slug: practice-price-tiers
+  type: code
+  required: false
+  title: "Practice: price tiers with when"
+  prompt: |
+    The laundry rate depends on the weight: 1 to 3 kg is `7000` per kg, 4 to 10 kg is `6000` per kg, anything above is `5000` per kg. Complete the `when` so that `rate` is right. The program prints `Rp<weight × rate>`.
+
+    This exercise is optional. Your code runs on the server, and the daily allowance is small.
+  starter: |
+    fun main() {
+        val kg = readln().toInt()
+        val rate = when (kg) {
+            // 1 to 3 -> 7000, 4 to 10 -> 6000
+            else -> 5000
+        }
+        println("Rp${kg * rate}")
+    }
+  hints:
+    - "A `when` branch can be a range: `in 1..3 -> ...`."
+    - "Add two branches before `else`: `in 1..3 -> 7000` and `in 4..10 -> 6000`."
+  tests:
+    - input: |
+        2
+      output: |
+        Rp14000
+    - input: |
+        3
+      output: |
+        Rp21000
+    - input: |
+        4
+      output: |
+        Rp24000
+    - input: |
+        10
+      output: |
+        Rp60000
+    - input: |
+        11
+      output: |
+        Rp55000
+  solution: |
+    fun main() {
+        val kg = readln().toInt()
+        val rate = when (kg) {
+            in 1..3 -> 7000
+            in 4..10 -> 6000
+            else -> 5000
+        }
+        println("Rp${kg * rate}")
+    }

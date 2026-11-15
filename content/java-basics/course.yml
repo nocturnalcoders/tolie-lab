@@ -1,0 +1,33 @@
+slug: java-basics
+title: "Java Dasar: Membaca dan Memahami Kode"
+language: java
+locale: id
+level: Pemula
+kind: course
+price_idr: 0
+status: published
+position: 18
+summary: >-
+  Belajar membaca Java lewat program kecil di ruang belakang Toko Buku Lentera:
+  mencetak label, menghitung stok, memberi diskon, merekap penjualan, sampai
+  class Buku. Cocok untuk kamu yang sudah kenal sedikit pemrograman, misalnya
+  Python dasar, dan ingin bisa memahami kode Java.
+perks:
+  - 6 pelajaran dan 24 soal pilihan ganda
+  - "Kursus membaca kode: Java tidak dijalankan di browser, kamu menelusuri program Java yang utuh lalu menjawab soal"
+  - Setiap soal punya petunjuk dan pembahasan, termasuk mengapa jawaban yang menggoda itu salah
+  - Sertifikat penyelesaian dari tolie.space dengan tanda tangan Christianto Lie
+translations:
+  en:
+    title: "Java Basics: Reading and Understanding Code"
+    level: Beginner
+    summary: >-
+      Learn to read Java through the small programs in the back office of
+      Lentera Bookshop: printing labels, counting stock, giving discounts,
+      summarising sales, and finally a Book class. For people who already know a
+      little programming, for example Python basics, and want to understand Java code.
+    perks:
+      - 6 lessons and 24 multiple-choice questions
+      - "A code-reading course: Java is not run in the browser, you trace complete Java programs and answer questions about them"
+      - Every question has a hint and an explanation, including why the tempting answer is wrong
+      - A completion certificate from tolie.space, signed by Christianto Lie

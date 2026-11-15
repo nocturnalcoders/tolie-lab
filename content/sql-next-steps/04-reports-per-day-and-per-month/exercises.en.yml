@@ -1,0 +1,151 @@
+- slug: revenue-per-month
+  type: code
+  title: Revenue per month
+  prompt: |
+    Build a monthly report for Ms. Rina. Join `orders` with `menu`, then show one row per month with three columns:
+
+    - `month`: the year and month as text, for example `2024-03`
+    - `transactions`: how many orders there were in that month
+    - `revenue`: the sum of price times quantity
+
+    Sort by `month`.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+    CREATE TABLE orders (id INTEGER PRIMARY KEY, order_date TEXT, menu_id INTEGER, quantity INTEGER);
+    INSERT INTO orders VALUES
+      (1, '2024-02-26', 2, 2),
+      (2, '2024-02-26', 5, 1),
+      (3, '2024-02-28', 3, 3),
+      (4, '2024-03-01', 2, 1),
+      (5, '2024-03-01', 7, 2),
+      (6, '2024-03-15', 1, 4),
+      (7, '2024-03-27', 2, 3),
+      (8, '2024-03-29', 6, 3),
+      (9, '2024-03-31', 5, 2),
+      (10, '2024-04-01', 2, 2),
+      (11, '2024-04-01', 1, 3),
+      (12, '2024-04-02', 7, 1);
+  starter: |
+    -- this is still a summary per day; turn it into one per month
+    SELECT o.order_date AS month, COUNT(*) AS transactions, SUM(m.price * o.quantity) AS revenue
+    FROM orders o
+    JOIN menu m ON m.id = o.menu_id
+    GROUP BY o.order_date
+    ORDER BY o.order_date;
+  hints:
+    - "To get every date of the same month into one group, first turn each date into its month text."
+    - "`strftime('%Y-%m', o.order_date)` turns `2024-03-15` into `2024-03`. Use that as the `month` column."
+    - "The first line becomes `SELECT strftime('%Y-%m', o.order_date) AS month, ...`, followed by `GROUP BY month` and `ORDER BY month`."
+  tests:
+    - output: |
+        month|transactions|revenue
+        2024-02|3|84000
+        2024-03|6|222000
+        2024-04|3|85000
+    - input: |
+        INSERT INTO orders VALUES
+          (13, '2024-02-29', 4, 2),
+          (14, '2024-05-01', 2, 1),
+          (15, '2024-05-03', 5, 2);
+      output: |
+        month|transactions|revenue
+        2024-02|4|100000
+        2024-03|6|222000
+        2024-04|3|85000
+        2024-05|2|51000
+  solution: |
+    SELECT strftime('%Y-%m', o.order_date) AS month, COUNT(*) AS transactions, SUM(m.price * o.quantity) AS revenue
+    FROM orders o
+    JOIN menu m ON m.id = o.menu_id
+    GROUP BY month
+    ORDER BY month;
+
+- slug: the-last-seven-days
+  type: code
+  title: The last seven days
+  prompt: |
+    Ms. Rina wants to see the servings sold per day over the **last seven days**, counted from the most recent order date in the table (that date is included). Example: when the most recent date is `2024-04-02`, the days that count are `2024-03-27` up to `2024-04-02`.
+
+    From the `orders` table, show `order_date` and the sum of all `quantity` on that day in a column named `servings`. Days without orders do not need to be shown. Sort by `order_date`.
+  setup: |
+    CREATE TABLE orders (id INTEGER PRIMARY KEY, order_date TEXT, menu_id INTEGER, quantity INTEGER);
+    INSERT INTO orders VALUES
+      (1, '2024-02-26', 2, 2),
+      (2, '2024-02-26', 5, 1),
+      (3, '2024-02-28', 3, 3),
+      (4, '2024-03-01', 2, 1),
+      (5, '2024-03-01', 7, 2),
+      (6, '2024-03-15', 1, 4),
+      (7, '2024-03-27', 2, 3),
+      (8, '2024-03-29', 6, 3),
+      (9, '2024-03-31', 5, 2),
+      (10, '2024-04-01', 2, 2),
+      (11, '2024-04-01', 1, 3),
+      (12, '2024-04-02', 7, 1);
+  starter: |
+    -- the cut-off date is typed by hand; work it out from the most recent date in the table
+    SELECT order_date, SUM(quantity) AS servings
+    FROM orders
+    WHERE order_date > '2024-03-26'
+    GROUP BY order_date
+    ORDER BY order_date;
+  hints:
+    - "The cut-off `2024-03-26` is seven days before `2024-04-02`. When a newer order comes in, the cut-off has to move along, so both need to be worked out by the database."
+    - "The most recent date comes from the subquery `(SELECT MAX(order_date) FROM orders)`. The function `date(some_date, '-7 days')` moves it back seven days."
+    - "The condition: `WHERE order_date > date((SELECT MAX(order_date) FROM orders), '-7 days')`."
+  tests:
+    - output: |
+        order_date|servings
+        2024-03-27|3
+        2024-03-29|3
+        2024-03-31|2
+        2024-04-01|5
+        2024-04-02|1
+    - input: |
+        INSERT INTO orders VALUES
+          (13, '2024-04-04', 3, 2),
+          (14, '2024-04-04', 4, 1);
+      output: |
+        order_date|servings
+        2024-03-29|3
+        2024-03-31|2
+        2024-04-01|5
+        2024-04-02|1
+        2024-04-04|3
+    - input: |
+        INSERT INTO orders VALUES (13, '2024-04-03', 1, 1);
+      output: |
+        order_date|servings
+        2024-03-29|3
+        2024-03-31|2
+        2024-04-01|5
+        2024-04-02|1
+        2024-04-03|1
+  solution: |
+    SELECT order_date, SUM(quantity) AS servings
+    FROM orders
+    WHERE order_date > date((SELECT MAX(order_date) FROM orders), '-7 days')
+    GROUP BY order_date
+    ORDER BY order_date;
+
+- slug: date-formats
+  type: choice
+  title: Date formats
+  prompt: |
+    Another shop stores its dates as `day-month-year` text, for example `'15-03-2024'`. What does that do to `ORDER BY order_date`?
+  options:
+    - "Nothing goes wrong, the database recognises a date in any format"
+    - "The rows are sorted by the day number first, so `'01-04-2024'` is shown before `'15-03-2024'`"
+    - "The statement fails because text cannot be sorted"
+    - "The rows are sorted by year, then month, then day"
+  correct: [1]
+  hint: "Dates are stored as text, and text is compared character by character from the left."
+  explanation: "Text is compared from the left, so the day number decides first: `'01-04-2024'` is smaller than `'15-03-2024'` even though 1 April comes after 15 March. The `year-month-day` format does not have this problem, because the part that matters most is written first. It is also the format that `strftime` and `date` understand."

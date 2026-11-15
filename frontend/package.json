@@ -11,10 +11,13 @@
     "test": "vitest run",
     "check-content": "node scripts/check-content.mjs ../content",
     "test:python": "node scripts/test-python-core.mjs",
-    "test:sql": "node scripts/test-sql-core.mjs"
+    "test:sql": "node scripts/test-sql-core.mjs",
+    "test:js": "node scripts/test-js-core.mjs"
   },
   "dependencies": {
     "@codemirror/commands": "^6.7.1",
+    "@codemirror/lang-java": "^6.0.2",
+    "@codemirror/lang-javascript": "^6.2.5",
     "@codemirror/lang-python": "^6.1.6",
     "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/state": "^6.4.1",

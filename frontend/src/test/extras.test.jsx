@@ -235,7 +235,7 @@ describe('SQL exercises', () => {
     await user.click(await screen.findByRole('button', { name: 'Periksa jawaban' }));
     expect(await screen.findByText('Semua 1 tes lulus.')).toBeInTheDocument();
     const [code, sentTests, , extra] = runnerMock.runTests.mock.calls[0];
-    expect([code, sentTests, extra]).toEqual(['-- tulis query', tests, { setup }]);
+    expect([code, sentTests, extra]).toEqual(['-- tulis query', tests, { setup, check: '' }]);
     await waitFor(() => expect(calls.find((c) => c.url === '/api/exercises/21/result').body).toEqual({ code: '-- tulis query', passed: 1, total: 1 }));
   });
 
@@ -322,5 +322,178 @@ describe('admin dashboard numbers', () => {
     const hard = screen.getByRole('region', { name: 'Latihan tersulit' });
     expect(within(hard).getByRole('link', { name: 'Hitung diskon' }).closest('tr')).toHaveTextContent('3 (30%)');
     expect(within(hard).getByText('4.2')).toBeInTheDocument();
+  });
+});
+
+describe('JavaScript exercises', () => {
+  const tests = [{ input: 'console.log(total(15000, 2));', output: '30000' }];
+  const jsLesson = lessonWith({ language: 'javascript', starter: '// tulis fungsi total', hints: [], tests }, { slug: 'javascript-dasar', title: 'JavaScript Dasar', language: 'javascript' });
+
+  it('uses the JavaScript runner and editor, without an input box', async () => {
+    mockApi({ ...as(USER), 'GET /api/courses/javascript-dasar/lessons/l': { body: jsLesson } });
+    renderAt('/kursus/javascript-dasar/l');
+    expect(await screen.findByText('main.js')).toBeInTheDocument();
+    expect(useRunnerMock).toHaveBeenCalledWith('javascript');
+    expect(screen.getByTestId('editor')).toHaveAttribute('data-language', 'javascript');
+    expect(screen.getByText('JavaScript siap')).toBeInTheDocument();
+    expect(screen.queryByText('Input untuk tombol Coba (opsional)')).toBeNull();
+    expect(screen.queryByText('Tabel yang tersedia')).toBeNull();
+  });
+
+  it('runs the tests and reports the result', async () => {
+    const user = userEvent.setup();
+    runnerMock.runTests.mockResolvedValue({ results: [{ index: 0, ok: true, input: tests[0].input, expected: '30000', actual: '30000\n' }], passed: 1, total: 1 });
+    mockApi({
+      ...as(USER),
+      'GET /api/courses/javascript-dasar/lessons/l': { body: jsLesson },
+      'POST /api/exercises/21/result': { body: { recorded: true, passed: true, lesson_done: true, course_done: false, progress: { done: 1, total: 1 } } },
+    });
+    renderAt('/kursus/javascript-dasar/l');
+    await user.click(await screen.findByRole('button', { name: 'Periksa jawaban' }));
+    expect(await screen.findByText('Semua 1 tes lulus.')).toBeInTheDocument();
+    const [code, sentTests, , extra] = runnerMock.runTests.mock.calls[0];
+    expect([code, sentTests, extra]).toEqual(['// tulis fungsi total', tests, {}]);
+  });
+});
+
+describe('Java and Kotlin exercises run on the server', () => {
+  const tests = [{ input: '5', output: 'Rp10' }];
+  const javaLesson = lessonWith({ language: 'java', runs: 'server', starter: 'public class Main {}', hints: [], tests }, { slug: 'java-basics', title: 'Java Dasar', language: 'java' });
+  const page = { 'GET /api/courses/java-basics/lessons/l': { body: javaLesson } };
+
+  it('sends the code to the server and shows its verdict', async () => {
+    const user = userEvent.setup();
+    mockApi({
+      ...as(USER, { judge: true }), ...page,
+      'POST /api/exercises/21/judge': { body: { results: [{ index: 0, ok: true, input: '5', expected: 'Rp10', actual: 'Rp10\n', error: '' }], passed: 1, total: 1, recorded: true, all_passed: true, credits_left: 17, lesson_done: true, course_done: false } },
+    });
+    renderAt('/kursus/java-basics/l');
+    expect(await screen.findByText('Main.java')).toBeInTheDocument();
+    expect(screen.getByText('Dijalankan di server')).toBeInTheDocument();
+    expect(screen.getByTestId('editor')).toHaveAttribute('data-language', 'java');
+    expect(screen.queryByRole('button', { name: 'Coba' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Periksa jawaban' }));
+    expect(await screen.findByText('Semua 1 tes lulus.')).toBeInTheDocument();
+    expect(screen.getByText(/Sisa jatah situs hari ini: 17\./)).toBeInTheDocument();
+    expect(await screen.findByText('Sudah selesai.')).toBeInTheDocument();
+    expect(calls.find((c) => c.url === '/api/exercises/21/judge').body).toEqual({ code: 'public class Main {}' });
+    expect(runnerMock.runTests).not.toHaveBeenCalled();
+    expect(calls.some((c) => c.url === '/api/exercises/21/result')).toBe(false);
+  });
+
+  it('shows a failed test with the compiler message', async () => {
+    const user = userEvent.setup();
+    mockApi({
+      ...as(USER, { judge: true }), ...page,
+      'POST /api/exercises/21/judge': { body: { results: [{ index: 0, ok: false, input: '5', expected: 'Rp10', actual: '', error: 'Main.java:3: error: missing return statement' }], passed: 0, total: 1, recorded: true, all_passed: false, credits_left: 3 } },
+    });
+    renderAt('/kursus/java-basics/l');
+    await user.click(await screen.findByRole('button', { name: 'Periksa jawaban' }));
+    expect(await screen.findByText('0 dari 1 tes lulus.')).toBeInTheDocument();
+    expect(screen.getByText('Main.java:3: error: missing return statement')).toBeInTheDocument();
+    expect(screen.queryByText('Sudah selesai.')).toBeNull();
+  });
+
+  it('says so when the daily allowance is used up', async () => {
+    const user = userEvent.setup();
+    mockApi({ ...as(USER, { judge: true }), ...page, 'POST /api/exercises/21/judge': { status: 429, body: { error: 'Jatah harian situs untuk menjalankan kode sudah habis. Coba lagi besok.' } } });
+    renderAt('/kursus/java-basics/l');
+    await user.click(await screen.findByRole('button', { name: 'Periksa jawaban' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Jatah harian situs');
+    expect(screen.getByRole('button', { name: 'Periksa jawaban' })).toBeEnabled();
+  });
+
+  it('cannot be run while the site has no compiler keys', async () => {
+    mockApi({ ...as(USER), ...page });
+    renderAt('/kursus/java-basics/l');
+    expect(await screen.findByRole('button', { name: 'Periksa jawaban' })).toBeDisabled();
+    expect(screen.getByText(/Menjalankan kode Java belum dibuka/)).toBeInTheDocument();
+  });
+
+  it('asks a visitor to sign in first', async () => {
+    mockApi({ ...as(null, { judge: true }), ...page });
+    renderAt('/kursus/java-basics/l');
+    expect(await screen.findByRole('button', { name: 'Periksa jawaban' })).toBeDisabled();
+    expect(screen.getByText(/Masuk untuk menjalankan kode Java/)).toBeInTheDocument();
+  });
+});
+
+describe('one course, two languages', () => {
+  const inLang = (id, en) => (opts) => ({ body: (opts.headers || {})['X-Lang'] === 'en' ? en : id });
+  const course = (title, lessonTitle, locale) => ({
+    course: { slug: 'python-dasar', title, language: 'python', locale, locales: ['id', 'en'], level: 'Pemula', kind: 'course', price_idr: 0, summary: 'S', perks: [], certificate: false },
+    access: true, progress: null, lessons: [{ slug: 'halo-warung', title: lessonTitle, position: 1, exercise_count: 1, done: false, locked: false }],
+  });
+
+  it('shows the same course page in the other language when the visitor switches', async () => {
+    const user = userEvent.setup();
+    mockApi({ ...as(null), 'GET /api/courses/python-dasar': inLang(course('Python Dasar untuk Warung Kopi', 'Halo, Warung!', 'id'), course('Python Basics for a Coffee Shop', 'Hello, Coffee Shop!', 'en')) });
+    renderAt('/kursus/python-dasar');
+    expect(await screen.findByRole('heading', { name: 'Python Dasar untuk Warung Kopi' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'EN' }));
+    expect(await screen.findByRole('heading', { name: 'Python Basics for a Coffee Shop' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '1. Hello, Coffee Shop!' })).toHaveAttribute('href', '/kursus/python-dasar/halo-warung');
+    await user.click(screen.getByRole('button', { name: 'ID' }));
+    expect(await screen.findByRole('link', { name: '1. Halo, Warung!' })).toBeInTheDocument();
+  });
+
+  it('keeps the code being written when a lesson switches language', async () => {
+    const user = userEvent.setup();
+    const lesson = (title, prompt, starter, output) => ({
+      ...lessonWith({ language: 'python', starter, hints: [], tests: [{ input: '', output }] }),
+      lesson: { id: 11, slug: 'l', title, position: 1, total: 1, html: `<p>${prompt}</p>`, done: false },
+    });
+    mockApi({ ...as(USER), 'GET /api/courses/python-dasar/lessons/l': inLang(lesson('Halo, Warung!', 'Cetak sapaan.', '# tulis di sini', 'Halo'), lesson('Hello, Coffee Shop!', 'Print a greeting.', '# write here', 'Hello')) });
+    renderAt('/kursus/python-dasar/l');
+    expect(await screen.findByRole('heading', { name: 'Halo, Warung!' })).toBeInTheDocument();
+    await user.clear(screen.getByTestId('editor'));
+    await user.type(screen.getByTestId('editor'), 'print(1)');
+    await user.click(screen.getByRole('button', { name: 'EN' }));
+    expect(await screen.findByRole('heading', { name: 'Hello, Coffee Shop!' })).toBeInTheDocument();
+    expect(screen.getByText('Print a greeting.')).toBeInTheDocument();
+    expect(screen.getByTestId('editor')).toHaveValue('print(1)');
+    runnerMock.runTests.mockResolvedValue({ results: [], passed: 0, total: 1 });
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    await waitFor(() => expect(runnerMock.runTests).toHaveBeenCalled());
+    expect(runnerMock.runTests.mock.calls[0][1]).toEqual([{ input: '', output: 'Hello' }]);
+  });
+});
+
+describe('starter code and the language switch', () => {
+  it('swaps untouched starter code for the one in the new language', async () => {
+    const user = userEvent.setup();
+    const lesson = (starter) => lessonWith({ language: 'python', starter, hints: [], tests: [{ input: '', output: '1' }] });
+    mockApi({ ...as(USER), 'GET /api/courses/python-dasar/lessons/l': (opts) => ({ body: lesson((opts.headers || {})['X-Lang'] === 'en' ? '# write here' : '# tulis di sini') }) });
+    renderAt('/kursus/python-dasar/l');
+    expect(await screen.findByTestId('editor')).toHaveValue('# tulis di sini');
+    await user.click(screen.getByRole('button', { name: 'EN' }));
+    await waitFor(() => expect(screen.getByTestId('editor')).toHaveValue('# write here'));
+    expect(calls.some((c) => c.url.endsWith('/draft'))).toBe(false);
+  });
+});
+
+describe('catalog filter', () => {
+  const card = (slug, title, language) => ({ slug, title, language, locale: 'id', locales: ['id'], level: 'Pemula', kind: 'course', price_idr: 0, summary: 'S', lesson_count: 6, exercise_count: 18, progress: null, access: true });
+  const catalog = [card('python-dasar', 'Python Dasar', 'python'), card('sql-dasar', 'SQL Dasar', 'sql'), card('kotlin-dasar', 'Kotlin Dasar', 'kotlin')];
+
+  it('narrows the catalog to one programming language and back', async () => {
+    const user = userEvent.setup();
+    mockApi({ ...as(null), 'GET /api/courses': { body: { courses: catalog } }, 'GET /api/plans': { body: { plans: [] } } });
+    renderAt('/');
+    const group = await screen.findByRole('group', { name: 'Saring menurut bahasa pemrograman' });
+    expect(within(group).getAllByRole('button').map((b) => b.textContent)).toEqual(['Semua', 'Python', 'SQL', 'Kotlin']);
+    await user.click(within(group).getByRole('button', { name: 'SQL' }));
+    expect(screen.getByRole('link', { name: 'SQL Dasar' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Python Dasar' })).toBeNull();
+    await user.click(within(group).getByRole('button', { name: 'Semua' }));
+    expect(screen.getByRole('link', { name: 'Python Dasar' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Kotlin Dasar' })).toBeInTheDocument();
+  });
+
+  it('has no filter when every course uses the same language', async () => {
+    mockApi({ ...as(null), 'GET /api/courses': { body: { courses: [catalog[0]] } }, 'GET /api/plans': { body: { plans: [] } } });
+    renderAt('/');
+    expect(await screen.findByRole('link', { name: 'Python Dasar' })).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Saring menurut bahasa pemrograman' })).toBeNull();
   });
 });

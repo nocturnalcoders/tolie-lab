@@ -1,0 +1,136 @@
+- slug: summary-of-one-order
+  type: code
+  title: Summary of one order
+  prompt: |
+    Write a function `summarizeOrder(text)` that takes the **JSON text** of one order like this:
+
+    ```
+    {"id":"L-101","buyer":{"name":"Dimas","city":"Bandung"},"items":[{"name":"Desk Lamp","quantity":1},{"name":"Scented Candle","quantity":2}]}
+    ```
+
+    and returns a summary text in the format `<id>: <name> (<city>), <total> items`. For the example above: `L-101: Dimas (Bandung), 3 items`.
+
+    `<total>` is the sum of `quantity` over all items. If `items` is empty, the total is `0`.
+  language: javascript
+  starter: |
+    const summarizeOrder = (text) => {
+      const order = JSON.parse(text);
+      // take the buyer's name and city, then add up all the items
+      return `${order.id}: ?`;
+    };
+  hints:
+    - 'After `JSON.parse` you have an ordinary object. The name of the buyer is at `order.buyer.name`, and `order.items` is an array.'
+    - 'Pull out the entries with destructuring: `const { id, buyer, items } = order;`. Work out the total with `items.reduce((t, item) => t + item.quantity, 0)`.'
+    - 'Build the result with a template literal holding `${id}: ${buyer.name} (${buyer.city}), ${total} items`. Mind the comma and the spaces.'
+  tests:
+    - input: |
+        console.log(summarizeOrder('{"id":"L-101","buyer":{"name":"Dimas","city":"Bandung"},"items":[{"name":"Desk Lamp","quantity":1},{"name":"Scented Candle","quantity":2}]}'))
+      output: "L-101: Dimas (Bandung), 3 items"
+    - input: |
+        console.log(summarizeOrder('{"id":"L-102","buyer":{"name":"Sari","city":"Cimahi"},"items":[{"name":"String Lights","quantity":4}]}'))
+      output: "L-102: Sari (Cimahi), 4 items"
+    - input: |
+        console.log(summarizeOrder('{"id":"L-103","buyer":{"name":"Bayu","city":"Garut"},"items":[]}'))
+      output: "L-103: Bayu (Garut), 0 items"
+    - input: |
+        console.log(summarizeOrder('{"id":"L-104","buyer":{"name":"Wulan","city":"Bandung"},"items":[{"name":"Paper Lantern","quantity":2},{"name":"Scented Candle","quantity":2},{"name":"Rattan Lampshade","quantity":1}]}'))
+      output: "L-104: Wulan (Bandung), 5 items"
+  solution: |
+    const summarizeOrder = (text) => {
+      const { id, buyer, items } = JSON.parse(text);
+      const { name, city } = buyer;
+      const total = items.reduce((t, item) => t + item.quantity, 0);
+      return `${id}: ${name} (${city}), ${total} items`;
+    };
+
+- slug: update-stock-in-json-data
+  type: code
+  title: Update stock in JSON data
+  prompt: |
+    The shop's stock data is kept as JSON text holding an array of products, for example:
+
+    ```
+    [{"name":"Desk Lamp","stock":4},{"name":"Scented Candle","stock":0}]
+    ```
+
+    Write a function `updateStock(text, name, newStock)` that changes the `stock` of the product called `name` to `newStock`, then returns all of the data **as JSON text again**.
+
+    Example: `updateStock(text, "Scented Candle", 12)` on the data above returns the text `[{"name":"Desk Lamp","stock":4},{"name":"Scented Candle","stock":12}]`.
+
+    If no product has that name, the data comes back unchanged.
+  language: javascript
+  starter: |
+    const updateStock = (text, name, newStock) => {
+      // turn the text into an array, update the stock,
+      // then turn it back into text
+      return text;
+    };
+  hints:
+    - 'There are three steps: `JSON.parse` to get the array, change one product inside it, then `JSON.stringify` to give it back as text.'
+    - 'Look for the product with `find`: `const p = list.find((x) => x.name === name);`. The result can be `undefined`, so only change the stock when the product exists.'
+    - 'Inside `if (p !== undefined)` write `p.stock = newStock;`. After that `return JSON.stringify(list);`. What you return has to be text, not the array.'
+  tests:
+    - input: |
+        {
+          const result = updateStock('[{"name":"Desk Lamp","stock":4},{"name":"Scented Candle","stock":0}]', "Scented Candle", 12);
+          console.log(typeof result);
+          console.log(result);
+        }
+      output: |
+        string
+        [{"name":"Desk Lamp","stock":4},{"name":"Scented Candle","stock":12}]
+    - input: |
+        {
+          const result = updateStock('[{"name":"Desk Lamp","stock":4},{"name":"Paper Lantern","stock":7},{"name":"String Lights","stock":9}]', "Desk Lamp", 0);
+          console.log(typeof result);
+          console.log(result);
+        }
+      output: |
+        string
+        [{"name":"Desk Lamp","stock":0},{"name":"Paper Lantern","stock":7},{"name":"String Lights","stock":9}]
+    - input: |
+        {
+          const result = updateStock('[{"name":"Desk Lamp","stock":4}]', "Electric Fan", 3);
+          console.log(typeof result);
+          console.log(result);
+        }
+      output: |
+        string
+        [{"name":"Desk Lamp","stock":4}]
+    - input: |
+        {
+          const result = updateStock('[]', "Desk Lamp", 3);
+          console.log(typeof result);
+          console.log(result);
+        }
+      output: |
+        string
+        []
+  solution: |
+    const updateStock = (text, name, newStock) => {
+      const list = JSON.parse(text);
+      const p = list.find((x) => x.name === name);
+      if (p !== undefined) {
+        p.stock = newStock;
+      }
+      return JSON.stringify(list);
+    };
+
+- slug: json-text-is-not-an-object
+  type: choice
+  title: JSON text is not an object
+  prompt: |
+    What is shown after this code runs?
+
+    ```javascript
+    const text = '{"name":"Scented Candle","stock":5}';
+    console.log(text.stock);
+    ```
+  options:
+    - "`undefined`"
+    - "`5`"
+    - "`\"5\"`"
+    - "The program stops with an error"
+  correct: [0]
+  hint: Look at the quotes at the start and end of the value of `text`. What kind of value is it?
+  explanation: '`text` is still text, not an object, and a text has no entry called `stock`, so the result is `undefined` with no error. To get `5`, convert the text first: `JSON.parse(text).stock`.'

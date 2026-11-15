@@ -207,7 +207,8 @@ def register(app, h) -> None:
         else:
             current = lesson_row(lid)
             row = h.db().execute(
-                "UPDATE lessons SET slug = %s, title = %s, position = %s, body_md = %s, source = 'admin' WHERE id = %s RETURNING id",
+                # The edit is in the course's own language, so the lesson's translation no longer matches and is dropped.
+                "UPDATE lessons SET slug = %s, title = %s, position = %s, body_md = %s, source = 'admin', i18n = '{}' WHERE id = %s RETURNING id",
                 (lesson["slug"], lesson["title"], position if position is not None else current["position"], lesson["body"], lid)).fetchone()
         h.db().commit()
         return jsonify(id=row["id"]), 201 if lid is None else 200
@@ -269,7 +270,7 @@ def register(app, h) -> None:
                 return bad("Jenis latihan tidak bisa diubah setelah ada jawaban peserta. Buat latihan baru.", 409)
             row = h.db().execute(
                 """UPDATE exercises SET slug = %s, position = %s, type = %s, title = %s, prompt_md = %s, required = %s,
-                          config = %s, source = 'admin' WHERE id = %s RETURNING *""",
+                          config = %s, source = 'admin', i18n = '{}' WHERE id = %s RETURNING *""",
                 (ex["slug"], position if position is not None else current["position"], ex["type"], ex["title"], ex["prompt"],
                  ex["required"], Jsonb(ex["config"]), eid)).fetchone()
         h.db().commit()

@@ -1,0 +1,64 @@
+- slug: check-price
+  type: code
+  title: Check a menu price
+  prompt: |
+    Read a menu item name (lower case). If it is in `menu`, print `Rp<price>`. If it is not, print `Not on the menu`.
+  language: python
+  starter: |
+    menu = {"milk coffee": 15000, "pulled tea": 12000, "toast": 18000}
+    name = input()
+    # check whether name is on the menu, then print the result
+  tests:
+    - input: "milk coffee"
+      output: "Rp15000"
+    - input: "pulled tea"
+      output: "Rp12000"
+    - input: "fried rice"
+      output: "Not on the menu"
+  solution: |
+    menu = {"milk coffee": 15000, "pulled tea": 12000, "toast": 18000}
+    name = input()
+    if name in menu:
+        print(f"Rp{menu[name]}")
+    else:
+        print("Not on the menu")
+
+- slug: order-total
+  type: code
+  title: Total of an order
+  prompt: |
+    The first line holds the number of items ordered `n`, then `n` lines hold menu item names (all of them are in `menu`). Print `Total: Rp<sum of the prices of all items>`.
+  language: python
+  starter: |
+    menu = {"milk coffee": 15000, "pulled tea": 12000, "toast": 18000}
+    n = int(input())
+    # add up the prices of all the items
+  tests:
+    - input: "2\nmilk coffee\ntoast"
+      output: "Total: Rp33000"
+    - input: "3\npulled tea\npulled tea\nmilk coffee"
+      output: "Total: Rp39000"
+  solution: |
+    menu = {"milk coffee": 15000, "pulled tea": 12000, "toast": 18000}
+    n = int(input())
+    total = 0
+    for _ in range(n):
+        total += menu[input()]
+    print(f"Total: Rp{total}")
+
+- slug: quiz-dict
+  type: choice
+  title: A key that is missing
+  prompt: |
+    What is the result of this expression if `"orange juice"` is not in `menu`?
+
+    ```python
+    menu.get("orange juice", 0)
+    ```
+  options:
+    - "A `KeyError`"
+    - "`0`"
+    - "`None`"
+    - "`\"orange juice\"`"
+  correct: [1]
+  explanation: "`.get` returns the fallback value, `0`, when the key is missing. Without a fallback the result is `None`, and it never raises an error."

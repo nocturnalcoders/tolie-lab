@@ -1,0 +1,191 @@
+- slug: large-drinks
+  type: code
+  title: Minuman ukuran besar
+  prompt: |
+    Kelas `ItemMenu` sudah lengkap. Tulis isi kelas `Minuman` yang mewarisi `ItemMenu`:
+
+    - `__init__(nama, harga, ukuran)` menyimpan `nama` dan `harga` lewat `super().__init__`, lalu menyimpan `ukuran`
+    - `harga_jual()` mengembalikan `harga` ditambah 3000 jika ukurannya `besar`, selain itu `harga` saja
+
+    Program di bawahnya membaca `n`, lalu `n` baris. Baris minuman berformat `minuman,nama,harga,ukuran`, baris makanan berformat `makanan,nama,harga`. Setiap item dicetak dengan `print(item)`.
+  language: python
+  starter: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+        def harga_jual(self):
+            return self.harga
+
+        def __str__(self):
+            return f"{self.nama}: Rp{self.harga_jual()}"
+
+
+    class Minuman(ItemMenu):
+        # tulis __init__ (dengan ukuran) dan timpa harga_jual
+        pass
+
+
+    n = int(input())
+    for _ in range(n):
+        kolom = input().split(",")
+        if kolom[0] == "minuman":
+            item = Minuman(kolom[1], int(kolom[2]), kolom[3])
+        else:
+            item = ItemMenu(kolom[1], int(kolom[2]))
+        print(item)
+  hints:
+    - "Kelas `Minuman` yang isinya `pass` masih memakai `__init__` induknya, yang hanya menerima `nama` dan `harga`. Ia perlu `__init__` sendiri dengan tiga parameter."
+    - "Di dalam `__init__(self, nama, harga, ukuran)`: panggil `super().__init__(nama, harga)`, lalu `self.ukuran = ukuran`."
+    - "Timpa `def harga_jual(self):` dengan `if self.ukuran == \"besar\": return self.harga + 3000`, lalu `return self.harga`. `__str__` tidak perlu ditulis lagi."
+  tests:
+    - input: "3\nminuman,kopi susu,15000,besar\nminuman,teh tarik,12000,biasa\nmakanan,roti bakar,18000"
+      output: "kopi susu: Rp18000\nteh tarik: Rp12000\nroti bakar: Rp18000"
+    - input: "1\nminuman,es jeruk,10000,besar"
+      output: "es jeruk: Rp13000"
+    - input: "2\nmakanan,roti bakar,18000\nmakanan,pisang goreng,8000"
+      output: "roti bakar: Rp18000\npisang goreng: Rp8000"
+    - input: "2\nminuman,kopi susu,15000,biasa\nminuman,kopi susu,15000,besar"
+      output: "kopi susu: Rp15000\nkopi susu: Rp18000"
+  solution: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+        def harga_jual(self):
+            return self.harga
+
+        def __str__(self):
+            return f"{self.nama}: Rp{self.harga_jual()}"
+
+
+    class Minuman(ItemMenu):
+        def __init__(self, nama, harga, ukuran):
+            super().__init__(nama, harga)
+            self.ukuran = ukuran
+
+        def harga_jual(self):
+            if self.ukuran == "besar":
+                return self.harga + 3000
+            return self.harga
+
+
+    n = int(input())
+    for _ in range(n):
+        kolom = input().split(",")
+        if kolom[0] == "minuman":
+            item = Minuman(kolom[1], int(kolom[2]), kolom[3])
+        else:
+            item = ItemMenu(kolom[1], int(kolom[2]))
+        print(item)
+
+- slug: the-member-discount
+  type: code
+  title: Diskon member
+  prompt: |
+    Pelanggan biasa membayar penuh. Member Warung Kopi Senja mendapat potongan 10%.
+
+    Kelas `Pelanggan` sudah lengkap. Lengkapi kelas `Member` dengan menimpa dua metode:
+
+    - `jenis()` mengembalikan `member`
+    - `bayar(total)` mengembalikan `total - total // 10`
+
+    Program di bawahnya membaca `n`, lalu `n` baris berformat `jenis,nama,total`, dan mencetak `<nama> (<jenis>): Rp<yang dibayar>` untuk setiap baris.
+  language: python
+  starter: |
+    class Pelanggan:
+        def __init__(self, nama):
+            self.nama = nama
+
+        def jenis(self):
+            return "biasa"
+
+        def bayar(self, total):
+            return total
+
+
+    class Member(Pelanggan):
+        # timpa jenis() dan bayar()
+        pass
+
+
+    n = int(input())
+    for _ in range(n):
+        jenis, nama, total = input().split(",")
+        if jenis == "member":
+            p = Member(nama)
+        else:
+            p = Pelanggan(nama)
+        print(f"{p.nama} ({p.jenis()}): Rp{p.bayar(int(total))}")
+  hints:
+    - "`Member` tidak butuh `__init__` baru, karena datanya sama dengan `Pelanggan`: hanya `nama`. Yang berbeda hanya perilaku dua metodenya."
+    - "Menimpa berarti menulis metode dengan nama dan parameter yang sama di kelas turunan: `def jenis(self):` dan `def bayar(self, total):`."
+    - "`jenis` berisi `return \"member\"`, dan `bayar` berisi `return total - total // 10`."
+  tests:
+    - input: "2\nmember,Siti,50000\nbiasa,Budi,50000"
+      output: "Siti (member): Rp45000\nBudi (biasa): Rp50000"
+    - input: "1\nmember,Dewi,12500"
+      output: "Dewi (member): Rp11250"
+    - input: "2\nbiasa,Agus,18000\nbiasa,Rina,30000"
+      output: "Agus (biasa): Rp18000\nRina (biasa): Rp30000"
+    - input: "2\nmember,Siti,0\nmember,Budi,48000"
+      output: "Siti (member): Rp0\nBudi (member): Rp43200"
+  solution: |
+    class Pelanggan:
+        def __init__(self, nama):
+            self.nama = nama
+
+        def jenis(self):
+            return "biasa"
+
+        def bayar(self, total):
+            return total
+
+
+    class Member(Pelanggan):
+        def jenis(self):
+            return "member"
+
+        def bayar(self, total):
+            return total - total // 10
+
+
+    n = int(input())
+    for _ in range(n):
+        jenis, nama, total = input().split(",")
+        if jenis == "member":
+            p = Member(nama)
+        else:
+            p = Pelanggan(nama)
+        print(f"{p.nama} ({p.jenis()}): Rp{p.bayar(int(total))}")
+
+- slug: which-method-runs
+  type: choice
+  title: Metode mana yang jalan
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```python
+    class ItemMenu:
+        def jenis(self):
+            return "menu"
+
+    class Minuman(ItemMenu):
+        def jenis(self):
+            return "minuman"
+
+    class Makanan(ItemMenu):
+        pass
+
+    print(Minuman().jenis(), Makanan().jenis())
+    ```
+  options:
+    - "`minuman makanan`"
+    - "`menu menu`"
+    - "`minuman menu`"
+    - "Error, karena `Makanan` tidak punya metode `jenis`"
+  correct: [2]
+  hint: Python mencari metode di kelas objek itu dulu. Kalau tidak ada, ia mencarinya di kelas induk.
+  explanation: "`Minuman` menimpa `jenis`, jadi versinya sendiri yang jalan dan mengembalikan `minuman`. `Makanan` tidak menulis `jenis`, jadi Python memakai metode warisan dari `ItemMenu`, yang mengembalikan `menu`."

@@ -1,0 +1,125 @@
+- slug: sort-from-the-cheapest
+  type: code
+  title: Urutkan dari yang termurah
+  prompt: |
+    Pembeli ingin melihat produk dari yang termurah. Buat fungsi `termurahDulu(produk)` yang menerima array objek `{ nama, harga }` dan mengembalikan array berisi **nama** produk, diurutkan dari harga terendah ke tertinggi.
+
+    Contoh hasil: `["Lilin Aroma","Lampion Kertas","Lampu Meja"]`.
+
+    Dua syarat tambahan:
+
+    - Jika ada harga yang sama, produk yang lebih dulu ada di array tetap lebih dulu.
+    - Array `produk` yang diberikan **tidak boleh berubah** urutannya.
+  language: javascript
+  starter: |
+    const termurahDulu = (produk) => {
+      // urutkan salinannya berdasarkan harga, baru ambil namanya
+      return produk.map((p) => p.nama);
+    };
+  hints:
+    - 'Ada tiga langkah: salin array-nya, urutkan salinan itu berdasarkan harga, lalu ambil namanya dengan `map`.'
+    - 'Salin dengan `[...produk]`, lalu urutkan dengan fungsi pembanding yang membandingkan harga: `.sort((a, b) => a.harga - b.harga)`.'
+    - 'Lengkapnya: `return [...produk].sort((a, b) => a.harga - b.harga).map((p) => p.nama);`. Kalau kamu menulis `produk.sort(...)` tanpa menyalin, array aslinya ikut berubah.'
+  tests:
+    - input: |
+        {
+          const data = [{ nama: "Lampu Meja", harga: 85000 }, { nama: "Lilin Aroma", harga: 30000 }, { nama: "Lampion Kertas", harga: 45000 }];
+          console.log(termurahDulu(data));
+          console.log(data[0].nama);
+        }
+      output: |
+        ["Lilin Aroma","Lampion Kertas","Lampu Meja"]
+        Lampu Meja
+    - input: |
+        {
+          const data = [{ nama: "Lampion Kertas", harga: 45000 }, { nama: "Lampu Tumblr", harga: 25000 }, { nama: "Lilin Wangi", harga: 45000 }, { nama: "Lilin Aroma", harga: 30000 }];
+          console.log(termurahDulu(data));
+          console.log(data[0].nama);
+        }
+      output: |
+        ["Lampu Tumblr","Lilin Aroma","Lampion Kertas","Lilin Wangi"]
+        Lampion Kertas
+    - input: |
+        {
+          const data = [{ nama: "Kap Lampu Rotan", harga: 120000 }, { nama: "Korek Gas", harga: 9000 }, { nama: "Lampu Meja", harga: 85000 }];
+          console.log(termurahDulu(data));
+          console.log(data[0].nama);
+        }
+      output: |
+        ["Korek Gas","Lampu Meja","Kap Lampu Rotan"]
+        Kap Lampu Rotan
+    - input: 'console.log(termurahDulu([]))'
+      output: '[]'
+  solution: |
+    const termurahDulu = (produk) =>
+      [...produk].sort((a, b) => a.harga - b.harga).map((p) => p.nama);
+
+- slug: best-seller-ranking
+  type: code
+  title: Peringkat produk terlaris
+  prompt: |
+    Buat fungsi `peringkat(penjualan, n)` yang menerima array objek `{ nama, terjual }` dan angka `n`, lalu mengembalikan **array teks** berisi paling banyak `n` produk terlaris, dari yang terjual paling banyak, dengan nomor peringkat:
+
+    ```
+    1. Lampion Kertas (12)
+    2. Lampu Meja (10)
+    3. Kap Lampu Rotan (8)
+    ```
+
+    Setiap baris di atas adalah satu isi array. Jika produknya kurang dari `n`, masukkan semuanya. Jika ada jumlah terjual yang sama, produk yang lebih dulu ada di array mendapat peringkat lebih tinggi.
+  language: javascript
+  starter: |
+    const peringkat = (penjualan, n) => {
+      // urutkan dari yang terjual paling banyak, ambil n teratas,
+      // baru beri nomor
+      return penjualan.map((p, i) => `${i + 1}. ${p.nama} (${p.terjual})`);
+    };
+  hints:
+    - 'Kode awal sudah membuat teks bernomor dengan benar. Yang kurang adalah dua langkah sebelum `map`: mengurutkan dan memotong.'
+    - 'Urutkan salinannya dari besar ke kecil: `[...penjualan].sort((a, b) => b.terjual - a.terjual)`, lalu potong dengan `.slice(0, n)`.'
+    - 'Rangkai semuanya: `[...penjualan].sort(...).slice(0, n).map((p, i) => ...)`. Nomor peringkat harus dihitung setelah diurutkan, jadi `map` ditaruh paling akhir.'
+  tests:
+    - input: 'console.log(peringkat([{ nama: "Lampu Meja", terjual: 10 }, { nama: "Lilin Aroma", terjual: 7 }, { nama: "Lampion Kertas", terjual: 12 }, { nama: "Lampu Tumblr", terjual: 3 }, { nama: "Kap Lampu Rotan", terjual: 8 }], 3).join("\n"))'
+      output: |
+        1. Lampion Kertas (12)
+        2. Lampu Meja (10)
+        3. Kap Lampu Rotan (8)
+    - input: 'console.log(peringkat([{ nama: "Lampu Tumblr", terjual: 3 }, { nama: "Lilin Aroma", terjual: 9 }], 3).join("\n"))'
+      output: |
+        1. Lilin Aroma (9)
+        2. Lampu Tumblr (3)
+    - input: 'console.log(peringkat([{ nama: "Lampu Meja", terjual: 5 }, { nama: "Lilin Aroma", terjual: 9 }, { nama: "Lampion Kertas", terjual: 5 }, { nama: "Lampu Tumblr", terjual: 5 }], 3).join("\n"))'
+      output: |
+        1. Lilin Aroma (9)
+        2. Lampu Meja (5)
+        3. Lampion Kertas (5)
+    - input: 'console.log(peringkat([], 3))'
+      output: '[]'
+    - input: 'console.log(peringkat([{ nama: "Lilin Aroma", terjual: 7 }, { nama: "Lampu Meja", terjual: 10 }], 1))'
+      output: '["1. Lampu Meja (10)"]'
+  solution: |
+    const peringkat = (penjualan, n) =>
+      [...penjualan]
+        .sort((a, b) => b.terjual - a.terjual)
+        .slice(0, n)
+        .map((p, i) => `${i + 1}. ${p.nama} (${p.terjual})`);
+
+- slug: sort-without-a-compare-function
+  type: choice
+  title: sort tanpa fungsi pembanding
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```javascript
+    const stok = [5, 25, 100, 1];
+    stok.sort();
+    console.log(stok);
+    ```
+  options:
+    - "`[1,5,25,100]`"
+    - "`[1,100,25,5]`"
+    - "`[100,25,5,1]`"
+    - "`[5,25,100,1]`"
+  correct: [1]
+  hint: Tanpa fungsi pembanding, sort membandingkan isinya sebagai teks, huruf demi huruf.
+  explanation: 'Tanpa fungsi pembanding, `sort` mengurutkan sebagai teks: `"1"`, `"100"`, `"25"`, `"5"`, seperti urutan kata di kamus. Agar terurut sebagai angka, tulis `stok.sort((a, b) => a - b)`. Pilihan terakhir juga keliru karena `sort` mengubah array aslinya.'

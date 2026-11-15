@@ -1,0 +1,224 @@
+- slug: what-does-it-print
+  type: choice
+  title: What does it print?
+  prompt: |
+    Which two lines does this program print, in order?
+
+    ```java
+    class Book {
+        String title;
+        int price;
+        int stock;
+
+        Book(String title, int price, int stock) {
+            this.title = title;
+            this.price = price;
+            this.stock = stock;
+        }
+
+        void sell(int quantity) {
+            stock -= quantity;
+        }
+
+        int stockValue() {
+            return price * stock;
+        }
+    }
+
+    public class Warehouse {
+        public static void main(String[] args) {
+            Book dictionary = new Book("Pocket Dictionary", 50000, 10);
+            Book atlas = new Book("World Atlas", 120000, 4);
+            Book pick = dictionary;
+
+            pick.sell(3);
+            atlas.sell(1);
+
+            System.out.println(dictionary.stock + " " + atlas.stock);
+            System.out.println(dictionary.stockValue());
+        }
+    }
+    ```
+  options:
+    - "`10 3`, then `500000`"
+    - "`7 3`, then `350000`"
+    - "`7 3`, then `500000`"
+    - "`6 6`, then `300000`"
+  correct: [1]
+  hint: Count how many times `new Book(...)` runs. That is how many objects there are. Then, which object does `pick` point to?
+  explanation: >-
+    There are only two objects, because `new` is called twice. `Book pick = dictionary;` does not copy
+    the book: `pick` and `dictionary` point to the same object, so `pick.sell(3)` lowers the
+    dictionary stock from 10 to 7. `atlas` is a different object with its own stock, 4 becoming 3. The
+    first line prints `7 3`, and `stockValue()` uses the current stock: 50000 x 7 = `350000`.
+    `10 3` assumes `pick` is a copy, and `6 6` assumes all books share one `stock`; both are wrong.
+
+- slug: which-line-does-the-compiler-reject
+  type: choice
+  title: Which line does the compiler reject?
+  prompt: |
+    The class `Book` is the same as in the previous question: its only constructor is
+    `Book(String title, int price, int stock)`. Which line makes `javac` refuse this program?
+
+    ```java
+    public class Warehouse {
+        public static void main(String[] args) {
+            Book dictionary = new Book("Pocket Dictionary", 50000, 10);   // line 3
+            Book atlas = new Book();                                      // line 4
+            dictionary.sell(2);                                           // line 5
+            System.out.println(dictionary.title);                         // line 6
+        }
+    }
+    ```
+  options:
+    - "Line 3, because the word `new` is not needed; `Book(...)` is enough, as in Python"
+    - "Line 5, because the result of `sell` must be stored in a variable"
+    - "Line 4, because the `Book` constructor asks for three values and none is given here"
+    - "Line 6, because a field may only be read from inside its own class"
+  correct: [2]
+  hint: Compare what is inside the parentheses of each `new Book(...)` with the constructor's parameter list.
+  explanation: >-
+    The class `Book` only has a constructor with three parameters, so `new Book()` with no values
+    matches no constructor and the compiler rejects it. Line 3 is fine: in Java objects really are
+    created with `new`. Line 5 is fine: `sell` is `void`, so there is no result that needs to be, or
+    could be, stored. Line 6 compiles too, because the field `title` is not marked `private`, so it
+    can be read from another class in the same folder.
+
+- slug: which-line-fills-the-blank
+  type: choice
+  title: Which line fills the blank?
+  prompt: |
+    This program must print `Pocket Dictionary: Rp50000`. Which line is right for `_____`?
+
+    ```java
+    class Book {
+        String title;
+        int price;
+
+        Book(String title, int price) {
+            this.title = title;
+            _____
+        }
+    }
+
+    public class Label {
+        public static void main(String[] args) {
+            Book dictionary = new Book("Pocket Dictionary", 50000);
+            System.out.println(dictionary.title + ": Rp" + dictionary.price);
+        }
+    }
+    ```
+  options:
+    - "`price = price;`"
+    - "`self.price = price;`"
+    - "`int price = price;`"
+    - "`this.price = price;`"
+  correct: [3]
+  hint: Inside the constructor there are two things called `price`, the parameter and the field. How do you name the field?
+  explanation: >-
+    `this.price = price;` copies the parameter's value into the field of the object being created.
+    `price = price;` is the trap: it compiles, but both `price` there are the parameter, so the field
+    is never filled and the program prints `Pocket Dictionary: Rp0`. `self` is the Python word; Java
+    uses `this`. `int price = price;` is rejected by the compiler because it tries to create a new
+    variable named `price` when a parameter with that name already exists.
+
+- slug: classes-and-objects
+  type: choice
+  multiple: true
+  title: Classes and objects
+  prompt: |
+    Which statements about the class `Book` are **true**? (There may be more than one.)
+  options:
+    - "A constructor must be written with the return type `void`"
+    - "A class is a mould; every `new Book(...)` creates one new object with its own `title`, `price` and `stock`"
+    - "`Book pick = dictionary;` makes a copy of the object, so there are now two books"
+    - "Inside the method `sell`, `stock` means the `stock` field of the object whose method is being called"
+  correct: [1, 3]
+  hint: "Two of these statements are false. Think back: what does a constructor header look like, and what does a variable of type `Book` hold?"
+  explanation: >-
+    A class describes the shape of the data, and every `new` creates a new object with its own
+    fields. When `dictionary.sell(2)` is called, `stock` inside `sell` is the `stock` of `dictionary`
+    (it may also be written `this.stock`). A constructor has no return type at all; written as
+    `void Book(...)`, Java treats it as an ordinary method, not a constructor. And
+    `Book pick = dictionary;` only copies the reference: there is still one object, now with two names.
+
+- slug: practice-book-class
+  type: code
+  required: false
+  title: "Practice: a Book class"
+  prompt: |
+    Complete the `Book` class: its constructor must store `title`, `price` and `stock` in the fields, and the `value()` method returns the value of that book's stock (`price` × `stock`). `main` already creates the object and prints `<title>: Rp<value>`.
+
+    This exercise is optional. Your code runs on the server, and the daily allowance is small.
+  starter: |
+    import java.util.Scanner;
+
+    class Book {
+        String title;
+        int price;
+        int stock;
+
+        Book(String title, int price, int stock) {
+            // store the three values in the fields
+        }
+
+        int value() {
+            return 0;
+        }
+    }
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            Book book = new Book(in.nextLine(), in.nextInt(), in.nextInt());
+            System.out.println(book.title + ": Rp" + book.value());
+        }
+    }
+  hints:
+    - "In the constructor the parameters have the same names as the fields. Use `this.` to point at a field."
+    - "`this.title = title; this.price = price; this.stock = stock;` and in `value()`: `return price * stock;`."
+  tests:
+    - input: |
+        Laskar Pelangi
+        85000
+        4
+      output: |
+        Laskar Pelangi: Rp340000
+    - input: |
+        Bumi
+        99000
+        0
+      output: |
+        Bumi: Rp0
+    - input: |
+        Kamus Saku
+        45000
+        12
+      output: |
+        Kamus Saku: Rp540000
+  solution: |
+    import java.util.Scanner;
+
+    class Book {
+        String title;
+        int price;
+        int stock;
+
+        Book(String title, int price, int stock) {
+            this.title = title;
+            this.price = price;
+            this.stock = stock;
+        }
+
+        int value() {
+            return price * stock;
+        }
+    }
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            Book book = new Book(in.nextLine(), in.nextInt(), in.nextInt());
+            System.out.println(book.title + ": Rp" + book.value());
+        }
+    }

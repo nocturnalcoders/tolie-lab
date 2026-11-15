@@ -1,0 +1,162 @@
+- slug: what-does-it-print
+  type: choice
+  title: What does it print?
+  prompt: |
+    7 kg of laundry is split into 2 bags. What does this program print?
+
+    ```kotlin
+    fun main() {
+        val totalWeight = 7
+        val bagCount = 2
+        println("${totalWeight / bagCount} and ${totalWeight / 2.0}")
+    }
+    ```
+  options:
+    - "`3.5 and 3.5`"
+    - "`3 and 3.5`"
+    - "`4 and 3.5`"
+    - "`3 and 3`"
+  correct: [1]
+  hint: Look at the types of both numbers in each division. Is either one a `Double`?
+  explanation: >-
+    `totalWeight / bagCount` is an `Int` divided by an `Int`, so the result is an `Int`: 3, with
+    the decimal part dropped (not rounded up to 4). `totalWeight / 2.0` involves a `Double`, so
+    the result is `3.5`. The answer `3.5 and 3.5` is a habit from Python, where `/` always
+    gives a decimal number.
+
+- slug: which-line-is-rejected
+  type: choice
+  title: Which line is rejected?
+  prompt: |
+    One line stops this program from compiling. Which line, and why?
+
+    ```kotlin
+    fun main() {
+        val weight: Double = 2.5         // line 1
+        val rate: Int = 7000             // line 2
+        val total: Int = weight * rate   // line 3
+        val paid: Boolean = false        // line 4
+        println("$total $paid")          // line 5
+    }
+    ```
+  options:
+    - "Line 3: `weight * rate` gives a `Double`, which cannot be stored as an `Int`"
+    - "Line 1: `2.5` must be written `2,5`"
+    - "Line 3: a `Double` cannot be multiplied by an `Int`"
+    - "Line 5: a `Boolean` cannot be put inside text"
+  correct: [0]
+  hint: What is the type of a `Double` times an `Int`? Then look at the type written for `total`.
+  explanation: >-
+    A `Double` may be multiplied by an `Int`, and the result is a `Double` (`17500.0`). The
+    problem is storing it: `total` is declared as `Int`, and Kotlin never turns a `Double` into
+    an `Int` silently. The fix is `(weight * rate).toInt()`, or letting `total` be a `Double`.
+    A `Boolean` value is fine inside a string template.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Fill in the blank
+  prompt: |
+    The weight is typed into a text field, so it arrives as text. The program must print `28000`.
+    What goes in place of `____`?
+
+    ```kotlin
+    fun main() {
+        val weightText = "4"
+        val weight: Int = ____
+        println(weight * 7000)
+    }
+    ```
+  options:
+    - "`int(weightText)`"
+    - "`weightText`"
+    - "`weightText.toInt()`"
+    - "`weightText.toDouble()`"
+  correct: [2]
+  hint: In Kotlin, a conversion is a function called on the value, with a dot.
+  explanation: >-
+    `weightText.toInt()` turns the text `"4"` into the `Int` 4, and 4 * 7000 = 28000.
+    `int(weightText)` is the Python way and Kotlin does not know it. `weightText` alone is still
+    a `String`, and `weightText.toDouble()` gives a `Double`; both are rejected because `weight`
+    is declared as `Int`.
+
+- slug: inferred-types
+  type: choice
+  title: Inferred types
+  prompt: |
+    No type is written here:
+
+    ```kotlin
+    val weight = 3
+    val price = 7000.0
+    val paid = false
+    val name = "Mr. Joko"
+    ```
+
+    What are the types of `weight`, `price`, `paid` and `name`, in that order?
+  options:
+    - "`Int`, `Int`, `Boolean`, `String`"
+    - "They have no type yet; the type is only decided while the program runs, as in Python"
+    - "`Double`, `Double`, `Boolean`, `String`"
+    - "`Int`, `Double`, `Boolean`, `String`"
+  correct: [3]
+  hint: Look at how each value is written. One number uses a decimal point.
+  explanation: >-
+    Kotlin infers the type from the first value at compile time: `3` is an `Int`, `7000.0` is a
+    `Double` because it is written with a decimal point, `false` is a `Boolean`, and text in
+    double quotes is a `String`. Even though it is not written, the type is settled and cannot
+    change, unlike in Python.
+
+- slug: practice-discounted-total
+  type: code
+  required: false
+  title: "Practice: total after a discount"
+  prompt: |
+    The program reads a price per kg, a weight and a discount percentage (all `Int`). Print `Rp<total>`, where total = price × weight, minus the discount. Use whole-number arithmetic: multiply by `(100 - discount)` first, then divide by 100.
+
+    This exercise is optional. Your code runs on the server, and the daily allowance is small.
+  starter: |
+    fun main() {
+        val price = readln().toInt()
+        val kg = readln().toInt()
+        val discount = readln().toInt()
+        val total = price * kg
+        // apply the discount, then print Rp<total>
+        println("Rp$total")
+    }
+  hints:
+    - "The starter is already right when the discount is 0. `total` is a `val`, so work out the final value in one expression or make a new `val`."
+    - "`val pay = total * (100 - discount) / 100` then `println(\"Rp$pay\")`. Dividing first would drop the fraction, because `Int` division does."
+  tests:
+    - input: |
+        7000
+        3
+        10
+      output: |
+        Rp18900
+    - input: |
+        6000
+        5
+        0
+      output: |
+        Rp30000
+    - input: |
+        7500
+        3
+        25
+      output: |
+        Rp16875
+    - input: |
+        7000
+        2
+        100
+      output: |
+        Rp0
+  solution: |
+    fun main() {
+        val price = readln().toInt()
+        val kg = readln().toInt()
+        val discount = readln().toInt()
+        val total = price * kg
+        val pay = total * (100 - discount) / 100
+        println("Rp$pay")
+    }

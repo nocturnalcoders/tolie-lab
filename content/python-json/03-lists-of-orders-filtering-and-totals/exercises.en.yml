@@ -1,0 +1,167 @@
+- slug: revenue-from-finished-orders
+  type: code
+  title: Revenue from finished orders
+  prompt: |
+    One line of input holds a JSON list. Every order has the keys `id`, `status` (`done` or `cancelled`) and `total`.
+
+    Print three lines:
+
+    ```
+    Orders done: <number of done orders>
+    Orders cancelled: <number of cancelled orders>
+    Revenue: Rp<sum of total over the done orders only>
+    ```
+
+    The list can be empty (`[]`).
+  starter: |
+    import json
+
+    orders = json.loads(input())
+    done = len(orders)
+    cancelled = 0
+    revenue = 0
+    for order in orders:
+        revenue += order["total"]
+    print(f"Orders done: {done}")
+    print(f"Orders cancelled: {cancelled}")
+    print(f"Revenue: Rp{revenue}")
+  hints:
+    - >-
+      The starter code treats every order as done. Check each order's `status` inside the loop before counting it.
+    - >-
+      Start from `done = 0`. Inside the loop write `if order["status"] == "done":`, and only there let `done` and `revenue` grow.
+    - >-
+      Add an `else:` with `cancelled += 1`. The total of a cancelled order is not added to `revenue`.
+  tests:
+    - input: |
+        [{"id": "AM-1021", "status": "done", "total": 68000}, {"id": "AM-1022", "status": "cancelled", "total": 22000}, {"id": "AM-1023", "status": "done", "total": 50000}]
+      output: |
+        Orders done: 2
+        Orders cancelled: 1
+        Revenue: Rp118000
+    - input: |
+        [{"id": "AM-1030", "status": "done", "total": 30000}, {"id": "AM-1031", "status": "done", "total": 25000}]
+      output: |
+        Orders done: 2
+        Orders cancelled: 0
+        Revenue: Rp55000
+    - input: |
+        []
+      output: |
+        Orders done: 0
+        Orders cancelled: 0
+        Revenue: Rp0
+    - input: |
+        [{"id": "AM-1040", "status": "cancelled", "total": 99000}]
+      output: |
+        Orders done: 0
+        Orders cancelled: 1
+        Revenue: Rp0
+  solution: |
+    import json
+
+    orders = json.loads(input())
+    done = 0
+    cancelled = 0
+    revenue = 0
+    for order in orders:
+        if order["status"] == "done":
+            done += 1
+            revenue += order["total"]
+        else:
+            cancelled += 1
+    print(f"Orders done: {done}")
+    print(f"Orders cancelled: {cancelled}")
+    print(f"Revenue: Rp{revenue}")
+
+- slug: sold-per-dish
+  type: code
+  title: Sold per dish
+  prompt: |
+    One line of input holds a list of orders. Every order has a `status` and `items`, a list of objects with the keys `dish` and `qty`.
+
+    Count how many portions of each dish were sold, **only from orders whose status is `done`**. Print one line `<dish>: <quantity>` for each dish, in alphabetical order.
+
+    If nothing was sold, print `No sales yet`.
+  starter: |
+    import json
+
+    orders = json.loads(input())
+    sold = {}
+    # fill sold from the items of every done order
+
+    for dish in sorted(sold):
+        print(f"{dish}: {sold[dish]}")
+  hints:
+    - >-
+      There are two layers of lists: the list of orders, and the `items` list inside each order. So you need a loop inside a loop.
+    - >-
+      In the outer loop, skip orders that are not done. In the inner loop, `for item in order["items"]:`, add the quantity with `sold[item["dish"]] = sold.get(item["dish"], 0) + item["qty"]`.
+    - >-
+      Before printing, check `if not sold:` and print `No sales yet`. The printing loop that is already there moves into the `else:` part.
+  tests:
+    - input: |
+        [{"id": "AM-1021", "status": "done", "items": [{"dish": "beef rendang rice", "qty": 2}, {"dish": "sweet iced tea", "qty": 2}]}, {"id": "AM-1022", "status": "cancelled", "items": [{"dish": "smashed chicken", "qty": 3}]}, {"id": "AM-1023", "status": "done", "items": [{"dish": "sweet iced tea", "qty": 1}, {"dish": "chicken satay", "qty": 4}]}]
+      output: |
+        beef rendang rice: 2
+        chicken satay: 4
+        sweet iced tea: 3
+    - input: |
+        [{"id": "AM-1030", "status": "done", "items": [{"dish": "smashed chicken", "qty": 1}, {"dish": "smashed chicken", "qty": 2}]}]
+      output: |
+        smashed chicken: 3
+    - input: |
+        []
+      output: |
+        No sales yet
+    - input: |
+        [{"id": "AM-1040", "status": "cancelled", "items": [{"dish": "chicken satay", "qty": 5}]}]
+      output: |
+        No sales yet
+    - input: |
+        [{"id": "AM-1050", "status": "done", "items": []}, {"id": "AM-1051", "status": "done", "items": [{"dish": "chicken satay", "qty": 2}, {"dish": "smashed chicken", "qty": 1}]}]
+      output: |
+        chicken satay: 2
+        smashed chicken: 1
+  solution: |
+    import json
+
+    orders = json.loads(input())
+    sold = {}
+    for order in orders:
+        if order["status"] != "done":
+            continue
+        for item in order["items"]:
+            dish = item["dish"]
+            sold[dish] = sold.get(dish, 0) + item["qty"]
+
+    if not sold:
+        print("No sales yet")
+    else:
+        for dish in sorted(sold):
+            print(f"{dish}: {sold[dish]}")
+
+- slug: filter-then-add-up
+  type: choice
+  title: Filter, then add up
+  prompt: |
+    What is shown after this code runs?
+
+    ```python
+    import json
+
+    text = '[{"status": "done", "total": 20000}, {"status": "cancelled", "total": 45000}, {"status": "done", "total": 30000}]'
+    revenue = 0
+    for o in json.loads(text):
+        if o["status"] == "done":
+            revenue += o["total"]
+    print(revenue)
+    ```
+  options:
+    - "`95000`"
+    - "`50000`"
+    - "`45000`"
+    - "`2`"
+  correct: [1]
+  hint: Only the orders that get past the `if` are added up.
+  explanation: "The loop visits three orders, but the `if` lets through only the two whose status is `done`. So what gets added is `20000 + 30000 = 50000`. The `45000` belongs to the cancelled order and is left out, and `2` is the number of done orders, not the revenue."

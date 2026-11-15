@@ -1,0 +1,294 @@
+- slug: the-daily-report-as-text
+  type: code
+  title: The daily report as text
+  prompt: |
+    One line of input holds the list of that day's orders. Every order has `id`, `customer`, `status` (`done` or `cancelled`) and usually `items` (a list of objects with the keys `dish`, `qty` and `price`). Some orders arrive **without** the `items` key. Treat such an order as holding nothing.
+
+    Complete the function `order_total`, then print a four-line report. Revenue and the best seller are counted from done orders only:
+
+    ```
+    Orders done: <how many>
+    Orders cancelled: <how many>
+    Revenue: <sum of the done orders' totals, rupiah format>
+    Best seller: <dish with the most portions sold> (<that number>)
+    ```
+
+    If several dishes tie, pick the one that comes first alphabetically. If nothing was sold, the last line becomes `Best seller: -`.
+  starter: |
+    import json
+
+
+    def rupiah(number):
+        return "Rp" + f"{number:,}".replace(",", ".")
+
+
+    def order_total(order):
+        # add up qty times price over every item; items may be missing
+        return 0
+
+
+    orders = json.loads(input())
+    done = 0
+    cancelled = 0
+    revenue = 0
+    sold = {}
+    for order in orders:
+        # count done and cancelled, then collect revenue and sold
+        pass
+
+    best = "-"
+    most = 0
+    # find the best seller in sold
+
+    print(f"Orders done: {done}")
+    print(f"Orders cancelled: {cancelled}")
+    print(f"Revenue: {rupiah(revenue)}")
+    print(f"Best seller: {best}")
+  hints:
+    - >-
+      Do the three parts one at a time. First `order_total`: loop over `order.get("items", [])` and add up `item["qty"] * item["price"]`, as in the lesson.
+    - >-
+      In the main loop: if the status is not `done`, add to `cancelled`. Otherwise add to `done`, add `order_total(order)` to `revenue`, and for every item write `sold[item["dish"]] = sold.get(item["dish"], 0) + item["qty"]`.
+    - >-
+      For the best seller, loop `for dish in sorted(sold):` and update `best` and `most` only if `sold[dish] > most`. The last line becomes `f"Best seller: {best} ({most})"` if `most` is more than 0, otherwise `Best seller: -`.
+  tests:
+    - input: |
+        [{"id": "AM-1021", "customer": "Dewi", "status": "done", "items": [{"dish": "beef rendang rice", "qty": 2, "price": 28000}, {"dish": "sweet iced tea", "qty": 2, "price": 6000}]}, {"id": "AM-1022", "customer": "Budi", "status": "cancelled", "items": [{"dish": "smashed chicken", "qty": 3, "price": 22000}]}, {"id": "AM-1023", "customer": "André", "status": "done", "items": [{"dish": "beef rendang rice", "qty": 3, "price": 28000}, {"dish": "chicken satay", "qty": 1, "price": 25000}]}, {"id": "AM-1024", "customer": "Dewi", "status": "done", "items": [{"dish": "sweet iced tea", "qty": 4, "price": 6000}]}]
+      output: |
+        Orders done: 3
+        Orders cancelled: 1
+        Revenue: Rp201.000
+        Best seller: sweet iced tea (6)
+    - input: |
+        [{"id": "AM-1030", "customer": "Tari", "status": "done", "items": [{"dish": "smashed chicken", "qty": 2, "price": 22000}]}, {"id": "AM-1031", "customer": "Agus", "status": "done", "items": [{"dish": "chicken satay", "qty": 2, "price": 25000}]}]
+      output: |
+        Orders done: 2
+        Orders cancelled: 0
+        Revenue: Rp94.000
+        Best seller: chicken satay (2)
+    - input: |
+        []
+      output: |
+        Orders done: 0
+        Orders cancelled: 0
+        Revenue: Rp0
+        Best seller: -
+    - input: |
+        [{"id": "AM-1040", "customer": "Tari", "status": "done"}, {"id": "AM-1041", "customer": "Agus", "status": "done", "items": [{"dish": "beef rendang rice", "qty": 40, "price": 28000}]}]
+      output: |
+        Orders done: 2
+        Orders cancelled: 0
+        Revenue: Rp1.120.000
+        Best seller: beef rendang rice (40)
+    - input: |
+        [{"id": "AM-1050", "customer": "Budi", "status": "cancelled", "items": [{"dish": "chicken satay", "qty": 5, "price": 25000}]}]
+      output: |
+        Orders done: 0
+        Orders cancelled: 1
+        Revenue: Rp0
+        Best seller: -
+  solution: |
+    import json
+
+
+    def rupiah(number):
+        return "Rp" + f"{number:,}".replace(",", ".")
+
+
+    def order_total(order):
+        total = 0
+        for item in order.get("items", []):
+            total += item["qty"] * item["price"]
+        return total
+
+
+    orders = json.loads(input())
+    done = 0
+    cancelled = 0
+    revenue = 0
+    sold = {}
+    for order in orders:
+        if order["status"] != "done":
+            cancelled += 1
+            continue
+        done += 1
+        revenue += order_total(order)
+        for item in order.get("items", []):
+            sold[item["dish"]] = sold.get(item["dish"], 0) + item["qty"]
+
+    best = "-"
+    most = 0
+    for dish in sorted(sold):
+        if sold[dish] > most:
+            most = sold[dish]
+            best = dish
+
+    print(f"Orders done: {done}")
+    print(f"Orders cancelled: {cancelled}")
+    print(f"Revenue: {rupiah(revenue)}")
+    if most > 0:
+        print(f"Best seller: {best} ({most})")
+    else:
+        print("Best seller: -")
+
+- slug: the-daily-report-as-json
+  type: code
+  title: The daily report as JSON
+  prompt: |
+    The input is the same as in the previous exercise: one line holding the list of orders, and some orders may arrive without the `items` key. The function `order_total` is already provided.
+
+    This time build a summary for the bookkeeping app, counted **from done orders only** (except `orders_cancelled`):
+
+    - `customers`: the list of customer names without repeats, in alphabetical order
+    - `orders_cancelled` and `orders_done`: how many orders
+    - `revenue`: the sum of the orders' totals
+    - `sold`: an object with the portions sold for each dish
+
+    Print it with `indent=2`, the keys in alphabetical order, and names shown as they are:
+
+    ```
+    {
+      "customers": [
+        "Dewi"
+      ],
+      "orders_cancelled": 1,
+      "orders_done": 1,
+      "revenue": 56000,
+      "sold": {
+        "beef rendang rice": 2
+      }
+    }
+    ```
+  starter: |
+    import json
+
+
+    def order_total(order):
+        total = 0
+        for item in order.get("items", []):
+            total += item["qty"] * item["price"]
+        return total
+
+
+    orders = json.loads(input())
+    summary = {}
+    # collect revenue, customers (a set), the order counts and sold,
+    # then put them into summary
+
+    print(json.dumps(summary))
+  hints:
+    - >-
+      Set up the containers before the loop: `done = 0`, `cancelled = 0`, `revenue = 0`, `customers = set()` and `sold = {}`. Collecting works as in the text report, plus `customers.add(order["customer"])` for done orders.
+    - >-
+      After the loop, build `summary = {"customers": sorted(customers), "orders_cancelled": cancelled, "orders_done": done, "revenue": revenue, "sold": sold}`. The set has to go through `sorted`, because `json.dumps` does not accept sets.
+    - >-
+      Print with `print(json.dumps(summary, indent=2, sort_keys=True, ensure_ascii=False))`. The keys inside `sold` are sorted by `sort_keys` as well.
+  tests:
+    - input: |
+        [{"id": "AM-1021", "customer": "Dewi", "status": "done", "items": [{"dish": "beef rendang rice", "qty": 2, "price": 28000}, {"dish": "sweet iced tea", "qty": 2, "price": 6000}]}, {"id": "AM-1022", "customer": "Budi", "status": "cancelled", "items": [{"dish": "smashed chicken", "qty": 3, "price": 22000}]}, {"id": "AM-1023", "customer": "André", "status": "done", "items": [{"dish": "beef rendang rice", "qty": 3, "price": 28000}, {"dish": "chicken satay", "qty": 1, "price": 25000}]}, {"id": "AM-1024", "customer": "Dewi", "status": "done", "items": [{"dish": "sweet iced tea", "qty": 4, "price": 6000}]}]
+      output: |
+        {
+          "customers": [
+            "André",
+            "Dewi"
+          ],
+          "orders_cancelled": 1,
+          "orders_done": 3,
+          "revenue": 201000,
+          "sold": {
+            "beef rendang rice": 5,
+            "chicken satay": 1,
+            "sweet iced tea": 6
+          }
+        }
+    - input: |
+        [{"id": "AM-1040", "customer": "Tari", "status": "done"}, {"id": "AM-1041", "customer": "Agus", "status": "done", "items": [{"dish": "beef rendang rice", "qty": 40, "price": 28000}]}]
+      output: |
+        {
+          "customers": [
+            "Agus",
+            "Tari"
+          ],
+          "orders_cancelled": 0,
+          "orders_done": 2,
+          "revenue": 1120000,
+          "sold": {
+            "beef rendang rice": 40
+          }
+        }
+    - input: |
+        []
+      output: |
+        {
+          "customers": [],
+          "orders_cancelled": 0,
+          "orders_done": 0,
+          "revenue": 0,
+          "sold": {}
+        }
+    - input: |
+        [{"id": "AM-1050", "customer": "Budi", "status": "cancelled", "items": [{"dish": "chicken satay", "qty": 5, "price": 25000}]}]
+      output: |
+        {
+          "customers": [],
+          "orders_cancelled": 1,
+          "orders_done": 0,
+          "revenue": 0,
+          "sold": {}
+        }
+  solution: |
+    import json
+
+
+    def order_total(order):
+        total = 0
+        for item in order.get("items", []):
+            total += item["qty"] * item["price"]
+        return total
+
+
+    orders = json.loads(input())
+    done = 0
+    cancelled = 0
+    revenue = 0
+    customers = set()
+    sold = {}
+    for order in orders:
+        if order["status"] != "done":
+            cancelled += 1
+            continue
+        done += 1
+        revenue += order_total(order)
+        customers.add(order["customer"])
+        for item in order.get("items", []):
+            sold[item["dish"]] = sold.get(item["dish"], 0) + item["qty"]
+
+    summary = {
+        "customers": sorted(customers),
+        "orders_cancelled": cancelled,
+        "orders_done": done,
+        "revenue": revenue,
+        "sold": sold,
+    }
+    print(json.dumps(summary, indent=2, sort_keys=True, ensure_ascii=False))
+
+- slug: sets-and-json-dumps
+  type: choice
+  title: Sets and json.dumps
+  prompt: |
+    What happens when this code runs?
+
+    ```python
+    import json
+
+    customers = {"Dewi", "Budi"}
+    print(json.dumps({"customers": customers}))
+    ```
+  options:
+    - 'It shows `{"customers": ["Budi", "Dewi"]}`'
+    - 'It shows `{"customers": {"Dewi", "Budi"}}`'
+    - "The program stops with a `TypeError`, because a set cannot be turned into JSON"
+    - "The program stops with a `json.JSONDecodeError`"
+  correct: [2]
+  hint: Curly braces without key and value pairs make a set, not a dictionary.
+  explanation: "`{\"Dewi\", \"Budi\"}` is a set, and JSON has no data type for sets. `json.dumps` stops with a `TypeError`. Convert it with `sorted(customers)` first: the result is a list, which `json.dumps` accepts, and its order is fixed too. A `JSONDecodeError` only shows up when reading text with `json.loads`."

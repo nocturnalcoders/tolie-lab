@@ -1,0 +1,152 @@
+- slug: which-line-is-rejected
+  type: choice
+  title: Baris mana yang ditolak?
+  prompt: |
+    Bu Wati tidak memberikan nomor telepon. Apa yang terjadi dengan program ini?
+
+    ```kotlin
+    fun main() {
+        val nama: String = "Bu Wati"     // baris 1
+        val telepon: String? = null      // baris 2
+        println(nama.length)             // baris 3
+        println(telepon?.length)         // baris 4
+        println(telepon.length)          // baris 5
+    }
+    ```
+  options:
+    - "Baris 2 ditolak: `null` tidak boleh disimpan ke variabel"
+    - "Baris 4 ditolak: `length` tidak bisa diambil dari nilai yang mungkin `null`"
+    - "Semua baris diterima, lalu program berhenti di baris 5 saat berjalan dengan `NullPointerException`"
+    - "Baris 5 ditolak: `telepon` bertipe `String?`, jadi `.length` tidak boleh dipanggil langsung"
+  correct: [3]
+  hint: Bandingkan baris 4 dan baris 5. Satu tanda membuat perbedaannya.
+  explanation: >-
+    `telepon` bertipe `String?`, jadi mungkin `null`. Kotlin menolak `telepon.length` saat
+    kompilasi; programnya tidak pernah sempat berjalan, sehingga tidak ada
+    `NullPointerException`. Itulah bedanya dengan Java atau Python, yang baru gagal saat
+    berjalan. Baris 2 sah karena tipenya memakai `?`, dan baris 4 sah karena `?.` aman: ia
+    menghasilkan `null` kalau `telepon` kosong.
+
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang dicetak?
+  prompt: |
+    Apa yang dicetak program ini?
+
+    ```kotlin
+    fun main() {
+        val telepon: String? = null
+        val panjang = telepon?.length ?: 0
+        val tampil = telepon ?: "belum ada nomor"
+        println("$tampil ($panjang)")
+    }
+    ```
+  options:
+    - "`belum ada nomor (0)`"
+    - "`null (null)`"
+    - "`null (0)`"
+    - "Tidak ada: program berhenti dengan `NullPointerException`"
+  correct: [0]
+  hint: "`?:` memakai nilai di kanan kalau nilai di kirinya `null`."
+  explanation: >-
+    `telepon?.length` menghasilkan `null` karena `telepon` kosong, lalu `?: 0` menggantinya
+    dengan 0. `telepon ?: "belum ada nomor"` juga memakai nilai di kanan. Jadi yang dicetak
+    `belum ada nomor (0)`. Jawaban yang memuat `null` melupakan operator `?:`, dan tidak ada
+    yang gagal karena `?.` tidak pernah melempar `NullPointerException`.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Lengkapi baris yang kosong
+  prompt: |
+    Program ini harus mencetak `Tanpa catatan` dan tidak boleh berhenti di tengah jalan.
+    Apa yang mengisi bagian `____`?
+
+    ```kotlin
+    fun main() {
+        val catatan: String? = null
+        val teks: String = ____
+        println(teks)
+    }
+    ```
+  options:
+    - "`catatan!!`"
+    - "`catatan ?: \"Tanpa catatan\"`"
+    - "`catatan`"
+    - "`catatan or \"Tanpa catatan\"`"
+  correct: [1]
+  hint: "`teks` bertipe `String`, jadi tidak boleh menerima `null`. Operator mana yang memberi nilai pengganti?"
+  explanation: >-
+    `catatan ?: "Tanpa catatan"` menghasilkan `String` yang pasti bukan `null`, jadi cocok untuk
+    `teks`. `catatan!!` memang diterima kompilator, tetapi program berhenti dengan
+    `NullPointerException` karena `catatan` kosong. `catatan` saja ditolak, sebab `String?`
+    tidak bisa disimpan ke `String`. `or` untuk nilai pengganti adalah kebiasaan Python; di
+    Kotlin itu tidak berlaku untuk teks.
+
+- slug: why-is-dangerous
+  type: choice
+  title: Mengapa !! berbahaya?
+  prompt: |
+    Dimas ingin cepat selesai dan menulis:
+
+    ```kotlin
+    fun main() {
+        val telepon: String? = null
+        println(telepon!!.length)
+    }
+    ```
+
+    Mengapa `!!` disebut berbahaya?
+  options:
+    - "Karena kode dengan `!!` gagal dikompilasi, jadi aplikasinya tidak bisa dibuat"
+    - "Karena `!!` diam-diam mengubah `null` menjadi teks kosong, sehingga datanya salah"
+    - "Karena `!!` membuat kompilator berhenti memeriksa; kalau nilainya `null`, program berhenti saat berjalan dengan `NullPointerException`"
+    - "Karena `!!` mencetak tulisan `null` di layar pelanggan"
+  correct: [2]
+  hint: "`!!` adalah janji kepada kompilator. Apa yang terjadi kalau janjinya tidak ditepati?"
+  explanation: >-
+    `!!` berarti "nilai ini pasti bukan `null`". Kompilator percaya dan menerima kodenya, jadi
+    kesalahannya pindah ke saat program berjalan: di sini `telepon` kosong dan program berhenti
+    dengan `NullPointerException`. `!!` tidak mengubah `null` menjadi apa pun dan tidak mencetak
+    `null`; mencetak `null` adalah perilaku `?.`. Lebih aman memakai `?.`, `?:`, atau `if`.
+
+- slug: practice-note-length
+  type: code
+  required: false
+  title: "Latihan: panjang catatan yang mungkin null"
+  prompt: |
+    Pelanggan boleh menulis catatan. `note` bertipe `String?`: isinya `null` kalau pelanggan hanya mengetik `-`. Cetak jumlah huruf catatan itu, atau `0` kalau tidak ada catatan. Jangan pakai `!!`.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    fun main() {
+        val line = readln()
+        val note: String? = if (line == "-") null else line
+        // print the length of note, or 0 when it is null
+        println(0)
+    }
+  hints:
+    - "`note.length` ditolak compiler karena `note` bisa `null`. Pakai panggilan aman `?.`."
+    - "`note?.length` menghasilkan `Int?`. Beri nilai pengganti dengan `?:`: `println(note?.length ?: 0)`."
+  tests:
+    - input: |
+        jangan disetrika
+      output: |
+        16
+    - input: |
+        -
+      output: |
+        0
+    - input: |
+        ok
+      output: |
+        2
+    - input: |
+        - -
+      output: |
+        3
+  solution: |
+    fun main() {
+        val line = readln()
+        val note: String? = if (line == "-") null else line
+        println(note?.length ?: 0)
+    }

@@ -1,0 +1,113 @@
+- slug: record-the-orders
+  type: code
+  title: Record the orders
+  prompt: |
+    The first line holds `n`, then `n` lines in the format `name,quantity,price`. Store each line as a dictionary with the keys `name`, `quantity` and `price` inside the list `orders`.
+
+    Once they are all recorded, print one line `<name>: Rp<quantity times price>` for each order, then a last line `Total: Rp<sum of them all>`.
+  language: python
+  starter: |
+    n = int(input())
+    orders = []
+    for _ in range(n):
+        name, quantity, price = input().split(",")
+        # add one dictionary to the orders list
+        # (quantity and price are stored as numbers)
+
+    total = 0
+    for o in orders:
+        # print "<name>: Rp<subtotal>" then add the subtotal to total
+        pass
+    print(f"Total: Rp{total}")
+  hints:
+    - "There are two stages: filling the list with `.append`, then looping over that list to print and add up."
+    - "Stage one: `orders.append({\"name\": name, \"quantity\": int(quantity), \"price\": int(price)})`."
+    - "Stage two, inside `for o in orders`: work out `sub = o[\"quantity\"] * o[\"price\"]`, print `f\"{o['name']}: Rp{sub}\"`, then `total += sub`."
+  tests:
+    - input: "3\nmilk coffee,2,15000\npulled tea,1,12000\ntoast,3,18000"
+      output: "milk coffee: Rp30000\npulled tea: Rp12000\ntoast: Rp54000\nTotal: Rp96000"
+    - input: "1\norange juice,4,10000"
+      output: "orange juice: Rp40000\nTotal: Rp40000"
+    - input: "2\nmilk coffee,1,15000\nmilk coffee,2,15000"
+      output: "milk coffee: Rp15000\nmilk coffee: Rp30000\nTotal: Rp45000"
+    - input: "0"
+      output: "Total: Rp0"
+  solution: |
+    n = int(input())
+    orders = []
+    for _ in range(n):
+        name, quantity, price = input().split(",")
+        orders.append({"name": name, "quantity": int(quantity), "price": int(price)})
+
+    total = 0
+    for o in orders:
+        sub = o["quantity"] * o["price"]
+        print(f"{o['name']}: Rp{sub}")
+        total += sub
+    print(f"Total: Rp{total}")
+
+- slug: big-orders
+  type: code
+  title: Big orders
+  prompt: |
+    Ms. Rina wants to know which orders are worth a lot. The list `orders` is already filled in by the starter code.
+
+    Print the name of every order whose subtotal (quantity times price) is **50000 or more**, in the order they came in, one name per line. Then print `Big orders: <how many>`. If there are none, just print `Big orders: 0`.
+  language: python
+  starter: |
+    n = int(input())
+    orders = []
+    for _ in range(n):
+        name, quantity, price = input().split(",")
+        orders.append({"name": name, "quantity": int(quantity), "price": int(price)})
+
+    # print the names of orders with a subtotal of 50000 or more,
+    # then print how many there are
+  hints:
+    - "Loop over the `orders` list and check the subtotal with `if` on each pass. Also set up a counter variable that starts at 0."
+    - "The condition is `o[\"quantity\"] * o[\"price\"] >= 50000`. Use `>=`, because exactly 50000 counts too."
+    - "Inside the `if`: `print(o[\"name\"])` and `count += 1`. After the loop ends: `print(f\"Big orders: {count}\")`."
+  tests:
+    - input: "4\nmilk coffee,2,15000\ntoast,3,18000\npulled tea,5,12000\norange juice,1,10000"
+      output: "toast\npulled tea\nBig orders: 2"
+    - input: "2\nmilk coffee,1,15000\norange juice,2,10000"
+      output: "Big orders: 0"
+    - input: "1\norange juice,5,10000"
+      output: "orange juice\nBig orders: 1"
+    - input: "3\npulled tea,4,12000\nmilk coffee,4,15000\ntoast,2,18000"
+      output: "milk coffee\nBig orders: 1"
+  solution: |
+    n = int(input())
+    orders = []
+    for _ in range(n):
+        name, quantity, price = input().split(",")
+        orders.append({"name": name, "quantity": int(quantity), "price": int(price)})
+
+    count = 0
+    for o in orders:
+        if o["quantity"] * o["price"] >= 50000:
+            print(o["name"])
+            count += 1
+    print(f"Big orders: {count}")
+
+- slug: reading-from-a-record
+  type: choice
+  title: Reading from a record
+  prompt: |
+    What is shown after this code runs?
+
+    ```python
+    orders = [
+        {"name": "milk coffee", "quantity": 2},
+        {"name": "pulled tea", "quantity": 5},
+    ]
+    print(orders[1]["quantity"])
+    ```
+  options:
+    - "`2`"
+    - "`5`"
+    - "`pulled tea`"
+    - "A `KeyError`"
+  correct: [1]
+  hint: List positions start at 0.
+  explanation: "`orders[1]` is the second record, because positions start at `0`. From that record, `[\"quantity\"]` picks the value `5`."

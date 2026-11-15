@@ -1,0 +1,136 @@
+- slug: a-subtotal-from-the-object
+  type: code
+  title: A subtotal from the object
+  prompt: |
+    Fill in the method `subtotal(quantity)` in the `MenuItem` class. It returns the item's price times `quantity`.
+
+    The code below the class reads a line `name,price`, then one line holding the quantity, and prints `<quantity> x <name> = Rp<subtotal>`.
+  language: python
+  starter: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+        def subtotal(self, quantity):
+            # return the price times the quantity
+            pass
+
+
+    name, price = input().split(",")
+    item = MenuItem(name, int(price))
+    quantity = int(input())
+    print(f"{quantity} x {item.name} = Rp{item.subtotal(quantity)}")
+  hints:
+    - "The method already receives `quantity`. The price is not passed in as a parameter, because it is already stored inside the object."
+    - "The object's price is read through `self`: `self.price`."
+    - "Replace `pass` with `return self.price * quantity`. Do not forget `return`, because the `print` below uses the result."
+  tests:
+    - input: "milk coffee,15000\n2"
+      output: "2 x milk coffee = Rp30000"
+    - input: "toast,18000\n1"
+      output: "1 x toast = Rp18000"
+    - input: "pulled tea,12000\n5"
+      output: "5 x pulled tea = Rp60000"
+    - input: "orange juice,10000\n0"
+      output: "0 x orange juice = Rp0"
+  solution: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+        def subtotal(self, quantity):
+            return self.price * quantity
+
+
+    name, price = input().split(",")
+    item = MenuItem(name, int(price))
+    quantity = int(input())
+    print(f"{quantity} x {item.name} = Rp{item.subtotal(quantity)}")
+
+- slug: a-label-and-a-discount
+  type: code
+  title: A label and a discount
+  prompt: |
+    Ms. Rina often discounts a single item and wants to see its label before and after. Write two methods in the `MenuItem` class:
+
+    - `__str__` returns the text `<name> (Rp<price>)`
+    - `discount(percent)` lowers `price` by `price * percent // 100`
+
+    The code below the class reads a line `name,price`, then one line holding the discount percentage. It prints the object, applies the discount, then prints it once more.
+  language: python
+  starter: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+        # write the __str__ and discount methods here
+
+
+    name, price = input().split(",")
+    item = MenuItem(name, int(price))
+    percent = int(input())
+    print(item)
+    item.discount(percent)
+    print(item)
+  hints:
+    - "Both methods are written indented inside the class, lined up with `def __init__`, and their first parameter is `self`."
+    - "`__str__` needs just one line: `return f\"{self.name} (Rp{self.price})\"`. It returns the text, it does not print."
+    - "`def discount(self, percent):` then `self.price = self.price - self.price * percent // 100`. This method changes an attribute and needs no `return`."
+  tests:
+    - input: "milk coffee,15000\n20"
+      output: "milk coffee (Rp15000)\nmilk coffee (Rp12000)"
+    - input: "toast,18000\n15"
+      output: "toast (Rp18000)\ntoast (Rp15300)"
+    - input: "pulled tea,12000\n0"
+      output: "pulled tea (Rp12000)\npulled tea (Rp12000)"
+    - input: "orange juice,10000\n100"
+      output: "orange juice (Rp10000)\norange juice (Rp0)"
+  solution: |
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+        def __str__(self):
+            return f"{self.name} (Rp{self.price})"
+
+        def discount(self, percent):
+            self.price = self.price - self.price * percent // 100
+
+
+    name, price = input().split(",")
+    item = MenuItem(name, int(price))
+    percent = int(input())
+    print(item)
+    item.discount(percent)
+    print(item)
+
+- slug: a-method-without-self
+  type: choice
+  title: A method without self
+  prompt: |
+    What happens when the last line runs?
+
+    ```python
+    class MenuItem:
+        def __init__(self, name, price):
+            self.name = name
+            self.price = price
+
+        def subtotal(quantity):
+            return self.price * quantity
+
+    coffee = MenuItem("milk coffee", 15000)
+    print(coffee.subtotal(2))
+    ```
+  options:
+    - "It shows `30000`"
+    - "It shows `None`"
+    - "A `TypeError`, because `subtotal` receives two arguments but has only one parameter"
+    - "A `ValueError`, because `2` is not a price"
+  correct: [2]
+  hint: Python always sends the object itself as the first argument of a method.
+  explanation: "`coffee.subtotal(2)` sends two arguments: the object `coffee` and the number `2`. The method lists only one parameter, `quantity`, so Python stops with a `TypeError`. The fix: `def subtotal(self, quantity):`."

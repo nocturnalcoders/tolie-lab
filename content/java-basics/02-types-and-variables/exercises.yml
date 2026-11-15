@@ -1,0 +1,178 @@
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang tercetak?
+  prompt: |
+    Pak Bayu punya 17 buku baru dan tiap rak muat 5 buku. Tiga baris apa yang dicetak program ini, berurutan?
+
+    ```java
+    public class Rak {
+        public static void main(String[] args) {
+            int buku = 17;
+            int perRak = 5;
+            System.out.println(buku / perRak);
+            System.out.println(buku / 5.0);
+            System.out.println("Rak: " + buku / perRak + 1);
+        }
+    }
+    ```
+  options:
+    - "`3.4`, `3.4`, `Rak: 4.4`"
+    - "`3`, `3.4`, `Rak: 4`"
+    - "`3`, `3.4`, `Rak: 31`"
+    - "`3`, `3`, `Rak: 31`"
+  correct: [2]
+  hint: "Untuk tiap baris, tanyakan dua hal: apakah kedua sisi `/` bertipe `int`? Dan pada baris terakhir, `+` yang paling kiri bertemu apa?"
+  explanation: >-
+    `buku / perRak` adalah `int` dibagi `int`, jadi pecahannya dibuang: `3`. `buku / 5.0` melibatkan
+    `double`, hasilnya `3.4`. Pada baris terakhir pembagian dikerjakan dulu (`3`), lalu `+` dari kiri:
+    `"Rak: " + 3` menjadi teks `Rak: 3`, dan `+ 1` menyambung lagi menjadi `Rak: 31`. Jawaban `Rak: 4`
+    menggoda karena kita ingin menghitung `3 + 1`, tetapi begitu sisi kiri sudah berupa `String`, `+`
+    menyambung, bukan menjumlahkan. Agar dijumlahkan, perlu kurung: `"Rak: " + (buku / perRak + 1)`.
+
+- slug: which-line-does-the-compiler-reject
+  type: choice
+  title: Baris mana yang ditolak compiler?
+  prompt: |
+    Satu baris di program ini membuat `javac` menolak. Baris mana, dan mengapa?
+
+    ```java
+    public class Harga {
+        public static void main(String[] args) {
+            int harga = 85000;                 // baris 3
+            double diskon = 0.1;               // baris 4
+            int potongan = harga * diskon;     // baris 5
+            boolean lunas = false;             // baris 6
+            String kasir = "Sari";             // baris 7
+            System.out.println(potongan);
+        }
+    }
+    ```
+  options:
+    - "Baris 3, karena angka sebesar 85000 tidak muat di `int`"
+    - "Baris 5, karena `int * double` menghasilkan `double`, yang tidak boleh langsung disimpan ke `int`"
+    - "Baris 6, karena nilai boolean harus ditulis `False`"
+    - "Baris 7, karena tipe teks ditulis `string` dengan huruf kecil"
+  correct: [1]
+  hint: Cari baris yang tipe di sisi kiri `=` tidak cocok dengan tipe hasil hitungan di sisi kanannya.
+  explanation: >-
+    `harga * diskon` adalah `int` dikali `double`, hasilnya `double` (8500.0). Java tidak mau diam-diam
+    membuang pecahan, jadi menyimpannya ke `int` ditolak dengan pesan `possible lossy conversion from
+    double to int`. Perbaikannya `double potongan = harga * diskon;` atau `(int) (harga * diskon)`.
+    Baris lain benar: `int` muat sampai sekitar 2 miliar, boolean Java ditulis `false` dengan huruf
+    kecil (`False` itu gaya Python), dan `String` memang diawali S besar.
+
+- slug: which-line-fills-the-blank
+  type: choice
+  title: Baris mana yang mengisi bagian kosong?
+  prompt: |
+    Dalam 2 hari terjual 7 buku. Program ini harus mencetak rata-rata per hari, yaitu `3.5`.
+    Baris mana yang benar untuk mengisi `_____`?
+
+    ```java
+    public class RataRata {
+        public static void main(String[] args) {
+            int terjual = 7;
+            int hari = 2;
+            _____
+            System.out.println(rata);
+        }
+    }
+    ```
+  options:
+    - "`double rata = (double) terjual / hari;`"
+    - "`double rata = terjual / hari;`"
+    - "`int rata = terjual / hari;`"
+    - "`double rata = (double) (terjual / hari);`"
+  correct: [0]
+  hint: Pembagiannya sendiri harus sudah melibatkan `double`. Mengubah tipe setelah pembagian selesai itu terlambat.
+  explanation: >-
+    `(double) terjual / hari` mengubah `terjual` menjadi `7.0` **sebelum** dibagi, sehingga hasilnya
+    `3.5`. Pilihan `double rata = terjual / hari;` paling menggoda, tetapi pembagiannya tetap `int`
+    dibagi `int` (hasil `3`), baru kemudian disimpan sebagai `3.0`. `(double) (terjual / hari)` sama
+    saja: kurungnya membuat pembagian bulat selesai dulu, lalu `3` diubah menjadi `3.0`. Dengan
+    `int rata` yang tercetak adalah `3`.
+
+- slug: javas-type-rules
+  type: choice
+  multiple: true
+  title: Aturan tipe di Java
+  prompt: |
+    Pernyataan mana saja yang **benar** tentang tipe dan operator di Java? (Bisa lebih dari satu.)
+  options:
+    - 'Setelah `int stok = 12;`, baris `stok = "dua belas";` ditolak compiler'
+    - "`double harga = 85000;` diterima: bilangan bulat boleh disimpan ke `double`"
+    - "`17 % 5` menghasilkan `3`"
+    - '`"Stok: " + 4 + 1` menghasilkan teks `Stok: 41`'
+  correct: [0, 1, 3]
+  hint: "`%` bukan pembagian. Hitung 17 dibagi 5: berapa hasilnya, dan berapa sisanya?"
+  explanation: >-
+    Tipe variabel tidak bisa berganti, jadi `int stok` tidak bisa diisi teks. Bilangan bulat boleh
+    masuk ke `double` karena tidak ada yang hilang (tersimpan sebagai `85000.0`). `+` dari kiri ke
+    kanan menyambung begitu bertemu `String`, sehingga hasilnya `Stok: 41`. Yang salah adalah
+    `17 % 5`: `%` memberi **sisa** bagi, yaitu `2`. Angka `3` adalah hasil `17 / 5`, dan dua operator
+    itu sering tertukar.
+
+- slug: practice-discounted-total
+  type: code
+  required: false
+  title: "Latihan: total setelah diskon"
+  prompt: |
+    Program membaca harga, jumlah, dan persen diskon (semuanya `int`). Cetak `Rp<total>`, dengan total = harga × jumlah, dikurangi diskonnya. Pakai hitungan bilangan bulat: kalikan dulu dengan `(100 - diskon)`, baru bagi 100.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            int price = in.nextInt();
+            int quantity = in.nextInt();
+            int discount = in.nextInt();
+            int total = price * quantity;
+            // apply the discount, then print Rp<total>
+            System.out.println("Rp" + total);
+        }
+    }
+  hints:
+    - "Kode awal sudah benar kalau diskonnya 0. Yang kurang hanya satu baris hitungan."
+    - "`total = total * (100 - discount) / 100;` Urutannya penting: kalau membagi dulu, pembagian `int` membuang pecahannya."
+  tests:
+    - input: |
+        85000
+        2
+        10
+      output: |
+        Rp153000
+    - input: |
+        99000
+        1
+        0
+      output: |
+        Rp99000
+    - input: |
+        12500
+        3
+        25
+      output: |
+        Rp28125
+    - input: |
+        50000
+        4
+        100
+      output: |
+        Rp0
+  solution: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            int price = in.nextInt();
+            int quantity = in.nextInt();
+            int discount = in.nextInt();
+            int total = price * quantity;
+            total = total * (100 - discount) / 100;
+            System.out.println("Rp" + total);
+        }
+    }

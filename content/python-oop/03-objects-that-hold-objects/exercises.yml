@@ -1,0 +1,252 @@
+- slug: the-order-total
+  type: code
+  title: Total pesanan
+  prompt: |
+    Kelas `ItemMenu` dan `BarisPesanan` sudah lengkap. Lengkapi dua metode di kelas `Pesanan`:
+
+    - `tambah(item, jumlah)` membuat satu `BarisPesanan` dan menambahkannya ke `self.baris`
+    - `total()` mengembalikan jumlah subtotal semua baris (0 jika belum ada baris)
+
+    Program di bawahnya membaca nama pelanggan, lalu `n`, lalu `n` baris berformat `nama,harga,jumlah`, dan mencetak nama pelanggan, banyaknya baris, dan totalnya.
+  language: python
+  starter: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+
+    class BarisPesanan:
+        def __init__(self, item, jumlah):
+            self.item = item
+            self.jumlah = jumlah
+
+        def subtotal(self):
+            return self.item.harga * self.jumlah
+
+
+    class Pesanan:
+        def __init__(self, pelanggan):
+            self.pelanggan = pelanggan
+            self.baris = []
+
+        def tambah(self, item, jumlah):
+            # buat BarisPesanan, lalu tambahkan ke self.baris
+            pass
+
+        def total(self):
+            # jumlahkan subtotal semua baris
+            pass
+
+
+    pesanan = Pesanan(input())
+    n = int(input())
+    for _ in range(n):
+        nama, harga, jumlah = input().split(",")
+        pesanan.tambah(ItemMenu(nama, int(harga)), int(jumlah))
+
+    print(f"Pelanggan: {pesanan.pelanggan}")
+    print(f"Baris: {len(pesanan.baris)}")
+    print(f"Total: Rp{pesanan.total()}")
+  hints:
+    - "`tambah` mengisi list milik objek ini, yaitu `self.baris`. `total` mengulang list yang sama."
+    - "Isi `tambah`: `self.baris.append(BarisPesanan(item, jumlah))`."
+    - "Isi `total`: mulai dari `hasil = 0`, lalu `for b in self.baris:` tambahkan `b.subtotal()` ke `hasil`, dan akhiri dengan `return hasil`."
+  tests:
+    - input: "Siti\n2\nkopi susu,15000,2\nroti bakar,18000,1"
+      output: "Pelanggan: Siti\nBaris: 2\nTotal: Rp48000"
+    - input: "Budi\n1\nes jeruk,10000,4"
+      output: "Pelanggan: Budi\nBaris: 1\nTotal: Rp40000"
+    - input: "Dewi\n3\nteh tarik,12000,1\nkopi susu,15000,1\nteh tarik,12000,2"
+      output: "Pelanggan: Dewi\nBaris: 3\nTotal: Rp51000"
+    - input: "Agus\n0"
+      output: "Pelanggan: Agus\nBaris: 0\nTotal: Rp0"
+  solution: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+
+    class BarisPesanan:
+        def __init__(self, item, jumlah):
+            self.item = item
+            self.jumlah = jumlah
+
+        def subtotal(self):
+            return self.item.harga * self.jumlah
+
+
+    class Pesanan:
+        def __init__(self, pelanggan):
+            self.pelanggan = pelanggan
+            self.baris = []
+
+        def tambah(self, item, jumlah):
+            self.baris.append(BarisPesanan(item, jumlah))
+
+        def total(self):
+            hasil = 0
+            for b in self.baris:
+                hasil += b.subtotal()
+            return hasil
+
+
+    pesanan = Pesanan(input())
+    n = int(input())
+    for _ in range(n):
+        nama, harga, jumlah = input().split(",")
+        pesanan.tambah(ItemMenu(nama, int(harga)), int(jumlah))
+
+    print(f"Pelanggan: {pesanan.pelanggan}")
+    print(f"Baris: {len(pesanan.baris)}")
+    print(f"Total: Rp{pesanan.total()}")
+
+- slug: the-order-in-detail
+  type: code
+  title: Rincian pesanan
+  prompt: |
+    Sekarang pesanan perlu bisa menampilkan rinciannya sendiri. Tambahkan dua metode di kelas `Pesanan`:
+
+    - `jumlah_barang()` mengembalikan jumlah semua `jumlah` di setiap baris
+    - `cetak()` mencetak rincian seperti contoh di bawah
+
+    ```
+    Pesanan Siti
+    2 x kopi susu = Rp30000
+    1 x roti bakar = Rp18000
+    Barang: 3
+    Total: Rp48000
+    ```
+
+    Baris pertama memuat nama pelanggan, lalu satu baris untuk setiap baris pesanan sesuai urutan masuk, lalu `Barang:` dan `Total:`.
+  language: python
+  starter: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+
+    class BarisPesanan:
+        def __init__(self, item, jumlah):
+            self.item = item
+            self.jumlah = jumlah
+
+        def subtotal(self):
+            return self.item.harga * self.jumlah
+
+
+    class Pesanan:
+        def __init__(self, pelanggan):
+            self.pelanggan = pelanggan
+            self.baris = []
+
+        def tambah(self, item, jumlah):
+            self.baris.append(BarisPesanan(item, jumlah))
+
+        def total(self):
+            hasil = 0
+            for b in self.baris:
+                hasil += b.subtotal()
+            return hasil
+
+        def jumlah_barang(self):
+            # jumlahkan b.jumlah dari semua baris
+            pass
+
+        def cetak(self):
+            # cetak judul, setiap baris, banyaknya barang, dan total
+            pass
+
+
+    pesanan = Pesanan(input())
+    n = int(input())
+    for _ in range(n):
+        nama, harga, jumlah = input().split(",")
+        pesanan.tambah(ItemMenu(nama, int(harga)), int(jumlah))
+    pesanan.cetak()
+  hints:
+    - "`jumlah_barang` mirip sekali dengan `total`, hanya yang dijumlahkan `b.jumlah`. Di dalam `cetak`, panggil metode lain milik objek yang sama lewat `self`, misalnya `self.total()`."
+    - "Di dalam `cetak`, untuk setiap `b` di `self.baris`, nama menu diambil dengan `b.item.nama` dan nilainya dengan `b.subtotal()`."
+    - "`cetak`: `print(f\"Pesanan {self.pelanggan}\")`, lalu di dalam perulangan `print(f\"{b.jumlah} x {b.item.nama} = Rp{b.subtotal()}\")`, lalu `print(f\"Barang: {self.jumlah_barang()}\")` dan `print(f\"Total: Rp{self.total()}\")`."
+  tests:
+    - input: "Siti\n2\nkopi susu,15000,2\nroti bakar,18000,1"
+      output: "Pesanan Siti\n2 x kopi susu = Rp30000\n1 x roti bakar = Rp18000\nBarang: 3\nTotal: Rp48000"
+    - input: "Budi\n1\nes jeruk,10000,4"
+      output: "Pesanan Budi\n4 x es jeruk = Rp40000\nBarang: 4\nTotal: Rp40000"
+    - input: "Dewi\n3\nteh tarik,12000,1\nkopi susu,15000,1\nteh tarik,12000,2"
+      output: "Pesanan Dewi\n1 x teh tarik = Rp12000\n1 x kopi susu = Rp15000\n2 x teh tarik = Rp24000\nBarang: 4\nTotal: Rp51000"
+    - input: "Agus\n0"
+      output: "Pesanan Agus\nBarang: 0\nTotal: Rp0"
+  solution: |
+    class ItemMenu:
+        def __init__(self, nama, harga):
+            self.nama = nama
+            self.harga = harga
+
+
+    class BarisPesanan:
+        def __init__(self, item, jumlah):
+            self.item = item
+            self.jumlah = jumlah
+
+        def subtotal(self):
+            return self.item.harga * self.jumlah
+
+
+    class Pesanan:
+        def __init__(self, pelanggan):
+            self.pelanggan = pelanggan
+            self.baris = []
+
+        def tambah(self, item, jumlah):
+            self.baris.append(BarisPesanan(item, jumlah))
+
+        def total(self):
+            hasil = 0
+            for b in self.baris:
+                hasil += b.subtotal()
+            return hasil
+
+        def jumlah_barang(self):
+            hasil = 0
+            for b in self.baris:
+                hasil += b.jumlah
+            return hasil
+
+        def cetak(self):
+            print(f"Pesanan {self.pelanggan}")
+            for b in self.baris:
+                print(f"{b.jumlah} x {b.item.nama} = Rp{b.subtotal()}")
+            print(f"Barang: {self.jumlah_barang()}")
+            print(f"Total: Rp{self.total()}")
+
+
+    pesanan = Pesanan(input())
+    n = int(input())
+    for _ in range(n):
+        nama, harga, jumlah = input().split(",")
+        pesanan.tambah(ItemMenu(nama, int(harga)), int(jumlah))
+    pesanan.cetak()
+
+- slug: reading-a-chain-of-dots
+  type: choice
+  title: Membaca rantai titik
+  prompt: |
+    Dengan kelas `ItemMenu`, `BarisPesanan`, dan `Pesanan` dari pelajaran ini, apa yang tampil?
+
+    ```python
+    p = Pesanan("Budi")
+    p.tambah(ItemMenu("teh tarik", 12000), 3)
+    p.tambah(ItemMenu("es jeruk", 10000), 2)
+    print(p.baris[1].item.nama)
+    ```
+  options:
+    - "`teh tarik`"
+    - "`es jeruk`"
+    - "`2`"
+    - "`Budi`"
+  correct: [1]
+  hint: Baca dari kiri ke kanan, satu titik setiap kali. Nomor urut list dimulai dari 0.
+  explanation: "`p.baris[1]` adalah baris pesanan kedua. `.item` mengambil objek `ItemMenu` yang disimpan baris itu, dan `.nama` mengambil namanya: `es jeruk`."

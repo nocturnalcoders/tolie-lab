@@ -1,0 +1,119 @@
+- slug: is-the-shop-open
+  type: code
+  title: Warung sedang buka?
+  prompt: |
+    Warung Kopi Senja buka setiap hari mulai pukul 07:00. Pada hari Senin sampai Jumat warung tutup pukul 21:00, pada hari Sabtu dan Minggu pukul 22:00.
+
+    Baca satu baris berisi tanggal dan jam dalam format `tahun-bulan-hari jam:menit`, misalnya `2025-03-14 20:45`. Jika warung buka pada saat itu, cetak `Buka sampai <jam tutup>`, misalnya `Buka sampai 21:00`. Jika tidak, cetak `Tutup`.
+
+    Tepat pada jam tutup, warung sudah tutup.
+  language: python
+  starter: |
+    from datetime import datetime, time
+
+    waktu = datetime.strptime(input(), "%Y-%m-%d %H:%M")
+    buka = time(7, 0)
+
+    # tentukan jam tutup dari harinya, lalu bandingkan jamnya
+  hints:
+    - "Ada dua pertanyaan: hari apa (`waktu.weekday()`, 5 dan 6 berarti akhir pekan) dan jam berapa (`waktu.time()`)."
+    - "`if waktu.weekday() >= 5:` pakai `tutup = time(22, 0)`, selain itu `tutup = time(21, 0)`. Warung buka jika `buka <= waktu.time() < tutup`."
+    - "Jika buka, cetak `f\"Buka sampai {tutup.strftime('%H:%M')}\"`. Jika tidak, cetak `Tutup`."
+  tests:
+    - input: "2025-03-14 20:45"
+      output: "Buka sampai 21:00"
+    - input: "2025-03-14 21:00"
+      output: "Tutup"
+    - input: "2025-03-15 21:30"
+      output: "Buka sampai 22:00"
+    - input: "2025-03-10 06:59"
+      output: "Tutup"
+    - input: "2024-02-29 07:00"
+      output: "Buka sampai 21:00"
+  solution: |
+    from datetime import datetime, time
+
+    waktu = datetime.strptime(input(), "%Y-%m-%d %H:%M")
+    buka = time(7, 0)
+
+    if waktu.weekday() >= 5:
+        tutup = time(22, 0)
+    else:
+        tutup = time(21, 0)
+
+    if buka <= waktu.time() < tutup:
+        print(f"Buka sampai {tutup.strftime('%H:%M')}")
+    else:
+        print("Tutup")
+
+- slug: shift-length
+  type: code
+  title: Lama shift
+  prompt: |
+    Baris pertama berisi waktu seorang karyawan masuk, baris kedua waktu ia pulang. Keduanya berformat `tahun-bulan-hari jam:menit`. Shift malam bisa berakhir pada tanggal berikutnya.
+
+    Cetak lama shiftnya:
+
+    ```
+    Lama shift: <jam> jam <menit> menit
+    ```
+
+    Contoh: `Lama shift: 7 jam 45 menit`.
+  language: python
+  starter: |
+    from datetime import datetime
+
+    POLA = "%Y-%m-%d %H:%M"
+
+    masuk = datetime.strptime(input(), POLA)
+    pulang = datetime.strptime(input(), POLA)
+
+    # hitung selisihnya dalam menit, lalu pecah menjadi jam dan menit
+    print(f"Lama shift: {pulang.hour - masuk.hour} jam {pulang.minute - masuk.minute} menit")
+  hints:
+    - "Mengurangi jam dengan jam dan menit dengan menit bisa menghasilkan angka negatif. Kurangi `datetime`-nya secara utuh: `lama = pulang - masuk`."
+    - "Ubah rentangnya menjadi menit: `menit = int(lama.total_seconds()) // 60`."
+    - "Jamnya `menit // 60` dan sisanya `menit % 60`. Cetak `f\"Lama shift: {menit // 60} jam {menit % 60} menit\"`."
+  tests:
+    - input: "2025-03-14 14:30\n2025-03-14 22:15"
+      output: "Lama shift: 7 jam 45 menit"
+    - input: "2024-12-31 20:00\n2025-01-01 02:30"
+      output: "Lama shift: 6 jam 30 menit"
+    - input: "2024-02-28 22:00\n2024-02-29 06:00"
+      output: "Lama shift: 8 jam 0 menit"
+    - input: "2025-03-14 07:00\n2025-03-14 07:45"
+      output: "Lama shift: 0 jam 45 menit"
+    - input: "2025-03-14 06:45\n2025-03-14 15:00"
+      output: "Lama shift: 8 jam 15 menit"
+  solution: |
+    from datetime import datetime
+
+    POLA = "%Y-%m-%d %H:%M"
+
+    masuk = datetime.strptime(input(), POLA)
+    pulang = datetime.strptime(input(), POLA)
+
+    lama = pulang - masuk
+    menit = int(lama.total_seconds()) // 60
+    print(f"Lama shift: {menit // 60} jam {menit % 60} menit")
+
+- slug: past-midnight
+  type: choice
+  title: Melewati tengah malam
+  prompt: |
+    Budi mulai jaga pukul 22:00 dan bekerja 3 jam. Apa yang ditampilkan kode ini?
+
+    ```python
+    from datetime import datetime, timedelta
+
+    mulai = datetime(2025, 3, 14, 22, 0)
+    print(mulai + timedelta(hours=3))
+    ```
+  options:
+    - "`2025-03-14 25:00:00`"
+    - "`2025-03-14 01:00:00`"
+    - "`2025-03-15 01:00:00`"
+    - "Program berhenti dengan error karena jam 25 tidak ada"
+  correct: [2]
+  hint: Sebuah datetime menyimpan tanggal dan jam sekaligus. Apa yang terjadi pada tanggalnya saat jam melewati 24:00?
+  explanation: "Saat hitungan jam melewati tengah malam, `datetime` otomatis pindah ke tanggal berikutnya. Karena itu shift malam lebih aman dihitung dengan `datetime` daripada dengan jam saja."

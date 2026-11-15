@@ -1,0 +1,106 @@
+- slug: look-up-a-product-price
+  type: code
+  title: Look up a product price
+  prompt: |
+    Write a function `productPrice(products, name)` that looks for the product called `name` in an array of `{ name, price }` objects and returns a text:
+
+    - `<name>: Rp<price>` when the product exists, for example `Scented Candle: Rp30000`
+    - `<name> not found` when it does not, for example `Electric Fan not found`
+
+    If two products share the same name, use the first one.
+  language: javascript
+  starter: |
+    const productPrice = (products, name) => {
+      // right now this always takes the first product
+      const found = products[0];
+      return `${found.name}: Rp${found.price}`;
+    };
+  hints:
+    - 'You need one product, not an array. The method that gives back the first matching entry is `find`.'
+    - 'Write `const found = products.find((p) => p.name === name);`. When nothing matches, `found` holds `undefined`.'
+    - 'Before reading `found.price`, check first: `if (found === undefined)` return the "not found" text that starts with `name`. Otherwise return the text built from `found.name` and `found.price`.'
+  tests:
+    - input: 'console.log(productPrice([{ name: "Desk Lamp", price: 85000 }, { name: "Scented Candle", price: 30000 }, { name: "Paper Lantern", price: 45000 }], "Scented Candle"))'
+      output: "Scented Candle: Rp30000"
+    - input: 'console.log(productPrice([{ name: "Desk Lamp", price: 85000 }, { name: "Scented Candle", price: 30000 }], "Electric Fan"))'
+      output: "Electric Fan not found"
+    - input: 'console.log(productPrice([], "Desk Lamp"))'
+      output: "Desk Lamp not found"
+    - input: 'console.log(productPrice([{ name: "Scented Candle", price: 30000 }, { name: "Desk Lamp", price: 85000 }, { name: "Desk Lamp", price: 90000 }], "Desk Lamp"))'
+      output: "Desk Lamp: Rp85000"
+  solution: |
+    const productPrice = (products, name) => {
+      const found = products.find((p) => p.name === name);
+      if (found === undefined) {
+        return `${name} not found`;
+      }
+      return `${found.name}: Rp${found.price}`;
+    };
+
+- slug: check-the-shop-stock
+  type: code
+  title: Check the shop stock
+  prompt: |
+    Every morning Laras wants one sentence about the state of the stock. Write a function `checkStock(products)` that takes an array of `{ name, stock }` objects and returns one of these texts:
+
+    - `No products yet` when the array is empty
+    - `All available` when every product has a stock above 0
+    - `Some sold out` when some are available and some are sold out
+    - `All sold out` when not a single product has a stock above 0
+  language: javascript
+  starter: |
+    const checkStock = (products) => {
+      if (products.every((p) => p.stock > 0)) {
+        return "All available";
+      }
+      // tell "Some sold out" and "All sold out" apart,
+      // and remember the empty array
+      return "Some sold out";
+    };
+  hints:
+    - 'The order of the checks matters. `every` on an empty array is `true`, so the empty array has to be handled first.'
+    - 'Start with `if (products.length === 0) return "No products yet";`. Only then use `every` for "All available".'
+    - 'To tell the remaining two apart, use `some`: when `products.some((p) => p.stock > 0)` is `true`, something is still available, so "Some sold out". Otherwise "All sold out".'
+  tests:
+    - input: 'console.log(checkStock([{ name: "Desk Lamp", stock: 4 }, { name: "Paper Lantern", stock: 7 }]))'
+      output: "All available"
+    - input: 'console.log(checkStock([{ name: "Desk Lamp", stock: 4 }, { name: "Scented Candle", stock: 0 }, { name: "Paper Lantern", stock: 7 }]))'
+      output: "Some sold out"
+    - input: 'console.log(checkStock([{ name: "Scented Candle", stock: 0 }, { name: "String Lights", stock: 0 }]))'
+      output: "All sold out"
+    - input: 'console.log(checkStock([]))'
+      output: "No products yet"
+    - input: 'console.log(checkStock([{ name: "Rattan Lampshade", stock: 0 }]))'
+      output: "All sold out"
+  solution: |
+    const checkStock = (products) => {
+      if (products.length === 0) {
+        return "No products yet";
+      }
+      if (products.every((p) => p.stock > 0)) {
+        return "All available";
+      }
+      if (products.some((p) => p.stock > 0)) {
+        return "Some sold out";
+      }
+      return "All sold out";
+    };
+
+- slug: includes-and-some
+  type: choice
+  title: includes and some
+  prompt: |
+    What is shown after this code runs?
+
+    ```javascript
+    const cities = ["Bandung", "Cimahi"];
+    console.log(cities.includes("bandung"), cities.some((c) => c.length > 6));
+    ```
+  options:
+    - "`true true`"
+    - "`false true`"
+    - "`true false`"
+    - "`false false`"
+  correct: [1]
+  hint: Look at upper and lower case for includes, then count the letters in each city name.
+  explanation: '`includes` needs an exact match, and `"bandung"` in lower case is different from `"Bandung"`, so it gives `false`. `some` only needs one match: `"Bandung"` has 7 letters, more than 6, so it gives `true`.'

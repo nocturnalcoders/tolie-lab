@@ -1,51 +1,51 @@
 ---
-title: Order records
+title: Catatan pesanan
 ---
-One order carries several facts at once: the item name, the quantity and the price. Kept in three separate variables, the data gets mixed up easily. It is tidier to make each order one **dictionary**, and to collect all the orders in one **list**.
+Satu pesanan punya beberapa keterangan sekaligus: nama menu, jumlah, dan harga. Kalau disimpan di tiga variabel terpisah, datanya gampang tertukar. Lebih rapi kalau satu pesanan menjadi satu **dictionary**, dan semua pesanan dikumpulkan dalam satu **list**.
 
-## One order, one dictionary
-
-```python
-order = {"name": "milk coffee", "quantity": 2, "price": 15000}
-
-print(order["name"])                      # milk coffee
-print(order["quantity"] * order["price"]) # 30000
-```
-
-The keys are the same for every order, only the values differ. A dictionary like this is often called a **record**.
-
-## Many orders, one list
-
-Start with an empty list, then add records one at a time with `.append`:
+## Satu pesanan, satu dictionary
 
 ```python
-orders = []
-orders.append({"name": "milk coffee", "quantity": 2, "price": 15000})
-orders.append({"name": "toast", "quantity": 1, "price": 18000})
+pesanan = {"nama": "kopi susu", "jumlah": 2, "harga": 15000}
 
-print(len(orders))         # 2
-print(orders[0]["name"])   # milk coffee
+print(pesanan["nama"])                       # kopi susu
+print(pesanan["jumlah"] * pesanan["harga"])  # 30000
 ```
 
-`orders[0]` picks the first record, then `["name"]` picks a value out of it.
+Kuncinya sama untuk setiap pesanan, hanya nilainya yang berbeda. Dictionary seperti ini sering disebut **catatan** (*record*).
 
-## Looping over every record
+## Banyak pesanan, satu list
+
+Mulai dari list kosong, lalu tambahkan catatan satu per satu dengan `.append`:
+
+```python
+daftar = []
+daftar.append({"nama": "kopi susu", "jumlah": 2, "harga": 15000})
+daftar.append({"nama": "roti bakar", "jumlah": 1, "harga": 18000})
+
+print(len(daftar))         # 2
+print(daftar[0]["nama"])   # kopi susu
+```
+
+`daftar[0]` mengambil catatan pertama, lalu `["nama"]` mengambil isinya.
+
+## Mengulang semua catatan
 
 ```python
 total = 0
-for o in orders:
-    total += o["quantity"] * o["price"]
+for p in daftar:
+    total += p["jumlah"] * p["harga"]
 print(total)   # 48000
 ```
 
-On each pass, `o` is one whole dictionary.
+Di setiap putaran, `p` adalah satu dictionary utuh.
 
-## Picking some of them
+## Memilih sebagian
 
-Combine `for` with `if` to take only the records that meet a condition:
+Gabungkan `for` dengan `if` untuk mengambil catatan yang memenuhi syarat saja:
 
 ```python
-for o in orders:
-    if o["quantity"] >= 2:
-        print(o["name"])   # milk coffee
+for p in daftar:
+    if p["jumlah"] >= 2:
+        print(p["nama"])   # kopi susu
 ```

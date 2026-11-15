@@ -1,0 +1,140 @@
+- slug: find-a-tracking-number
+  type: code
+  title: Find a tracking number
+  prompt: |
+    The first line holds `n`, then `n` lines of tracking numbers in shelf order (shelf 1, shelf 2, and so on). The last line is the tracking number to find.
+
+    Check the shelves one by one from shelf 1 and **stop as soon as it is found**. Print two lines:
+
+    ```
+    Found on shelf 3
+    Steps: 3
+    ```
+
+    `Steps` is the number of shelves checked. If the tracking number is not there, the first line becomes `Not found`. If the same tracking number appears twice, the first shelf is the one that counts.
+  language: python
+  starter: |
+    n = int(input())
+    shelves = []
+    for _ in range(n):
+        shelves.append(input())
+    wanted = input()
+
+    position = 0
+    steps = 0
+    # check the shelves one by one, count the steps,
+    # and stop as soon as it is found
+
+    if position > 0:
+        print(f"Found on shelf {position}")
+    else:
+        print("Not found")
+    print(f"Steps: {steps}")
+  hints:
+    - "Reading the data and printing are already there. Only the loop in the middle is missing: `for i in range(n):` comparing `shelves[i]` with `wanted`."
+    - "Inside the loop, do `steps += 1` first, then compare. That way the shelf where the parcel is found is counted too."
+    - "If `shelves[i] == wanted`, store `position = i + 1` and then `break`. Without `break`, the steps are always `n` and a repeated tracking number would point to the last shelf."
+  tests:
+    - input: "4\nKJ-104\nKJ-221\nKJ-087\nKJ-150\nKJ-087"
+      output: "Found on shelf 3\nSteps: 3"
+    - input: "3\nKJ-300\nKJ-301\nKJ-302\nKJ-300"
+      output: "Found on shelf 1\nSteps: 1"
+    - input: "3\nKJ-300\nKJ-301\nKJ-302\nKJ-999"
+      output: "Not found\nSteps: 3"
+    - input: "0\nKJ-104"
+      output: "Not found\nSteps: 0"
+    - input: "5\nKJ-010\nKJ-020\nKJ-010\nKJ-030\nKJ-020\nKJ-020"
+      output: "Found on shelf 2\nSteps: 2"
+  solution: |
+    n = int(input())
+    shelves = []
+    for _ in range(n):
+        shelves.append(input())
+    wanted = input()
+
+    position = 0
+    steps = 0
+    for i in range(n):
+        steps += 1
+        if shelves[i] == wanted:
+            position = i + 1
+            break
+
+    if position > 0:
+        print(f"Found on shelf {position}")
+    else:
+        print("Not found")
+    print(f"Steps: {steps}")
+
+- slug: every-parcel-to-one-city
+  type: code
+  title: Every parcel to one city
+  prompt: |
+    The courier for Bandung has arrived and needs to know which parcels to load.
+
+    The first line holds `n`, then `n` lines in the format `tracking number,city` in shelf order. The last line is the destination city to look for. Print how many parcels go to that city and their shelf numbers (starting from 1), separated by spaces:
+
+    ```
+    Parcels to Bandung: 3
+    Shelves: 1 3 5
+    ```
+
+    If no parcel goes to that city, the second line becomes `Shelves: -`.
+  language: python
+  starter: |
+    n = int(input())
+    parcels = []
+    for _ in range(n):
+        tracking, city = input().split(",")
+        parcels.append({"tracking": tracking, "city": city})
+    destination = input()
+
+    shelf_numbers = []
+    # check every parcel, collect the shelf numbers where the city matches
+
+    print(f"Parcels to {destination}: {len(shelf_numbers)}")
+    print("Shelves: -")
+  hints:
+    - "No `break` this time: every parcel has to be checked, because more than one can match."
+    - "Inside `for i in range(n):`, if `parcels[i][\"city\"] == destination`, run `shelf_numbers.append(str(i + 1))`. `str` is needed so the list can be joined with `join` later."
+    - "For the second line: `if shelf_numbers:` print `\"Shelves: \" + \" \".join(shelf_numbers)`, otherwise print `Shelves: -`. An empty list counts as `False` in an `if`."
+  tests:
+    - input: "5\nKJ-104,Bandung\nKJ-221,Surabaya\nKJ-087,Bandung\nKJ-150,Medan\nKJ-303,Bandung\nBandung"
+      output: "Parcels to Bandung: 3\nShelves: 1 3 5"
+    - input: "3\nKJ-104,Bandung\nKJ-150,Medan\nKJ-221,Surabaya\nMedan"
+      output: "Parcels to Medan: 1\nShelves: 2"
+    - input: "2\nKJ-104,Bandung\nKJ-150,Medan\nMakassar"
+      output: "Parcels to Makassar: 0\nShelves: -"
+    - input: "0\nBandung"
+      output: "Parcels to Bandung: 0\nShelves: -"
+  solution: |
+    n = int(input())
+    parcels = []
+    for _ in range(n):
+        tracking, city = input().split(",")
+        parcels.append({"tracking": tracking, "city": city})
+    destination = input()
+
+    shelf_numbers = []
+    for i in range(n):
+        if parcels[i]["city"] == destination:
+            shelf_numbers.append(str(i + 1))
+
+    print(f"Parcels to {destination}: {len(shelf_numbers)}")
+    if shelf_numbers:
+        print("Shelves: " + " ".join(shelf_numbers))
+    else:
+        print("Shelves: -")
+
+- slug: the-parcel-that-is-not-there
+  type: choice
+  title: The parcel that is not there
+  prompt: The warehouse holds 200 parcels. A customer asks about a tracking number that turns out **not** to be on the shelves. With linear search, how many shelves are checked before the program can answer "not found"?
+  options:
+    - "1"
+    - "100"
+    - "200"
+    - "201"
+  correct: [2]
+  hint: What does the program have to look at before it can be sure the parcel is not there?
+  explanation: Linear search can only be sure a parcel is missing after checking every shelf, so 200 steps. This is the unluckiest case, and the steps grow along with the number of parcels.

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api } from '../../api.js';
 
-const LANGS = [['python', 'Python'], ['javascript', 'JavaScript'], ['sql', 'SQL'], ['java', 'Java']];
+const LANGS = [['python', 'Python'], ['javascript', 'JavaScript'], ['sql', 'SQL'], ['java', 'Java'], ['kotlin', 'Kotlin']];
 
 export default function CourseForm({ course, onSaved }) {
   const [f, setF] = useState(() => ({

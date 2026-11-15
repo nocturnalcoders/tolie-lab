@@ -1,0 +1,162 @@
+- slug: what-does-it-print
+  type: choice
+  title: Apa yang dicetak?
+  prompt: |
+    Cucian 7 kg dibagi ke 2 kantong. Apa yang dicetak program ini?
+
+    ```kotlin
+    fun main() {
+        val totalBerat = 7
+        val jumlahKantong = 2
+        println("${totalBerat / jumlahKantong} dan ${totalBerat / 2.0}")
+    }
+    ```
+  options:
+    - "`3.5 dan 3.5`"
+    - "`3 dan 3.5`"
+    - "`4 dan 3.5`"
+    - "`3 dan 3`"
+  correct: [1]
+  hint: Perhatikan tipe kedua angka pada tiap pembagian. Apakah ada yang `Double`?
+  explanation: >-
+    `totalBerat / jumlahKantong` adalah `Int` dibagi `Int`, jadi hasilnya `Int`: 3, bagian
+    desimalnya dibuang (bukan dibulatkan menjadi 4). `totalBerat / 2.0` melibatkan `Double`,
+    jadi hasilnya `3.5`. Jawaban `3.5 dan 3.5` adalah kebiasaan dari Python, yang `/`-nya selalu
+    menghasilkan angka desimal.
+
+- slug: which-line-is-rejected
+  type: choice
+  title: Baris mana yang ditolak?
+  prompt: |
+    Satu baris membuat program ini gagal dikompilasi. Baris mana, dan mengapa?
+
+    ```kotlin
+    fun main() {
+        val berat: Double = 2.5          // baris 1
+        val tarif: Int = 7000            // baris 2
+        val total: Int = berat * tarif   // baris 3
+        val lunas: Boolean = false       // baris 4
+        println("$total $lunas")         // baris 5
+    }
+    ```
+  options:
+    - "Baris 3: `berat * tarif` menghasilkan `Double`, tidak bisa disimpan sebagai `Int`"
+    - "Baris 1: `2.5` harus ditulis `2,5`"
+    - "Baris 3: `Double` tidak bisa dikalikan dengan `Int`"
+    - "Baris 5: `Boolean` tidak bisa dimasukkan ke dalam teks"
+  correct: [0]
+  hint: Apa tipe hasil `Double` dikali `Int`? Lalu lihat tipe yang ditulis untuk `total`.
+  explanation: >-
+    `Double` boleh dikalikan dengan `Int`, dan hasilnya `Double` (`17500.0`). Masalahnya ada di
+    penyimpanan: `total` dinyatakan `Int`, dan Kotlin tidak mengubah `Double` menjadi `Int`
+    secara diam-diam. Perbaikannya `(berat * tarif).toInt()`, atau biarkan `total` bertipe
+    `Double`. Nilai `Boolean` boleh dipakai di dalam string template.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Lengkapi baris yang kosong
+  prompt: |
+    Berat diketik di kolom isian, jadi datang sebagai teks. Program harus mencetak `28000`.
+    Apa yang mengisi bagian `____`?
+
+    ```kotlin
+    fun main() {
+        val teksBerat = "4"
+        val berat: Int = ____
+        println(berat * 7000)
+    }
+    ```
+  options:
+    - "`int(teksBerat)`"
+    - "`teksBerat`"
+    - "`teksBerat.toInt()`"
+    - "`teksBerat.toDouble()`"
+  correct: [2]
+  hint: Di Kotlin, konversi adalah fungsi yang dipanggil pada nilainya, dengan titik.
+  explanation: >-
+    `teksBerat.toInt()` mengubah teks `"4"` menjadi `Int` 4, lalu 4 * 7000 = 28000.
+    `int(teksBerat)` adalah cara Python dan tidak dikenal Kotlin. `teksBerat` saja masih
+    `String`, dan `teksBerat.toDouble()` menghasilkan `Double`; keduanya ditolak karena `berat`
+    dinyatakan `Int`.
+
+- slug: inferred-types
+  type: choice
+  title: Tipe yang disimpulkan
+  prompt: |
+    Tidak ada tipe yang ditulis di sini:
+
+    ```kotlin
+    val berat = 3
+    val harga = 7000.0
+    val lunas = false
+    val nama = "Pak Joko"
+    ```
+
+    Apa tipe `berat`, `harga`, `lunas`, dan `nama`, berurutan?
+  options:
+    - "`Int`, `Int`, `Boolean`, `String`"
+    - "Belum punya tipe; tipe baru ditentukan saat program berjalan, seperti di Python"
+    - "`Double`, `Double`, `Boolean`, `String`"
+    - "`Int`, `Double`, `Boolean`, `String`"
+  correct: [3]
+  hint: Lihat cara tiap nilai ditulis. Ada angka yang memakai titik desimal.
+  explanation: >-
+    Kotlin menyimpulkan tipe dari nilai pertama saat kompilasi: `3` adalah `Int`, `7000.0`
+    adalah `Double` karena ditulis dengan titik desimal, `false` adalah `Boolean`, dan teks
+    dalam kutip ganda adalah `String`. Walaupun tidak ditulis, tipenya sudah pasti dan tidak
+    bisa berubah, berbeda dengan Python.
+
+- slug: practice-discounted-total
+  type: code
+  required: false
+  title: "Latihan: total setelah diskon"
+  prompt: |
+    Program membaca harga per kg, berat, dan persen diskon (semuanya `Int`). Cetak `Rp<total>`, dengan total = harga × berat, dikurangi diskonnya. Pakai hitungan bilangan bulat: kalikan dulu dengan `(100 - diskon)`, baru bagi 100.
+
+    Latihan ini opsional. Kodemu dijalankan di server, dan jatah hariannya terbatas.
+  starter: |
+    fun main() {
+        val price = readln().toInt()
+        val kg = readln().toInt()
+        val discount = readln().toInt()
+        val total = price * kg
+        // apply the discount, then print Rp<total>
+        println("Rp$total")
+    }
+  hints:
+    - "Kode awal sudah benar kalau diskonnya 0. `total` adalah `val`, jadi hitung nilai akhirnya dalam satu ekspresi atau buat `val` baru."
+    - "`val pay = total * (100 - discount) / 100` lalu `println(\"Rp$pay\")`. Kalau membagi dulu, pembagian `Int` membuang pecahannya."
+  tests:
+    - input: |
+        7000
+        3
+        10
+      output: |
+        Rp18900
+    - input: |
+        6000
+        5
+        0
+      output: |
+        Rp30000
+    - input: |
+        7500
+        3
+        25
+      output: |
+        Rp16875
+    - input: |
+        7000
+        2
+        100
+      output: |
+        Rp0
+  solution: |
+    fun main() {
+        val price = readln().toInt()
+        val kg = readln().toInt()
+        val discount = readln().toInt()
+        val total = price * kg
+        val pay = total * (100 - discount) / 100
+        println("Rp$pay")
+    }

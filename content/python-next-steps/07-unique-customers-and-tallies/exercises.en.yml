@@ -1,0 +1,105 @@
+- slug: unique-customers
+  type: code
+  title: Unique customers
+  prompt: |
+    The first line holds `n`, then `n` lines with the customer name from each transaction. The names were typed by hand, so tidy them first: remove spaces at the edges and capitalise the first letter of each word.
+
+    Print `Unique customers: <how many>`, then those different names in alphabetical order, one name per line.
+  language: python
+  starter: |
+    n = int(input())
+    customers = set()
+    for _ in range(n):
+        name = input()
+        # tidy the name, then add it to the set
+
+    # print how many there are, then the names in alphabetical order
+  hints:
+    - "A set drops duplicates automatically, as long as the text is exactly the same. So the names must be tidied before they go in."
+    - "Inside the loop: `customers.add(name.strip().title())`. The number of different names is `len(customers)`."
+    - "After printing `f\"Unique customers: {len(customers)}\"`, loop `for name in sorted(customers):` and print each name."
+  tests:
+    - input: "5\nsiti\nBudi\n SITI \nagus\nbudi"
+      output: "Unique customers: 3\nAgus\nBudi\nSiti"
+    - input: "3\nRina\nrina\nRINA"
+      output: "Unique customers: 1\nRina"
+    - input: "4\ndewi\nbudi santoso\nagus\n Budi Santoso"
+      output: "Unique customers: 3\nAgus\nBudi Santoso\nDewi"
+    - input: "0"
+      output: "Unique customers: 0"
+  solution: |
+    n = int(input())
+    customers = set()
+    for _ in range(n):
+        name = input()
+        customers.add(name.strip().title())
+
+    print(f"Unique customers: {len(customers)}")
+    for name in sorted(customers):
+        print(name)
+
+- slug: count-the-visits
+  type: code
+  title: Count the visits
+  prompt: |
+    The first line holds `n` (at least 1), then `n` lines with customer names that are already tidy.
+
+    Print each customer and how many times they came in the format `<name>: <how many>`, in alphabetical order. Then print `Most frequent: <name>`. If there is a tie, pick the name that comes first alphabetically.
+  language: python
+  starter: |
+    n = int(input())
+    counts = {}
+    for _ in range(n):
+        name = input()
+        # add one to the tally for this name
+
+    # print the tallies in alphabetical order, then the most frequent customer
+  hints:
+    - "The `counts` dictionary keeps the name as the key and the number of visits as the value. Use `.get` so a new name starts from 0."
+    - "Inside the first loop: `counts[name] = counts.get(name, 0) + 1`. To print in alphabetical order: `for name in sorted(counts):`."
+    - "While printing, keep track of the record holder: if `counts[name] > most`, update `most` and `most_frequent`. Because it uses `>` (not `>=`) and the order is alphabetical, the earlier name wins a tie."
+  tests:
+    - input: "6\nSiti\nBudi\nSiti\nAgus\nSiti\nBudi"
+      output: "Agus: 1\nBudi: 2\nSiti: 3\nMost frequent: Siti"
+    - input: "4\nSiti\nBudi\nBudi\nSiti"
+      output: "Budi: 2\nSiti: 2\nMost frequent: Budi"
+    - input: "5\nRina\nAgus\nRina\nDewi\nAgus"
+      output: "Agus: 2\nDewi: 1\nRina: 2\nMost frequent: Agus"
+    - input: "1\nDewi"
+      output: "Dewi: 1\nMost frequent: Dewi"
+  solution: |
+    n = int(input())
+    counts = {}
+    for _ in range(n):
+        name = input()
+        counts[name] = counts.get(name, 0) + 1
+
+    most_frequent = ""
+    most = 0
+    for name in sorted(counts):
+        print(f"{name}: {counts[name]}")
+        if counts[name] > most:
+            most = counts[name]
+            most_frequent = name
+    print(f"Most frequent: {most_frequent}")
+
+- slug: what-a-set-holds
+  type: choice
+  title: What a set holds
+  prompt: |
+    What is shown after this code runs?
+
+    ```python
+    menu = set()
+    for name in ["coffee", "tea", "coffee", "toast", "tea"]:
+        menu.add(name)
+    print(len(menu))
+    ```
+  options:
+    - "`5`"
+    - "`3`"
+    - "`2`"
+    - "An error, because `coffee` is added twice"
+  correct: [1]
+  hint: A set keeps each entry only once.
+  explanation: "Adding an entry that is already in a set raises no error and changes nothing. Only `coffee`, `tea` and `toast` are kept, so the length is `3`."

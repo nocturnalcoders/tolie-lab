@@ -1,0 +1,76 @@
+- slug: greet-the-shopper
+  type: code
+  title: Sapa pembeli
+  prompt: |
+    Seorang pembeli baru membuka halaman toko. Tampilkan sapaan ini persis seperti tertulis:
+
+    `Selamat datang di Rajut Sekar!`
+  starter: |
+    // tulis kodemu di bawah ini
+  hints:
+    - "Perintah untuk menampilkan teks adalah `console.log(...)`."
+    - "Teksnya harus diapit tanda kutip dan sama persis, termasuk huruf besar dan tanda serunya."
+    - "Tulis `console.log(\"Selamat datang di Rajut Sekar!\");`"
+  tests:
+    - input: ""
+      output: "Selamat datang di Rajut Sekar!"
+  solution: |
+    console.log("Selamat datang di Rajut Sekar!");
+
+- slug: label-and-stock-left
+  type: code
+  title: Label dan sisa stok
+  prompt: |
+    Satu tas rajut baru saja terjual. Variabelnya sudah disiapkan di editor.
+
+    1. Kurangi `stok` sebanyak 1.
+    2. Tampilkan dua baris dengan template literal, memakai variabel yang ada (jangan mengetik angkanya langsung):
+
+    ```
+    Tas rajut: Rp85000
+    Sisa stok: 11
+    ```
+  starter: |
+    const namaProduk = "Tas rajut";
+    const harga = 85000;
+    let stok = 12;
+
+    // 1. kurangi stok sebanyak 1
+
+    // 2. tampilkan dua baris
+  hints:
+    - "`stok` dibuat dengan `let`, jadi isinya boleh diganti: `stok = stok - 1;`"
+    - "Template literal memakai backtick, bukan kutip biasa: `${namaProduk}` baru diganti dengan isinya kalau teksnya diapit backtick."
+    - "Baris pertama: console.log(`${namaProduk}: Rp${harga}`); Baris kedua: console.log(`Sisa stok: ${stok}`);"
+  tests:
+    - input: ""
+      output: "Tas rajut: Rp85000\nSisa stok: 11"
+  solution: |
+    const namaProduk = "Tas rajut";
+    const harga = 85000;
+    let stok = 12;
+
+    stok = stok - 1;
+
+    console.log(`${namaProduk}: Rp${harga}`);
+    console.log(`Sisa stok: ${stok}`);
+
+- slug: const-or-let
+  type: choice
+  title: const atau let?
+  prompt: |
+    Apa yang terjadi saat kode ini dijalankan?
+
+    ```javascript
+    const harga = 45000;
+    harga = 50000;
+    console.log(harga);
+    ```
+  options:
+    - "Tampil `50000`"
+    - "Tampil `45000`"
+    - "Program berhenti dengan error karena `const` tidak boleh diganti"
+    - "Tampil `45000` lalu `50000`"
+  correct: [2]
+  hint: Ingat perbedaan `const` dan `let`.
+  explanation: "Nilai yang dibuat dengan `const` tidak boleh diganti. Baris kedua menghasilkan error, jadi `console.log` tidak pernah dijalankan. Kalau harganya memang akan berubah, pakai `let`."

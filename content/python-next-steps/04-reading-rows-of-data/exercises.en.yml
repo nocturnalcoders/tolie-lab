@@ -1,0 +1,120 @@
+- slug: parse-one-row
+  type: code
+  title: Parse one row
+  prompt: |
+    Write a function `parse(row)` that takes text in the format `name,quantity,price` and returns a dictionary with the keys `name`, `quantity` and `price`.
+
+    The row was typed by hand, so it may have extra spaces and capital letters. The name must be tidied: no spaces at the edges and all lower case. The quantity and the price must be numbers.
+
+    The program below it already prints the result.
+  language: python
+  starter: |
+    def parse(row):
+        # split the row, tidy it, then return a dictionary
+        pass
+
+
+    o = parse(input())
+    print(f"Item: {o['name']}")
+    print(f"Quantity: {o['quantity']}")
+    print(f"Subtotal: Rp{o['quantity'] * o['price']}")
+  hints:
+    - "Start with `columns = row.split(\",\")`. The first column is the name, the second the quantity, the third the price."
+    - "Tidy the name with `columns[0].strip().lower()`. Convert the quantity and the price with `int`, which already ignores spaces at the edges."
+    - "End the function with `return {\"name\": columns[0].strip().lower(), \"quantity\": int(columns[1]), \"price\": int(columns[2])}`."
+  tests:
+    - input: "milk coffee,2,15000"
+      output: "Item: milk coffee\nQuantity: 2\nSubtotal: Rp30000"
+    - input: "  Milk Coffee , 2 , 15000"
+      output: "Item: milk coffee\nQuantity: 2\nSubtotal: Rp30000"
+    - input: "TOAST,1,18000"
+      output: "Item: toast\nQuantity: 1\nSubtotal: Rp18000"
+    - input: "orange juice, 0 ,10000"
+      output: "Item: orange juice\nQuantity: 0\nSubtotal: Rp0"
+  solution: |
+    def parse(row):
+        columns = row.split(",")
+        return {
+            "name": columns[0].strip().lower(),
+            "quantity": int(columns[1]),
+            "price": int(columns[2]),
+        }
+
+
+    o = parse(input())
+    print(f"Item: {o['name']}")
+    print(f"Quantity: {o['quantity']}")
+    print(f"Subtotal: Rp{o['quantity'] * o['price']}")
+
+- slug: till-export-summary
+  type: code
+  title: Till export summary
+  prompt: |
+    The first line holds the number of data rows `n`. The second line is the header row `time,item,quantity,price`, which must be skipped. After that come `n` data rows with those four columns.
+
+    Print three lines:
+
+    ```
+    Data rows: <n>
+    Items sold: <sum of the quantity column>
+    Sales: Rp<quantity times price, added up over all rows>
+    ```
+  language: python
+  starter: |
+    n = int(input())
+    # the header row has to be read first so it gets skipped
+
+    items = 0
+    sales = 0
+    for _ in range(n):
+        columns = input().split(",")
+        # take the quantity and the price from columns, then add to items and sales
+
+    # print the three summary lines
+  hints:
+    - "The header row counts as one `input()`. Call `input()` once before the loop and ignore what it gives back."
+    - "Column positions start at 0: the time is `columns[0]`, the item `columns[1]`, the quantity `columns[2]`, the price `columns[3]`. Convert the quantity and the price with `int`."
+    - "Inside the loop: `quantity = int(columns[2])`, `price = int(columns[3])`, `items += quantity`, `sales += quantity * price`. After that, print the three lines with f-strings."
+  tests:
+    - input: "3\ntime,item,quantity,price\n08:15,milk coffee,2,15000\n08:40,pulled tea,1,12000\n09:05,toast,3,18000"
+      output: "Data rows: 3\nItems sold: 6\nSales: Rp96000"
+    - input: "2\ntime,item,quantity,price\n10:00, orange juice , 4 , 10000\n10:30,milk coffee,1,15000"
+      output: "Data rows: 2\nItems sold: 5\nSales: Rp55000"
+    - input: "1\ntime,item,quantity,price\n16:45,toast,10,18000"
+      output: "Data rows: 1\nItems sold: 10\nSales: Rp180000"
+    - input: "0\ntime,item,quantity,price"
+      output: "Data rows: 0\nItems sold: 0\nSales: Rp0"
+  solution: |
+    n = int(input())
+    input()
+
+    items = 0
+    sales = 0
+    for _ in range(n):
+        columns = input().split(",")
+        quantity = int(columns[2])
+        price = int(columns[3])
+        items += quantity
+        sales += quantity * price
+
+    print(f"Data rows: {n}")
+    print(f"Items sold: {items}")
+    print(f"Sales: Rp{sales}")
+
+- slug: the-result-of-split
+  type: choice
+  title: The result of split
+  prompt: |
+    What is the result of this expression?
+
+    ```python
+    " pulled tea ,3".split(",")
+    ```
+  options:
+    - "`['pulled tea', '3']`"
+    - "`[' pulled tea ', '3']`"
+    - "`['pulled tea', 3]`"
+    - "`[' pulled', 'tea ', '3']`"
+  correct: [1]
+  hint: split only cuts at the separator and changes nothing else.
+  explanation: "`split(\",\")` cuts exactly at the comma. The spaces stay inside the pieces, and `'3'` is still text. Tidying them up still takes `.strip()` and `int`."

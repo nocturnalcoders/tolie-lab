@@ -1,0 +1,111 @@
+- slug: budget-drinks
+  type: code
+  title: Budget drinks
+  prompt: |
+    A customer is looking for a drink that costs Rp12000 at most. Show the `name` and `price` from the `menu` table for rows whose `category` is `drink` **and** whose `price` is no more than 12000. Sort by `id` (`ORDER BY id`).
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+  starter: |
+    -- add the price condition
+    SELECT name, price FROM menu
+    WHERE category = 'drink'
+    ORDER BY id;
+  hints:
+    - "Two conditions must be true at the same time: the category is drink, and the price is no more than 12000."
+    - "Join two conditions with `AND`. \"No more than\" is written `<=`, so that a price of 12000 is included."
+    - "The condition part: `WHERE category = 'drink' AND price <= 12000`."
+  tests:
+    - output: |
+        name|price
+        Black Coffee|10000
+        Pulled Tea|12000
+        Sweet Iced Tea|8000
+    - input: |
+        INSERT INTO menu VALUES
+          (8, 'Orange Juice', 'drink', 14000),
+          (9, 'Mineral Water', 'drink', 5000),
+          (10, 'French Fries', 'food', 11000);
+      output: |
+        name|price
+        Black Coffee|10000
+        Pulled Tea|12000
+        Sweet Iced Tea|8000
+        Mineral Water|5000
+  solution: |
+    SELECT name, price FROM menu
+    WHERE category = 'drink' AND price <= 12000
+    ORDER BY id;
+
+- slug: all-the-coffee-and-tea
+  type: code
+  title: All the coffee and tea
+  prompt: |
+    Ms. Rina wants a list of every coffee and tea item. Show the `name` and `price` from the `menu` table for rows whose name contains the word `Coffee` **or** contains the word `Tea` (anywhere in the name). Sort by `id` (`ORDER BY id`).
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Black Coffee', 'drink', 10000),
+      (2, 'Milk Coffee', 'drink', 15000),
+      (3, 'Pulled Tea', 'drink', 12000),
+      (4, 'Sweet Iced Tea', 'drink', 8000),
+      (5, 'Toast', 'food', 18000),
+      (6, 'Banana Fritters', 'food', 12000),
+      (7, 'Fried Rice', 'food', 25000);
+  starter: |
+    -- this only finds names that end with Coffee; complete the condition
+    SELECT name, price FROM menu
+    WHERE name LIKE '%Coffee'
+    ORDER BY id;
+  hints:
+    - "The pattern `'%Coffee'` only matches a name that ends with Coffee. A name can hold the word in the middle or at the start too, so the pattern needs `%` on both sides."
+    - "The pattern for \"contains Coffee\" is `'%Coffee%'`. Two conditions where either one is enough are joined with `OR`."
+    - "The condition part: `WHERE name LIKE '%Coffee%' OR name LIKE '%Tea%'`."
+  tests:
+    - output: |
+        name|price
+        Black Coffee|10000
+        Milk Coffee|15000
+        Pulled Tea|12000
+        Sweet Iced Tea|8000
+    - input: |
+        INSERT INTO menu VALUES
+          (8, 'Coffee with Palm Sugar', 'drink', 20000),
+          (9, 'Orange Juice', 'drink', 14000);
+      output: |
+        name|price
+        Black Coffee|10000
+        Milk Coffee|15000
+        Pulled Tea|12000
+        Sweet Iced Tea|8000
+        Coffee with Palm Sugar|20000
+  solution: |
+    SELECT name, price FROM menu
+    WHERE name LIKE '%Coffee%' OR name LIKE '%Tea%'
+    ORDER BY id;
+
+- slug: two-conditions-at-once
+  type: choice
+  title: Two conditions at once
+  prompt: |
+    With the `menu` table from this lesson, which items are shown?
+
+    ```sql
+    SELECT name FROM menu
+    WHERE category = 'food' AND price < 15000;
+    ```
+  options:
+    - "Toast, Banana Fritters and Fried Rice"
+    - "Only Banana Fritters"
+    - "Black Coffee, Pulled Tea, Sweet Iced Tea and Banana Fritters"
+    - "No rows are shown"
+  correct: [1]
+  hint: "With `AND`, both conditions must be true on the same row."
+  explanation: "There are three food items: Toast (18000), Banana Fritters (12000) and Fried Rice (25000). Only Banana Fritters costs less than 15000. The cheap drinks are left out because their category is not food."

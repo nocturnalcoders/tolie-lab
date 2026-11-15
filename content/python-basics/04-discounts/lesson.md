@@ -1,22 +1,22 @@
 ---
-title: Discounts with if and else
+title: Diskon dengan if dan else
 ---
-Ms. Rina has a new rule: **spend Rp100,000 or more and get a 10% discount**. The program now has to make a decision.
+Bu Rina punya aturan baru: **belanja Rp100.000 atau lebih dapat diskon 10%**. Program sekarang harus bisa mengambil keputusan.
 
-## Comparisons
+## Perbandingan
 
-A comparison gives `True` or `False`:
+Perbandingan menghasilkan `True` atau `False`:
 
-| Written | Meaning |
+| Tulisan | Artinya |
 | --- | --- |
-| `a == b` | equal to |
-| `a != b` | not equal to |
-| `a > b` | greater than |
-| `a >= b` | greater than or equal to |
-| `a < b` | less than |
-| `a <= b` | less than or equal to |
+| `a == b` | sama dengan |
+| `a != b` | tidak sama dengan |
+| `a > b` | lebih besar |
+| `a >= b` | lebih besar atau sama |
+| `a < b` | lebih kecil |
+| `a <= b` | lebih kecil atau sama |
 
-Careful: `=` stores a value, while `==` compares.
+Hati-hati: `=` menyimpan nilai, sedangkan `==` membandingkan.
 
 ## if, elif, else
 
@@ -24,24 +24,24 @@ Careful: `=` stores a value, while `==` compares.
 total = 120000
 
 if total >= 100000:
-    print("Gets a discount")
+    print("Dapat diskon")
 else:
-    print("No discount yet")
+    print("Belum dapat diskon")
 ```
 
-The lines inside the `if` must be **indented** (four spaces). That is how Python knows which lines belong to it. For more than two choices, use `elif`:
+Baris di dalam `if` harus **menjorok** (empat spasi). Itulah cara Python tahu baris mana yang ikut. Untuk lebih dari dua pilihan, pakai `elif`:
 
 ```python
-if quantity >= 10:
-    print("Large")
-elif quantity >= 3:
-    print("Medium")
+if jumlah >= 10:
+    print("Besar")
+elif jumlah >= 3:
+    print("Sedang")
 else:
-    print("Small")
+    print("Kecil")
 ```
 
-Python checks from the top and stops at the first choice that is true.
+Python memeriksa dari atas dan berhenti di pilihan pertama yang benar.
 
-## Calculating percentages
+## Menghitung persen
 
-A 10% discount means paying 90%. With whole numbers: `total * 90 // 100`.
+Diskon 10% berarti membayar 90%. Dengan bilangan bulat: `total * 90 // 100`.

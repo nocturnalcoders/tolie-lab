@@ -1,14 +1,14 @@
 - slug: total-to-pay
   type: code
-  title: Work out the total
+  title: Hitung total bayar
   prompt: |
-    Read the price per cup and the number of cups (two lines, both whole numbers). Print the total to pay, as a number only.
+    Baca harga per cangkir dan jumlah cangkir (dua baris, keduanya angka bulat). Cetak total yang harus dibayar, hanya angkanya.
   language: python
   starter: |
-    price = int(input())
-    quantity = int(input())
-    # work out and print the total below
-  hint: The total is the price times the quantity.
+    harga = int(input())
+    jumlah = int(input())
+    # hitung dan cetak total di bawah ini
+  hint: Total adalah harga dikali jumlah.
   tests:
     - input: "15000\n2"
       output: "30000"
@@ -17,20 +17,20 @@
     - input: "12500\n0"
       output: "0"
   solution: |
-    price = int(input())
-    quantity = int(input())
-    print(price * quantity)
+    harga = int(input())
+    jumlah = int(input())
+    print(harga * jumlah)
 
 - slug: change
   type: code
-  title: Work out the change
+  title: Hitung kembalian
   prompt: |
-    Read the total of the bill and the money the customer paid (two lines). Print the change, as a number only.
+    Baca total belanja dan uang yang dibayarkan pelanggan (dua baris). Cetak kembaliannya, hanya angkanya.
   language: python
   starter: |
     total = int(input())
-    paid = int(input())
-    # print the change
+    bayar = int(input())
+    # cetak kembalian
   tests:
     - input: "47000\n50000"
       output: "3000"
@@ -40,26 +40,26 @@
       output: "26500"
   solution: |
     total = int(input())
-    paid = int(input())
-    print(paid - total)
+    bayar = int(input())
+    print(bayar - total)
 
 - slug: quiz-order
   type: choice
-  title: Order of operations
-  prompt: What is the result of `10 + 5 * 2`?
+  title: Urutan hitung
+  prompt: Berapa hasil `10 + 5 * 2`?
   options:
     - "`30`"
     - "`20`"
     - "`25`"
     - "`15`"
   correct: [1]
-  hint: Which comes first, adding or multiplying?
-  explanation: Multiplication comes first, so `5 * 2 = 10`, and then `10 + 10 = 20`.
+  hint: Mana yang dikerjakan lebih dulu, tambah atau kali?
+  explanation: Perkalian dikerjakan lebih dulu, jadi `5 * 2 = 10`, lalu `10 + 10 = 20`.
 
 - slug: quiz-types
   type: choice
-  title: Which ones are whole numbers?
-  prompt: Pick **all** the values that are whole numbers (`int`).
+  title: Mana yang angka bulat?
+  prompt: Pilih **semua** yang bertipe angka bulat (`int`).
   multiple: true
   options:
     - "`42`"
@@ -68,5 +68,5 @@
     - "`4.2`"
     - "`input()`"
   correct: [0, 2]
-  hint: Text inside quotes is still text, and `input()` always gives text.
-  explanation: "`42` and `int(\"42\")` are `int`. `\"42\"` and `input()` give text, and `4.2` is a decimal number."
+  hint: Teks di dalam tanda kutip tetap teks, dan `input()` selalu menghasilkan teks.
+  explanation: "`42` dan `int(\"42\")` adalah `int`. `\"42\"` dan `input()` menghasilkan teks, dan `4.2` adalah angka desimal."

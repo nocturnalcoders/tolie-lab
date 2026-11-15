@@ -1,0 +1,189 @@
+- slug: parcel-summary-per-city
+  type: code
+  title: Parcel summary per city
+  prompt: |
+    The first line holds `n`, then `n` lines in the format `tracking number,city,weight` (weight in kg, a whole number). Print a summary like this:
+
+    ```
+    Parcels: 5
+    Total weight: 23 kg
+    Bandung: 3
+    Medan: 1
+    Surabaya: 1
+    Heaviest: 1042 (9 kg)
+    ```
+
+    Cities are sorted from the most parcels. If the counts are equal, sort alphabetically. `Heaviest` is the tracking number of the heaviest parcel. If two weights are equal, pick the one that came in first.
+
+    If `n` is 0, there are no city lines and the last line becomes `Heaviest: -`.
+  language: python
+  starter: |
+    n = int(input())
+    parcels = []
+    for _ in range(n):
+        tracking, city, weight = input().split(",")
+        parcels.append({"tracking": tracking, "city": city, "weight": int(weight)})
+
+    per_city = {}
+    total_weight = 0
+    heaviest = None
+    # a single pass: count parcels per city, add up the weight,
+    # and track the heaviest parcel
+
+    print(f"Parcels: {n}")
+    print(f"Total weight: {total_weight} kg")
+    # print the cities from the busiest, then the Heaviest line
+  hints:
+    - "Keep three notes in one `for p in parcels:`. Count per city: `per_city[p[\"city\"]] = per_city.get(p[\"city\"], 0) + 1`. Total weight: `total_weight += p[\"weight\"]`."
+    - "The heaviest parcel: `if heaviest is None or p[\"weight\"] > heaviest[\"weight\"]:` then `heaviest = p`. Using `>` lets the parcel that came in first stand when weights are equal."
+    - "For the cities: write a function `order(pair)` that returns `(-count, city)`, then `for city, count in sorted(per_city.items(), key=order):`. The last line: if `heaviest is None` print `Heaviest: -`, otherwise `f\"Heaviest: {heaviest['tracking']} ({heaviest['weight']} kg)\"`."
+  tests:
+    - input: "5\n1042,Bandung,9\n1007,Surabaya,4\n1100,Bandung,2\n1015,Medan,5\n1063,Bandung,3"
+      output: "Parcels: 5\nTotal weight: 23 kg\nBandung: 3\nMedan: 1\nSurabaya: 1\nHeaviest: 1042 (9 kg)"
+    - input: "0"
+      output: "Parcels: 0\nTotal weight: 0 kg\nHeaviest: -"
+    - input: "4\n2001,Solo,2\n2002,Medan,7\n2003,Solo,7\n2004,Medan,1"
+      output: "Parcels: 4\nTotal weight: 17 kg\nMedan: 2\nSolo: 2\nHeaviest: 2002 (7 kg)"
+    - input: "1\n3001,Jakarta,1"
+      output: "Parcels: 1\nTotal weight: 1 kg\nJakarta: 1\nHeaviest: 3001 (1 kg)"
+  solution: |
+    def order(pair):
+        city, count = pair
+        return (-count, city)
+
+
+    n = int(input())
+    parcels = []
+    for _ in range(n):
+        tracking, city, weight = input().split(",")
+        parcels.append({"tracking": tracking, "city": city, "weight": int(weight)})
+
+    per_city = {}
+    total_weight = 0
+    heaviest = None
+    for p in parcels:
+        per_city[p["city"]] = per_city.get(p["city"], 0) + 1
+        total_weight += p["weight"]
+        if heaviest is None or p["weight"] > heaviest["weight"]:
+            heaviest = p
+
+    print(f"Parcels: {n}")
+    print(f"Total weight: {total_weight} kg")
+    for city, count in sorted(per_city.items(), key=order):
+        print(f"{city}: {count}")
+    if heaviest is None:
+        print("Heaviest: -")
+    else:
+        print(f"Heaviest: {heaviest['tracking']} ({heaviest['weight']} kg)")
+
+- slug: track-many-parcels
+  type: code
+  title: Track many parcels
+  prompt: |
+    The first line holds `n`, then `n` lines in the format `tracking number,city` in **random** order (tracking numbers are whole numbers). After that comes `q`, then `q` lines of tracking numbers that customers ask about.
+
+    Sort the parcels by tracking number **once** with `sorted`, then answer each question with binary search (`left = 0`, `right = n - 1`, `middle = (left + right) // 2`). For each question print the destination city and the number of steps, meaning how many times the value at `middle` was checked. At the end, print the total of all steps:
+
+    ```
+    1042: Bandung (steps: 1)
+    1100: Bandung (steps: 3)
+    1050: not found (steps: 2)
+    Total steps: 6
+    ```
+
+    Complete the function `find(data, wanted)` so it returns `[city, steps]`, with `city` holding `"not found"` when the tracking number is not there.
+  language: python
+  starter: |
+    def get_tracking(p):
+        return p["tracking"]
+
+
+    def find(data, wanted):
+        city = "not found"
+        steps = 0
+        # binary search on data already sorted by tracking number
+        return [city, steps]
+
+
+    n = int(input())
+    parcels = []
+    for _ in range(n):
+        tracking, city = input().split(",")
+        parcels.append({"tracking": int(tracking), "city": city})
+
+    # sort the parcels by tracking number before searching
+    data = parcels
+
+    q = int(input())
+    total = 0
+    for _ in range(q):
+        wanted = int(input())
+        city, steps = find(data, wanted)
+        total += steps
+        print(f"{wanted}: {city} (steps: {steps})")
+    print(f"Total steps: {total}")
+  hints:
+    - "There are two places to fill in. The easy one first: change `data = parcels` to `data = sorted(parcels, key=get_tracking)`."
+    - "Inside `find`, start with `left = 0` and `right = len(data) - 1`, then `while left <= right:`. Work out `middle`, add to `steps`, and compare `data[middle][\"tracking\"]` with `wanted`."
+    - "If equal: `city = data[middle][\"city\"]` then `break`. If `data[middle][\"tracking\"] < wanted`: `left = middle + 1`. Otherwise: `right = middle - 1`. The `return` line that is already there does not need changing."
+  tests:
+    - input: "5\n1042,Bandung\n1007,Surabaya\n1100,Bandung\n1015,Medan\n1063,Solo\n3\n1042\n1100\n1050"
+      output: "1042: Bandung (steps: 1)\n1100: Bandung (steps: 3)\n1050: not found (steps: 2)\nTotal steps: 6"
+    - input: "0\n2\n1001\n1002"
+      output: "1001: not found (steps: 0)\n1002: not found (steps: 0)\nTotal steps: 0"
+    - input: "2\n1002,Medan\n1001,Solo\n0"
+      output: "Total steps: 0"
+    - input: "8\n2080,Medan\n2070,Solo\n2060,Bandung\n2050,Jakarta\n2040,Medan\n2030,Solo\n2020,Bandung\n2010,Jakarta\n4\n2010\n2080\n2040\n2005"
+      output: "2010: Jakarta (steps: 3)\n2080: Medan (steps: 4)\n2040: Medan (steps: 1)\n2005: not found (steps: 3)\nTotal steps: 11"
+  solution: |
+    def get_tracking(p):
+        return p["tracking"]
+
+
+    def find(data, wanted):
+        city = "not found"
+        steps = 0
+        left = 0
+        right = len(data) - 1
+        while left <= right:
+            middle = (left + right) // 2
+            steps += 1
+            if data[middle]["tracking"] == wanted:
+                city = data[middle]["city"]
+                break
+            elif data[middle]["tracking"] < wanted:
+                left = middle + 1
+            else:
+                right = middle - 1
+        return [city, steps]
+
+
+    n = int(input())
+    parcels = []
+    for _ in range(n):
+        tracking, city = input().split(",")
+        parcels.append({"tracking": int(tracking), "city": city})
+
+    data = sorted(parcels, key=get_tracking)
+
+    q = int(input())
+    total = 0
+    for _ in range(q):
+        wanted = int(input())
+        city, steps = find(data, wanted)
+        total += steps
+        print(f"{wanted}: {city} (steps: {steps})")
+    print(f"Total steps: {total}")
+
+- slug: choosing-the-right-method
+  type: choice
+  title: Choosing the right method
+  prompt: The warehouse keeps 1,000 parcels in random order, and in a day hundreds of customers ask about their tracking number. Which statement is **true**?
+  options:
+    - "Linear search is always faster, because nothing needs sorting"
+    - "Sorting once and then using binary search costs less: each question takes at most about 10 steps, instead of up to 1,000"
+    - "Binary search can be used straight away on shuffled data, the result is the same"
+    - "The data has to be sorted again before every question"
+  correct: [1]
+  hint: Compare the cost of sorting once with the cost of hundreds of one-by-one searches.
+  explanation: Sorting does have a cost, but it only has to be paid once. After that, each binary search over 1,000 parcels takes at most about 10 steps, while linear search can take up to 1,000 steps per question. The more often the job is repeated, the bigger the difference. Binary search on shuffled data can give a wrong answer.

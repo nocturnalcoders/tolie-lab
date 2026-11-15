@@ -1,0 +1,133 @@
+- slug: chocolate-toast
+  type: code
+  title: Roti Bakar Cokelat
+  prompt: |
+    Roti Bakar sekarang disajikan dengan cokelat. Ubah baris tabel `menu` yang `id`-nya 5 dengan **satu** perintah `UPDATE`:
+
+    - `nama` menjadi `Roti Bakar Cokelat`
+    - `harga` menjadi 20000
+
+    Baris lain tidak boleh berubah. Pemeriksa akan menampilkan `id`, `nama`, `harga` dari seluruh tabel `menu`, urut menurut `id`.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, nama TEXT, kategori TEXT, harga INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Kopi Hitam', 'minuman', 10000),
+      (2, 'Kopi Susu', 'minuman', 15000),
+      (3, 'Teh Tarik', 'minuman', 12000),
+      (4, 'Es Teh Manis', 'minuman', 8000),
+      (5, 'Roti Bakar', 'makanan', 18000),
+      (6, 'Pisang Goreng', 'makanan', 12000),
+      (7, 'Nasi Goreng', 'makanan', 25000);
+  check: |
+    SELECT id, nama, harga FROM menu ORDER BY id;
+  starter: |
+    -- harganya sudah diubah; ubah juga namanya di perintah yang sama
+    UPDATE menu
+    SET harga = 20000
+    WHERE id = 5;
+  hints:
+    - "`SET` boleh berisi lebih dari satu kolom."
+    - "Pisahkan tiap `kolom = nilai` dengan koma: `SET nama = ..., harga = ...`. Nama adalah tulisan, jadi pakai petik tunggal."
+    - "Baris `SET`-nya: `SET nama = 'Roti Bakar Cokelat', harga = 20000`, dan `WHERE id = 5` tetap."
+  tests:
+    - output: |
+        id|nama|harga
+        1|Kopi Hitam|10000
+        2|Kopi Susu|15000
+        3|Teh Tarik|12000
+        4|Es Teh Manis|8000
+        5|Roti Bakar Cokelat|20000
+        6|Pisang Goreng|12000
+        7|Nasi Goreng|25000
+    - input: |
+        INSERT INTO menu VALUES (8, 'Jus Jeruk', 'minuman', 14000);
+        UPDATE menu SET harga = 9000 WHERE id = 4;
+      output: |
+        id|nama|harga
+        1|Kopi Hitam|10000
+        2|Kopi Susu|15000
+        3|Teh Tarik|12000
+        4|Es Teh Manis|9000
+        5|Roti Bakar Cokelat|20000
+        6|Pisang Goreng|12000
+        7|Nasi Goreng|25000
+        8|Jus Jeruk|14000
+  solution: |
+    UPDATE menu
+    SET nama = 'Roti Bakar Cokelat', harga = 20000
+    WHERE id = 5;
+
+- slug: food-discount
+  type: code
+  title: Diskon makanan
+  prompt: |
+    Mulai hari ini semua **makanan** turun harga Rp2000. Kurangi `harga` sebesar 2000 pada setiap baris tabel `menu` yang `kategori`-nya `makanan`. Harga minuman tidak boleh berubah.
+
+    Jumlah makanan di menu bisa bertambah, jadi pilih barisnya lewat kategori, bukan lewat `id`. Pemeriksa akan menampilkan `id`, `nama`, `kategori`, `harga` dari seluruh tabel `menu`, urut menurut `id`.
+  setup: |
+    CREATE TABLE menu (id INTEGER PRIMARY KEY, nama TEXT, kategori TEXT, harga INTEGER);
+    INSERT INTO menu VALUES
+      (1, 'Kopi Hitam', 'minuman', 10000),
+      (2, 'Kopi Susu', 'minuman', 15000),
+      (3, 'Teh Tarik', 'minuman', 12000),
+      (4, 'Es Teh Manis', 'minuman', 8000),
+      (5, 'Roti Bakar', 'makanan', 18000),
+      (6, 'Pisang Goreng', 'makanan', 12000),
+      (7, 'Nasi Goreng', 'makanan', 25000);
+  check: |
+    SELECT id, nama, kategori, harga FROM menu ORDER BY id;
+  starter: |
+    -- awas: perintah ini mengubah SEMUA baris. Batasi ke makanan saja.
+    UPDATE menu
+    SET harga = harga - 2000;
+  hints:
+    - "Tanpa `WHERE`, `UPDATE` mengenai semua baris, termasuk minuman."
+    - "Tambahkan `WHERE` setelah `SET`, dengan syarat pada kolom `kategori`. Tulisan diapit petik tunggal."
+    - "Tambahkan `WHERE kategori = 'makanan'` sebelum titik koma."
+  tests:
+    - output: |
+        id|nama|kategori|harga
+        1|Kopi Hitam|minuman|10000
+        2|Kopi Susu|minuman|15000
+        3|Teh Tarik|minuman|12000
+        4|Es Teh Manis|minuman|8000
+        5|Roti Bakar|makanan|16000
+        6|Pisang Goreng|makanan|10000
+        7|Nasi Goreng|makanan|23000
+    - input: |
+        INSERT INTO menu VALUES
+          (8, 'Jus Jeruk', 'minuman', 14000),
+          (9, 'Mie Goreng', 'makanan', 22000);
+      output: |
+        id|nama|kategori|harga
+        1|Kopi Hitam|minuman|10000
+        2|Kopi Susu|minuman|15000
+        3|Teh Tarik|minuman|12000
+        4|Es Teh Manis|minuman|8000
+        5|Roti Bakar|makanan|16000
+        6|Pisang Goreng|makanan|10000
+        7|Nasi Goreng|makanan|23000
+        8|Jus Jeruk|minuman|14000
+        9|Mie Goreng|makanan|20000
+  solution: |
+    UPDATE menu
+    SET harga = harga - 2000
+    WHERE kategori = 'makanan';
+
+- slug: update-without-where
+  type: choice
+  title: UPDATE tanpa WHERE
+  prompt: |
+    Tabel `menu` berisi 7 baris. Apa yang terjadi setelah perintah ini dijalankan?
+
+    ```sql
+    UPDATE menu SET harga = 5000;
+    ```
+  options:
+    - "Hanya baris pertama yang harganya menjadi 5000"
+    - "Semua 7 baris harganya menjadi 5000"
+    - "Tidak ada yang berubah karena barisnya tidak disebut"
+    - "Database menolak perintahnya karena tidak ada `WHERE`"
+  correct: [1]
+  hint: "`WHERE` yang menentukan baris mana yang kena. Di sini tidak ada."
+  explanation: "`WHERE` membatasi baris yang diubah. Tanpa `WHERE` tidak ada batasan, jadi semua baris kena dan harga lama hilang. Database tidak menganggap ini kesalahan, karena itu selalu periksa `WHERE` sebelum menjalankan `UPDATE`."

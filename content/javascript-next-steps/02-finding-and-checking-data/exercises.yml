@@ -1,0 +1,106 @@
+- slug: look-up-a-product-price
+  type: code
+  title: Cari harga produk
+  prompt: |
+    Buat fungsi `hargaProduk(produk, nama)` yang mencari produk bernama `nama` di dalam array objek `{ nama, harga }` dan mengembalikan teks:
+
+    - `<nama>: Rp<harga>` jika produknya ada, misalnya `Lilin Aroma: Rp30000`
+    - `<nama> tidak ditemukan` jika tidak ada, misalnya `Kipas Angin tidak ditemukan`
+
+    Jika ada dua produk bernama sama, pakai yang pertama.
+  language: javascript
+  starter: |
+    const hargaProduk = (produk, nama) => {
+      // saat ini selalu mengambil produk pertama
+      const hasil = produk[0];
+      return `${hasil.nama}: Rp${hasil.harga}`;
+    };
+  hints:
+    - 'Kamu butuh satu produk, bukan array. Metode yang mengembalikan isi pertama yang cocok adalah `find`.'
+    - 'Tulis `const hasil = produk.find((p) => p.nama === nama);`. Kalau tidak ada yang cocok, `hasil` berisi `undefined`.'
+    - 'Sebelum membaca `hasil.harga`, periksa dulu: `if (hasil === undefined)` kembalikan teks "tidak ditemukan" yang diawali `nama`. Kalau ada, kembalikan teks dengan `hasil.nama` dan `hasil.harga`.'
+  tests:
+    - input: 'console.log(hargaProduk([{ nama: "Lampu Meja", harga: 85000 }, { nama: "Lilin Aroma", harga: 30000 }, { nama: "Lampion Kertas", harga: 45000 }], "Lilin Aroma"))'
+      output: "Lilin Aroma: Rp30000"
+    - input: 'console.log(hargaProduk([{ nama: "Lampu Meja", harga: 85000 }, { nama: "Lilin Aroma", harga: 30000 }], "Kipas Angin"))'
+      output: "Kipas Angin tidak ditemukan"
+    - input: 'console.log(hargaProduk([], "Lampu Meja"))'
+      output: "Lampu Meja tidak ditemukan"
+    - input: 'console.log(hargaProduk([{ nama: "Lilin Aroma", harga: 30000 }, { nama: "Lampu Meja", harga: 85000 }, { nama: "Lampu Meja", harga: 90000 }], "Lampu Meja"))'
+      output: "Lampu Meja: Rp85000"
+  solution: |
+    const hargaProduk = (produk, nama) => {
+      const hasil = produk.find((p) => p.nama === nama);
+      if (hasil === undefined) {
+        return `${nama} tidak ditemukan`;
+      }
+      return `${hasil.nama}: Rp${hasil.harga}`;
+    };
+
+- slug: check-the-shop-stock
+  type: code
+  title: Periksa stok toko
+  prompt: |
+    Setiap pagi Mbak Laras ingin satu kalimat tentang keadaan stok. Buat fungsi `periksaStok(produk)` yang menerima array objek `{ nama, stok }` dan mengembalikan salah satu teks ini:
+
+    - `Belum ada produk` jika array-nya kosong
+    - `Semua tersedia` jika semua produk stoknya lebih dari 0
+    - `Sebagian habis` jika ada yang tersedia dan ada yang habis
+    - `Semua habis` jika tidak ada satu pun yang stoknya lebih dari 0
+  language: javascript
+  starter: |
+    const periksaStok = (produk) => {
+      if (produk.every((p) => p.stok > 0)) {
+        return "Semua tersedia";
+      }
+      // bedakan "Sebagian habis" dan "Semua habis",
+      // dan jangan lupa array kosong
+      return "Sebagian habis";
+    };
+  hints:
+    - 'Urutan pemeriksaan penting. `every` pada array kosong bernilai `true`, jadi array kosong harus ditangani paling awal.'
+    - 'Mulai dengan `if (produk.length === 0) return "Belum ada produk";`. Setelah itu baru `every` untuk "Semua tersedia".'
+    - 'Untuk membedakan dua sisanya, pakai `some`: jika `produk.some((p) => p.stok > 0)` bernilai `true`, masih ada yang tersedia, jadi "Sebagian habis". Kalau tidak, "Semua habis".'
+  tests:
+    - input: 'console.log(periksaStok([{ nama: "Lampu Meja", stok: 4 }, { nama: "Lampion Kertas", stok: 7 }]))'
+      output: "Semua tersedia"
+    - input: 'console.log(periksaStok([{ nama: "Lampu Meja", stok: 4 }, { nama: "Lilin Aroma", stok: 0 }, { nama: "Lampion Kertas", stok: 7 }]))'
+      output: "Sebagian habis"
+    - input: 'console.log(periksaStok([{ nama: "Lilin Aroma", stok: 0 }, { nama: "Lampu Tumblr", stok: 0 }]))'
+      output: "Semua habis"
+    - input: 'console.log(periksaStok([]))'
+      output: "Belum ada produk"
+    - input: 'console.log(periksaStok([{ nama: "Kap Lampu Rotan", stok: 0 }]))'
+      output: "Semua habis"
+  solution: |
+    const periksaStok = (produk) => {
+      if (produk.length === 0) {
+        return "Belum ada produk";
+      }
+      if (produk.every((p) => p.stok > 0)) {
+        return "Semua tersedia";
+      }
+      if (produk.some((p) => p.stok > 0)) {
+        return "Sebagian habis";
+      }
+      return "Semua habis";
+    };
+
+- slug: includes-and-some
+  type: choice
+  title: includes dan some
+  prompt: |
+    Apa yang tampil setelah kode ini dijalankan?
+
+    ```javascript
+    const kota = ["Bandung", "Cimahi"];
+    console.log(kota.includes("bandung"), kota.some((k) => k.length > 6));
+    ```
+  options:
+    - "`true true`"
+    - "`false true`"
+    - "`true false`"
+    - "`false false`"
+  correct: [1]
+  hint: Perhatikan huruf besar dan kecil pada includes, lalu hitung jumlah huruf setiap nama kota.
+  explanation: '`includes` membandingkan persis sama, dan `"bandung"` dengan huruf kecil berbeda dari `"Bandung"`, jadi hasilnya `false`. `some` cukup menemukan satu yang cocok: `"Bandung"` terdiri dari 7 huruf, lebih dari 6, jadi hasilnya `true`.'

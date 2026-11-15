@@ -1,65 +1,65 @@
 - slug: apply-discount
   type: code
-  title: Apply the discount
+  title: Hitung diskon
   prompt: |
-    Read the bill total. If the total is **100000 or more**, the customer gets a 10% discount. Print the amount to pay in the format `Pay: Rp<amount>`.
+    Baca total belanja. Jika totalnya **100000 atau lebih**, pelanggan dapat diskon 10%. Cetak jumlah yang harus dibayar dengan format `Bayar: Rp<jumlah>`.
   language: python
   starter: |
     total = int(input())
-    # print "Pay: Rp..." after checking for the discount
-  hint: Pay 90% of the total with total * 90 // 100.
+    # cetak "Bayar: Rp..." setelah memeriksa diskon
+  hint: Bayar 90% dari total dengan total * 90 // 100.
   tests:
     - input: "50000"
-      output: "Pay: Rp50000"
+      output: "Bayar: Rp50000"
     - input: "100000"
-      output: "Pay: Rp90000"
+      output: "Bayar: Rp90000"
     - input: "250000"
-      output: "Pay: Rp225000"
+      output: "Bayar: Rp225000"
   solution: |
     total = int(input())
     if total >= 100000:
-        pay = total * 90 // 100
+        bayar = total * 90 // 100
     else:
-        pay = total
-    print(f"Pay: Rp{pay}")
+        bayar = total
+    print(f"Bayar: Rp{bayar}")
 
 - slug: order-size
   type: code
-  title: Order size
+  title: Kategori pesanan
   prompt: |
-    Read the number of items in an order. Print `Large order` for 10 items or more, `Medium order` for 3 to 9 items, and `Small order` for fewer than 3.
+    Baca jumlah item dalam satu pesanan. Cetak `Pesanan besar` jika 10 item atau lebih, `Pesanan sedang` jika 3 sampai 9 item, dan `Pesanan kecil` jika kurang dari 3.
   language: python
   starter: |
-    quantity = int(input())
-    # choose one of the three sizes
+    jumlah = int(input())
+    # pilih salah satu dari tiga kategori
   tests:
     - input: "12"
-      output: "Large order"
+      output: "Pesanan besar"
     - input: "10"
-      output: "Large order"
+      output: "Pesanan besar"
     - input: "5"
-      output: "Medium order"
+      output: "Pesanan sedang"
     - input: "3"
-      output: "Medium order"
+      output: "Pesanan sedang"
     - input: "2"
-      output: "Small order"
+      output: "Pesanan kecil"
   solution: |
-    quantity = int(input())
-    if quantity >= 10:
-        print("Large order")
-    elif quantity >= 3:
-        print("Medium order")
+    jumlah = int(input())
+    if jumlah >= 10:
+        print("Pesanan besar")
+    elif jumlah >= 3:
+        print("Pesanan sedang")
     else:
-        print("Small order")
+        print("Pesanan kecil")
 
 - slug: quiz-condition
   type: choice
-  title: The true condition
-  prompt: If `x = 10`, which condition is `True`?
+  title: Kondisi yang benar
+  prompt: Jika `x = 10`, kondisi mana yang bernilai `True`?
   options:
     - "`x > 10`"
     - "`x == 10`"
     - "`x != 10`"
     - "`x < 5`"
   correct: [1]
-  explanation: "`x == 10` is true because `x` really is 10. `x > 10` is false because 10 is not greater than 10."
+  explanation: "`x == 10` benar karena `x` memang bernilai 10. `x > 10` salah karena 10 tidak lebih besar dari 10."

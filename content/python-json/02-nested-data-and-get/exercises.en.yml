@@ -1,0 +1,171 @@
+- slug: order-item-breakdown
+  type: code
+  title: Order item breakdown
+  prompt: |
+    One line of input holds a nested order like the one in the lesson: `customer` is an object with the keys `name` and `city`, and `items` is a list of objects with the keys `dish`, `qty` and `price`.
+
+    Print one customer line, one line for each item in the order given, then the total:
+
+    ```
+    Customer: <name> (<city>)
+    - <dish> x<qty> = Rp<qty times price>
+    Total: Rp<sum over all items>
+    ```
+
+    The `items` list can be empty. In that case only the customer line and `Total: Rp0` are printed.
+  starter: |
+    import json
+
+    order = json.loads(input())
+    total = 0
+    # print the customer line, then one line per item while adding up the total
+    print(f"Total: Rp{total}")
+  hints:
+    - >-
+      The customer's name sits two layers deep: fetch `order["customer"]` first, then `["name"]` and `["city"]` from there.
+    - >-
+      Loop over the items with `for item in order["items"]:`. Inside, work out `subtotal = item["qty"] * item["price"]` and add it to `total`.
+    - >-
+      The item line: `print(f"- {item['dish']} x{item['qty']} = Rp{subtotal}")`. The customer line: keep `c = order["customer"]`, then `print(f"Customer: {c['name']} ({c['city']})")`.
+  tests:
+    - input: |
+        {"id": "AM-1021", "customer": {"name": "Dewi", "city": "Bandung"}, "items": [{"dish": "beef rendang rice", "qty": 2, "price": 28000}, {"dish": "sweet iced tea", "qty": 2, "price": 6000}]}
+      output: |
+        Customer: Dewi (Bandung)
+        - beef rendang rice x2 = Rp56000
+        - sweet iced tea x2 = Rp12000
+        Total: Rp68000
+    - input: |
+        {"id": "AM-1022", "customer": {"name": "Budi Santoso", "city": "Cimahi"}, "items": [{"dish": "smashed chicken", "qty": 3, "price": 22000}]}
+      output: |
+        Customer: Budi Santoso (Cimahi)
+        - smashed chicken x3 = Rp66000
+        Total: Rp66000
+    - input: |
+        {"id": "AM-1023", "customer": {"name": "Tari", "city": "Bandung"}, "items": []}
+      output: |
+        Customer: Tari (Bandung)
+        Total: Rp0
+    - input: |
+        {"items": [{"dish": "chicken satay", "qty": 1, "price": 25000}, {"dish": "beef rendang rice", "qty": 1, "price": 28000}, {"dish": "sweet iced tea", "qty": 4, "price": 6000}], "customer": {"city": "Lembang", "name": "Agus"}, "id": "AM-1024"}
+      output: |
+        Customer: Agus (Lembang)
+        - chicken satay x1 = Rp25000
+        - beef rendang rice x1 = Rp28000
+        - sweet iced tea x4 = Rp24000
+        Total: Rp77000
+  solution: |
+    import json
+
+    order = json.loads(input())
+    c = order["customer"]
+    print(f"Customer: {c['name']} ({c['city']})")
+    total = 0
+    for item in order["items"]:
+        subtotal = item["qty"] * item["price"]
+        total += subtotal
+        print(f"- {item['dish']} x{item['qty']} = Rp{subtotal}")
+    print(f"Total: Rp{total}")
+
+- slug: safe-delivery-info
+  type: code
+  title: Safe delivery info
+  prompt: |
+    One line of input holds an order with the key `id`. The other keys **may or may not be there**:
+
+    - `delivery`: an object that can hold `courier` (a name) and `fee` (a number), just one of them, or nothing at all
+    - `note`: text
+
+    Print four lines:
+
+    ```
+    Order <id>
+    Courier: <courier>
+    Delivery fee: Rp<fee>
+    Note: <note>
+    ```
+
+    Use a fallback for anything missing: `not assigned` for the courier, `0` for the fee, and `-` for the note.
+  starter: |
+    import json
+
+    order = json.loads(input())
+    print(f"Order {order['id']}")
+    print(f"Courier: {order['delivery']['courier']}")
+    print(f"Delivery fee: Rp{order['delivery']['fee']}")
+    print(f"Note: {order['note']}")
+  hints:
+    - >-
+      The starter code only works when every key is present. Replace each risky pair of square brackets with `.get` and its fallback value.
+    - >-
+      Start with the outer layer: `delivery = order.get("delivery", {})`. With `{}` as the fallback, the next line can still use `.get` even when `delivery` was not sent.
+    - >-
+      Carry on with `courier = delivery.get("courier", "not assigned")`, `fee = delivery.get("fee", 0)` and `note = order.get("note", "-")`, then print all three.
+  tests:
+    - input: |
+        {"id": "AM-1021", "delivery": {"courier": "Joko", "fee": 8000}, "note": "no chili sauce"}
+      output: |
+        Order AM-1021
+        Courier: Joko
+        Delivery fee: Rp8000
+        Note: no chili sauce
+    - input: |
+        {"id": "AM-1022", "delivery": {"fee": 5000}}
+      output: |
+        Order AM-1022
+        Courier: not assigned
+        Delivery fee: Rp5000
+        Note: -
+    - input: |
+        {"id": "AM-1023"}
+      output: |
+        Order AM-1023
+        Courier: not assigned
+        Delivery fee: Rp0
+        Note: -
+    - input: |
+        {"id": "AM-1024", "delivery": {}, "note": "call first"}
+      output: |
+        Order AM-1024
+        Courier: not assigned
+        Delivery fee: Rp0
+        Note: call first
+    - input: |
+        {"id": "AM-1025", "delivery": {"courier": "Sinta"}}
+      output: |
+        Order AM-1025
+        Courier: Sinta
+        Delivery fee: Rp0
+        Note: -
+  solution: |
+    import json
+
+    order = json.loads(input())
+    delivery = order.get("delivery", {})
+    courier = delivery.get("courier", "not assigned")
+    fee = delivery.get("fee", 0)
+    note = order.get("note", "-")
+    print(f"Order {order['id']}")
+    print(f"Courier: {courier}")
+    print(f"Delivery fee: Rp{fee}")
+    print(f"Note: {note}")
+
+- slug: get-on-nested-data
+  type: choice
+  title: .get on nested data
+  prompt: |
+    What is shown after this code runs?
+
+    ```python
+    order = {"id": "AM-1023"}
+    courier = order.get("delivery", {}).get("courier", "not assigned")
+    print(courier)
+    ```
+  options:
+    - "The program stops with a `KeyError`"
+    - "`None`"
+    - "`{}`"
+    - "`not assigned`"
+  correct: [3]
+  hint: Work from the left. What does the first `.get` return, and what is then looked up inside it?
+  explanation: 'The key `delivery` is missing, so the first `.get` returns its fallback, the empty dictionary `{}`. Then `.get("courier", "not assigned")` runs on that empty dictionary. The key `courier` is missing too, so the result is the second fallback: `not assigned`. There is no `KeyError`, because no square brackets were used.'

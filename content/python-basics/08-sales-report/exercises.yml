@@ -1,93 +1,93 @@
 - slug: discount-function
   type: code
-  title: A discount function
+  title: Fungsi diskon
   prompt: |
-    Write a function `amount_to_pay(total)` that returns the amount to pay after the discount rule (10% off for a total of 100000 or more). The program below it already uses it to print `Pay: Rp<amount>`.
+    Tulis fungsi `hitung_bayar(total)` yang mengembalikan jumlah bayar setelah aturan diskon (10% untuk total 100000 atau lebih). Program di bawahnya sudah memakainya untuk mencetak `Bayar: Rp<jumlah>`.
   language: python
   starter: |
-    def amount_to_pay(total):
-        # return the amount to pay
+    def hitung_bayar(total):
+        # kembalikan jumlah yang harus dibayar
         pass
 
 
     total = int(input())
-    print(f"Pay: Rp{amount_to_pay(total)}")
-  hint: Use return, not print, inside the function.
+    print(f"Bayar: Rp{hitung_bayar(total)}")
+  hint: Gunakan return, bukan print, di dalam fungsi.
   tests:
     - input: "50000"
-      output: "Pay: Rp50000"
+      output: "Bayar: Rp50000"
     - input: "99999"
-      output: "Pay: Rp99999"
+      output: "Bayar: Rp99999"
     - input: "100000"
-      output: "Pay: Rp90000"
+      output: "Bayar: Rp90000"
     - input: "250000"
-      output: "Pay: Rp225000"
+      output: "Bayar: Rp225000"
   solution: |
-    def amount_to_pay(total):
+    def hitung_bayar(total):
         if total >= 100000:
             return total * 90 // 100
         return total
 
 
     total = int(input())
-    print(f"Pay: Rp{amount_to_pay(total)}")
+    print(f"Bayar: Rp{hitung_bayar(total)}")
 
 - slug: sales-report
   type: code
-  title: "Project: the sales report"
+  title: Proyek laporan penjualan
   prompt: |
-    The first line holds `n`, then `n` lines in the format `name,quantity,price`. Print two lines:
+    Baris pertama berisi `n`, lalu `n` baris berformat `nama,jumlah,harga`. Cetak dua baris:
 
     ```
-    Total sales: Rp<quantity * price, added up over all lines>
-    Best seller: <name with the most units sold>
+    Total penjualan: Rp<jumlah * harga, dijumlahkan semua baris>
+    Terlaris: <nama dengan jumlah terjual terbanyak>
     ```
 
-    If there is a tie, pick the one that appears first.
+    Jika ada yang sama banyak, pilih yang muncul lebih dulu.
   language: python
   starter: |
     n = int(input())
     total = 0
-    best_seller = ""
-    most_units = 0
+    terlaris = ""
+    jumlah_terbanyak = 0
     for _ in range(n):
-        name, quantity, price = input().split(",")
-        # turn quantity and price into numbers,
-        # then update the total and the best seller
-    # print the report
-  hint: Update the best seller only if the quantity is greater (not equal) than the one recorded.
+        nama, jumlah, harga = input().split(",")
+        # ubah jumlah dan harga menjadi angka,
+        # lalu perbarui total dan menu terlaris
+    # cetak laporan
+  hint: Perbarui menu terlaris hanya jika jumlahnya lebih besar (bukan sama) dari yang tercatat.
   tests:
-    - input: "3\nmilk coffee,10,15000\npulled tea,7,12000\ntoast,12,18000"
-      output: "Total sales: Rp450000\nBest seller: toast"
-    - input: "2\nmilk coffee,5,15000\npulled tea,5,12000"
-      output: "Total sales: Rp135000\nBest seller: milk coffee"
-    - input: "1\norange juice,3,10000"
-      output: "Total sales: Rp30000\nBest seller: orange juice"
+    - input: "3\nkopi susu,10,15000\nteh tarik,7,12000\nroti bakar,12,18000"
+      output: "Total penjualan: Rp450000\nTerlaris: roti bakar"
+    - input: "2\nkopi susu,5,15000\nteh tarik,5,12000"
+      output: "Total penjualan: Rp135000\nTerlaris: kopi susu"
+    - input: "1\nes jeruk,3,10000"
+      output: "Total penjualan: Rp30000\nTerlaris: es jeruk"
   solution: |
     n = int(input())
     total = 0
-    best_seller = ""
-    most_units = 0
+    terlaris = ""
+    jumlah_terbanyak = 0
     for _ in range(n):
-        name, quantity, price = input().split(",")
-        quantity = int(quantity)
-        price = int(price)
-        total += quantity * price
-        if quantity > most_units:
-            most_units = quantity
-            best_seller = name
-    print(f"Total sales: Rp{total}")
-    print(f"Best seller: {best_seller}")
+        nama, jumlah, harga = input().split(",")
+        jumlah = int(jumlah)
+        harga = int(harga)
+        total += jumlah * harga
+        if jumlah > jumlah_terbanyak:
+            jumlah_terbanyak = jumlah
+            terlaris = nama
+    print(f"Total penjualan: Rp{total}")
+    print(f"Terlaris: {terlaris}")
 
 - slug: quiz-return
   type: choice
-  title: print or return
-  prompt: What is the difference between `print` and `return` inside a function?
+  title: print atau return
+  prompt: Apa bedanya `print` dan `return` di dalam sebuah fungsi?
   options:
-    - "No difference, both show the result"
-    - "`return` sends a value back to the code that called it, while `print` only shows it on the screen"
-    - "`print` sends a value back to the caller, while `return` shows it on the screen"
-    - "`return` may only be used once in the whole program"
+    - "Tidak ada bedanya, keduanya menampilkan hasil"
+    - "`return` mengirim nilai ke kode yang memanggil, sedangkan `print` hanya menampilkannya di layar"
+    - "`print` mengirim nilai ke pemanggil, sedangkan `return` menampilkannya di layar"
+    - "`return` hanya boleh dipakai sekali di seluruh program"
   correct: [1]
-  hint: A function's result can be stored in a variable only if the function returns it.
-  explanation: "`return` gives a value back to the caller so it can be stored or calculated with again. `print` only writes to the screen and gives nothing back to use."
+  hint: Hasil dari fungsi bisa disimpan di variabel hanya jika fungsi itu mengembalikannya.
+  explanation: "`return` mengembalikan nilai ke pemanggil sehingga bisa disimpan atau dihitung lagi. `print` hanya menulis ke layar dan tidak menghasilkan nilai untuk dipakai."

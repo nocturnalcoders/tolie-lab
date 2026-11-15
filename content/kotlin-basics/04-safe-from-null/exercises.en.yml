@@ -1,0 +1,151 @@
+- slug: which-line-is-rejected
+  type: choice
+  title: Which line is rejected?
+  prompt: |
+    Mrs. Wati did not give a phone number. What happens with this program?
+
+    ```kotlin
+    fun main() {
+        val name: String = "Mrs. Wati"   // line 1
+        val phone: String? = null        // line 2
+        println(name.length)             // line 3
+        println(phone?.length)           // line 4
+        println(phone.length)            // line 5
+    }
+    ```
+  options:
+    - "Line 2 is rejected: `null` cannot be stored in a variable"
+    - "Line 4 is rejected: `length` cannot be taken from a value that might be `null`"
+    - "Every line is accepted, then the program stops at line 5 while running with a `NullPointerException`"
+    - "Line 5 is rejected: `phone` has type `String?`, so `.length` cannot be called on it directly"
+  correct: [3]
+  hint: Compare line 4 and line 5. One character makes the difference.
+  explanation: >-
+    `phone` has type `String?`, so it might be `null`. Kotlin rejects `phone.length` at compile
+    time; the program never gets to run, so there is no `NullPointerException`. That is the
+    difference from Java or Python, which only fail while running. Line 2 is valid because the
+    type uses `?`, and line 4 is valid because `?.` is safe: it gives `null` when `phone` is
+    empty.
+
+- slug: what-does-it-print
+  type: choice
+  title: What does it print?
+  prompt: |
+    What does this program print?
+
+    ```kotlin
+    fun main() {
+        val phone: String? = null
+        val length = phone?.length ?: 0
+        val shown = phone ?: "no number yet"
+        println("$shown ($length)")
+    }
+    ```
+  options:
+    - "`no number yet (0)`"
+    - "`null (null)`"
+    - "`null (0)`"
+    - "Nothing: the program stops with a `NullPointerException`"
+  correct: [0]
+  hint: "`?:` uses the value on the right when the value on its left is `null`."
+  explanation: >-
+    `phone?.length` gives `null` because `phone` is empty, and `?: 0` replaces that with 0.
+    `phone ?: "no number yet"` also uses the value on the right. So the program prints
+    `no number yet (0)`. The answers containing `null` forget the `?:` operator, and nothing
+    fails because `?.` never throws a `NullPointerException`.
+
+- slug: fill-in-the-blank
+  type: choice
+  title: Fill in the blank
+  prompt: |
+    This program must print `No note` and must not stop halfway.
+    What goes in place of `____`?
+
+    ```kotlin
+    fun main() {
+        val note: String? = null
+        val text: String = ____
+        println(text)
+    }
+    ```
+  options:
+    - "`note!!`"
+    - "`note ?: \"No note\"`"
+    - "`note`"
+    - "`note or \"No note\"`"
+  correct: [1]
+  hint: "`text` has type `String`, so it cannot take `null`. Which operator supplies a fallback value?"
+  explanation: >-
+    `note ?: "No note"` gives a `String` that is certainly not `null`, so it fits `text`.
+    `note!!` is accepted by the compiler, but the program stops with a `NullPointerException`
+    because `note` is empty. `note` alone is rejected, since a `String?` cannot be stored in a
+    `String`. Using `or` for a fallback is a Python habit; in Kotlin it does not work on text.
+
+- slug: why-is-dangerous
+  type: choice
+  title: Why is !! dangerous?
+  prompt: |
+    Dimas wants to finish quickly and writes:
+
+    ```kotlin
+    fun main() {
+        val phone: String? = null
+        println(phone!!.length)
+    }
+    ```
+
+    Why is `!!` called dangerous?
+  options:
+    - "Because code with `!!` fails to compile, so the app cannot be built"
+    - "Because `!!` silently turns `null` into empty text, so the data is wrong"
+    - "Because `!!` makes the compiler stop checking; if the value is `null`, the program stops while running with a `NullPointerException`"
+    - "Because `!!` prints the word `null` on the customer's screen"
+  correct: [2]
+  hint: "`!!` is a promise to the compiler. What happens when the promise is broken?"
+  explanation: >-
+    `!!` means "this value is definitely not `null`". The compiler believes it and accepts the
+    code, so the mistake moves to run time: here `phone` is empty and the program stops with a
+    `NullPointerException`. `!!` does not turn `null` into anything and does not print `null`;
+    printing `null` is what `?.` does. It is safer to use `?.`, `?:` or `if`.
+
+- slug: practice-note-length
+  type: code
+  required: false
+  title: "Practice: the length of a note that may be null"
+  prompt: |
+    A customer may leave a note. `note` is a `String?`: it is `null` when the customer typed only `-`. Print the number of characters in the note, or `0` when there is none. Do not use `!!`.
+
+    This exercise is optional. Your code runs on the server, and the daily allowance is small.
+  starter: |
+    fun main() {
+        val line = readln()
+        val note: String? = if (line == "-") null else line
+        // print the length of note, or 0 when it is null
+        println(0)
+    }
+  hints:
+    - "The compiler rejects `note.length` because `note` may be `null`. Use the safe call `?.`."
+    - "`note?.length` gives an `Int?`. Give it a fallback with `?:`: `println(note?.length ?: 0)`."
+  tests:
+    - input: |
+        jangan disetrika
+      output: |
+        16
+    - input: |
+        -
+      output: |
+        0
+    - input: |
+        ok
+      output: |
+        2
+    - input: |
+        - -
+      output: |
+        3
+  solution: |
+    fun main() {
+        val line = readln()
+        val note: String? = if (line == "-") null else line
+        println(note?.length ?: 0)
+    }

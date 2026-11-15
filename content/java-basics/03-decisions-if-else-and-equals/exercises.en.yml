@@ -1,0 +1,193 @@
+- slug: what-does-it-print
+  type: choice
+  title: What does it print?
+  prompt: |
+    A member spends exactly Rp150,000. What does this program print?
+
+    ```java
+    public class Bonus {
+        public static void main(String[] args) {
+            int total = 150000;
+            boolean member = true;
+
+            if (total > 150000) {
+                System.out.println("10% discount");
+            } else if (total >= 100000 && member) {
+                System.out.println("5% discount");
+            } else if (total >= 100000) {
+                System.out.println("Free bookmark");
+            } else {
+                System.out.println("No bonus");
+            }
+        }
+    }
+    ```
+  options:
+    - "`10% discount`"
+    - "`5% discount`, then `Free bookmark`"
+    - "`5% discount`"
+    - "`Free bookmark`"
+  correct: [2]
+  hint: Check the conditions one by one from the top. Is 150000 greater than 150000? And what happens after one branch has run?
+  explanation: >-
+    `total > 150000` is `false` because 150000 is not greater than 150000; `>` does not include
+    "equal to". The second branch is true (`150000 >= 100000` and `member` is `true`), so
+    `5% discount` is printed. Once one branch has run, the rest of the `else if` chain is skipped, so
+    `Free bookmark` is not printed even though its condition is true too. `10% discount` is the
+    boundary trap: it would only be right if the condition were `total >= 150000`.
+
+- slug: which-line-does-the-compiler-reject
+  type: choice
+  title: Which line does the compiler reject?
+  prompt: |
+    Sari wrote this program out of old habit, and `javac` refuses it. Which line is the cause?
+
+    ```java
+    public class StockCheck {
+        public static void main(String[] args) {
+            int stock = 3;                              // line 3
+            if (stock == 0) {                           // line 4
+                System.out.println("Sold out");
+            } elif (stock < 5) {                        // line 6
+                System.out.println("Almost gone");
+            } else {                                    // line 8
+                System.out.println("Fine");
+            }
+        }
+    }
+    ```
+  options:
+    - "Line 6, because Java has no `elif`; the right spelling is `else if`"
+    - "Line 4, because numbers must be compared with `.equals`, not `==`"
+    - "Line 4, because a colon `:` is required after the condition"
+    - "Line 8, because `else` must have a condition"
+  correct: [0]
+  hint: One word in this program is a Python word, not a Java word.
+  explanation: >-
+    `elif` is a Python keyword. In Java the next choice is written `else if`, two words, so the
+    compiler rejects line 6. Line 4 is fine: for an `int`, `==` is exactly how you compare values;
+    `.equals` is for objects such as `String`. Java uses no colon after a condition because the block
+    is marked by `{ }`. And `else` must not have a condition at all: it catches everything that is
+    left.
+
+- slug: which-condition-fills-the-blank
+  type: choice
+  title: Which condition fills the blank?
+  prompt: |
+    `answer` is typed by a person when the program is started (for example `java GiftWrap yes`).
+    Which condition reliably checks whether it says `yes`?
+
+    ```java
+    public class GiftWrap {
+        public static void main(String[] args) {
+            String answer = args[0];
+            if (_____) {
+                System.out.println("Book gift-wrapped");
+            } else {
+                System.out.println("Book not wrapped");
+            }
+        }
+    }
+    ```
+  options:
+    - '`answer == "yes"`'
+    - '`answer = "yes"`'
+    - "`answer.equals('yes')`"
+    - '`answer.equals("yes")`'
+  correct: [3]
+  hint: What you want to compare is the content of the text, not whether the two are the same object.
+  explanation: >-
+    `answer.equals("yes")` compares the **content** of the text, so it is right wherever the text came
+    from. `answer == "yes"` is the most tempting option and it compiles, but it checks whether the two
+    are the same object. Text typed by the user is a new object, so the result is `false` and the
+    program prints `Book not wrapped` even though exactly `yes` was typed. `answer = "yes"` stores a
+    value instead of comparing, and is rejected because a condition must be a `boolean`. `'yes'` in
+    single quotes is rejected too: single quotes are only for one character.
+
+- slug: and-equals
+  type: choice
+  multiple: true
+  title: == and equals
+  prompt: |
+    Look at these four variables. Which statements are **true**? (There may be more than one.)
+
+    ```java
+    String shelf = "A1";
+    String target = new String("A1");
+    int stock = 5;
+    int minimum = 5;
+    ```
+  options:
+    - "`shelf == target` is `true` because both hold the same content"
+    - "`shelf.equals(target)` is `true` because both hold the same content"
+    - "`stock == minimum` is `true`; for an `int`, `==` compares the values"
+    - '`shelf.equals("a1")` is `false` because upper and lower case are different'
+  correct: [1, 2, 3]
+  hint: "For a `String`, `==` does not look at the content. It asks: do these two names point to the same object?"
+  explanation: >-
+    `new String("A1")` creates a new object, so `shelf` and `target` are two different objects that
+    happen to hold the same content. `shelf == target` is therefore `false`, while
+    `shelf.equals(target)` is `true`. For an `int` there are no objects to tell apart: `==` compares
+    the values directly, so `stock == minimum` is `true`. `equals` is also case-sensitive, so `"A1"`
+    is not equal to `"a1"`; to ignore case there is `equalsIgnoreCase`.
+
+- slug: practice-member-price
+  type: code
+  required: false
+  title: "Practice: the member price"
+  prompt: |
+    The program reads a code and a shopping total. If the code is exactly `MEMBER`, take 10% off the total. Print `Rp<amount>`. Any other code (including lowercase `member`) gets no discount.
+
+    This exercise is optional. Your code runs on the server, and the daily allowance is small.
+  starter: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            String code = in.next();
+            int total = in.nextInt();
+            int pay = total;
+            // members pay 90% of the total
+            System.out.println("Rp" + pay);
+        }
+    }
+  hints:
+    - "Compare the text with `equals`, not `==`."
+    - "`if (code.equals(\"MEMBER\")) { pay = total * 90 / 100; }`"
+  tests:
+    - input: |
+        MEMBER
+        100000
+      output: |
+        Rp90000
+    - input: |
+        UMUM
+        100000
+      output: |
+        Rp100000
+    - input: |
+        member
+        50000
+      output: |
+        Rp50000
+    - input: |
+        MEMBER
+        85000
+      output: |
+        Rp76500
+  solution: |
+    import java.util.Scanner;
+
+    public class Main {
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            String code = in.next();
+            int total = in.nextInt();
+            int pay = total;
+            if (code.equals("MEMBER")) {
+                pay = total * 90 / 100;
+            }
+            System.out.println("Rp" + pay);
+        }
+    }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useT } from '../lang.jsx';
 import { createRunner, RUNNERS } from './codeRunner.js';
 
-// One runner per language per page (Python unless the course is SQL). Workers are stopped when the page is left.
+// One runner per language per page (Python unless the course is SQL or JavaScript). Workers are stopped when the page is left.
 export function useRunner(language = 'python') {
   const t = useT();
   const tRef = useRef(t);

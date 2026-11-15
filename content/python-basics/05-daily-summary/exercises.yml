@@ -1,77 +1,77 @@
 - slug: sales-summary
   type: code
-  title: Sales summary
+  title: Rekap penjualan
   prompt: |
-    The first line holds the number of days `n`, then `n` lines hold each day's sales. Print two lines:
+    Baris pertama berisi banyaknya hari `n`, lalu `n` baris berisi penjualan tiap hari. Cetak dua baris:
 
     ```
-    Total: <sum of all sales>
-    Average: <total divided by n, rounded down>
+    Total: <jumlah semua penjualan>
+    Rata-rata: <total dibagi n, dibulatkan ke bawah>
     ```
   language: python
   starter: |
     n = int(input())
     total = 0
     for _ in range(n):
-        # add today's sales to the total
+        # tambahkan penjualan hari ini ke total
         pass
-    # print Total and Average
-  hint: For division rounded down, use //.
+    # cetak Total dan Rata-rata
+  hint: Untuk pembagian yang dibulatkan ke bawah pakai //.
   tests:
     - input: "3\n100000\n150000\n200000"
-      output: "Total: 450000\nAverage: 150000"
+      output: "Total: 450000\nRata-rata: 150000"
     - input: "2\n50000\n75000"
-      output: "Total: 125000\nAverage: 62500"
+      output: "Total: 125000\nRata-rata: 62500"
     - input: "1\n80000"
-      output: "Total: 80000\nAverage: 80000"
+      output: "Total: 80000\nRata-rata: 80000"
   solution: |
     n = int(input())
     total = 0
     for _ in range(n):
         total += int(input())
     print(f"Total: {total}")
-    print(f"Average: {total // n}")
+    print(f"Rata-rata: {total // n}")
 
 - slug: best-day
   type: code
-  title: Highest sales
+  title: Penjualan tertinggi
   prompt: |
-    As before: `n`, then `n` sales numbers. Print the highest sales figure in the format `Highest: <number>`.
+    Sama seperti sebelumnya: `n` lalu `n` angka penjualan. Cetak penjualan tertinggi dengan format `Tertinggi: <angka>`.
   language: python
   starter: |
     n = int(input())
-    # find the highest sales figure and print it
-  hint: Keep the largest number seen so far, or collect them all in a list and use max.
+    # cari penjualan tertinggi dan cetak
+  hint: Simpan angka terbesar yang sudah dilihat, atau kumpulkan semuanya dalam list lalu pakai max.
   tests:
     - input: "3\n100000\n150000\n200000"
-      output: "Highest: 200000"
+      output: "Tertinggi: 200000"
     - input: "4\n90000\n300000\n120000\n300000"
-      output: "Highest: 300000"
+      output: "Tertinggi: 300000"
     - input: "1\n45000"
-      output: "Highest: 45000"
+      output: "Tertinggi: 45000"
   solution: |
     n = int(input())
-    highest = 0
+    tertinggi = 0
     for _ in range(n):
-        value = int(input())
-        if value > highest:
-            highest = value
-    print(f"Highest: {highest}")
+        nilai = int(input())
+        if nilai > tertinggi:
+            tertinggi = nilai
+    print(f"Tertinggi: {tertinggi}")
 
 - slug: quiz-range
   type: choice
-  title: How many times does it repeat?
+  title: Berapa kali berulang?
   prompt: |
-    How many times does `print` run?
+    Berapa kali `print` dijalankan?
 
     ```python
     for i in range(3):
         print(i)
     ```
   options:
-    - "2 times"
-    - "3 times"
-    - "4 times"
-    - "0 times"
+    - "2 kali"
+    - "3 kali"
+    - "4 kali"
+    - "0 kali"
   correct: [1]
-  explanation: "`range(3)` produces `0`, `1` and `2`, so there are three rounds."
+  explanation: "`range(3)` menghasilkan `0`, `1`, dan `2`, jadi ada tiga putaran."

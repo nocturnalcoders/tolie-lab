@@ -1,0 +1,82 @@
+- slug: product-price-labels
+  type: code
+  title: Product price labels
+  prompt: |
+    Laras wants a price label for every product. Write a function `productLabels(products)` that takes an array of `{ name, price }` objects and **returns** a new array of texts in the format `<name>: Rp<price>`.
+
+    Example: `productLabels([{ name: "Desk Lamp", price: 85000 }])` gives `["Desk Lamp: Rp85000"]`.
+
+    An empty array gives an empty array.
+  language: javascript
+  starter: |
+    const productLabels = (products) => {
+      // return a new array of texts "<name>: Rp<price>"
+      return products;
+    };
+  hints:
+    - 'Every product turns into one text, and the number of entries stays the same. That is a job for `map`.'
+    - 'Write `products.map((p) => ...)`. Inside the function, `p` is one product object, so its name is `p.name` and its price is `p.price`.'
+    - 'Join them with a template literal: between two backticks write `${p.name}: Rp${p.price}`. Remember to `return` the result of `map`.'
+  tests:
+    - input: 'console.log(productLabels([{ name: "Desk Lamp", price: 85000 }, { name: "Scented Candle", price: 30000 }]))'
+      output: '["Desk Lamp: Rp85000","Scented Candle: Rp30000"]'
+    - input: 'console.log(productLabels([{ name: "Paper Lantern", price: 45000 }]))'
+      output: '["Paper Lantern: Rp45000"]'
+    - input: 'console.log(productLabels([{ name: "Rattan Lampshade", price: 120000 }, { name: "String Lights", price: 25000 }, { name: "Scented Candle", price: 30000 }]))'
+      output: '["Rattan Lampshade: Rp120000","String Lights: Rp25000","Scented Candle: Rp30000"]'
+    - input: 'console.log(productLabels([]))'
+      output: '[]'
+  solution: |
+    const productLabels = (products) => products.map((p) => `${p.name}: Rp${p.price}`);
+
+- slug: products-still-available
+  type: code
+  title: Products still available
+  prompt: |
+    The shop front page only shows products that are still in stock. Write a function `availableNames(products)` that takes an array of `{ name, stock }` objects and returns an array with the **names** of the products whose `stock` is more than 0, in their original order.
+
+    Example: if only the Scented Candle has a stock of 0, the result is `["Desk Lamp","Paper Lantern"]`.
+
+    If nothing is available, return an empty array.
+  language: javascript
+  starter: |
+    const availableNames = (products) => {
+      // right now every name is included, also the ones out of stock
+      return products.map((p) => p.name);
+    };
+  hints:
+    - 'There are two steps: first keep the products that are still in stock, then take their names.'
+    - 'Keeping some entries of an array is a job for `filter`: `products.filter((p) => p.stock > 0)`.'
+    - 'Put `.map((p) => p.name)` after the `filter`, then return the result: `return products.filter(...).map(...)`.'
+  tests:
+    - input: 'console.log(availableNames([{ name: "Desk Lamp", stock: 4 }, { name: "Scented Candle", stock: 0 }, { name: "Paper Lantern", stock: 7 }]))'
+      output: '["Desk Lamp","Paper Lantern"]'
+    - input: 'console.log(availableNames([{ name: "String Lights", stock: 1 }, { name: "Rattan Lampshade", stock: 2 }]))'
+      output: '["String Lights","Rattan Lampshade"]'
+    - input: 'console.log(availableNames([{ name: "Scented Candle", stock: 0 }, { name: "Desk Lamp", stock: 0 }]))'
+      output: '[]'
+    - input: 'console.log(availableNames([]))'
+      output: '[]'
+  solution: |
+    const availableNames = (products) =>
+      products.filter((p) => p.stock > 0).map((p) => p.name);
+
+- slug: the-result-of-filter-then-map
+  type: choice
+  title: The result of filter then map
+  prompt: |
+    What is shown after this code runs?
+
+    ```javascript
+    const stock = [4, 0, 7, 2];
+    const result = stock.filter((s) => s > 2).map((s) => s * 10);
+    console.log(result);
+    ```
+  options:
+    - "`[40,0,70,20]`"
+    - "`[4,7]`"
+    - "`[40,70]`"
+    - "`[40,70,20]`"
+  correct: [2]
+  hint: Work in order. Which numbers get through the filter before map runs?
+  explanation: '`filter` only lets through the numbers greater than 2, which are `4` and `7` (the number `2` itself does not pass). After that `map` multiplies each one by 10, so the result is `[40,70]`.'

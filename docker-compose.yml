@@ -44,6 +44,10 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       LAB_TIMEZONE: ${LAB_TIMEZONE:-Asia/Jakarta}
+      JDOODLE_CLIENT_ID: ${JDOODLE_CLIENT_ID:-}
+      JDOODLE_CLIENT_SECRET: ${JDOODLE_CLIENT_SECRET:-}
+      JDOODLE_DAILY_CREDITS: ${JDOODLE_DAILY_CREDITS:-20}
+      JDOODLE_USER_DAILY: ${JDOODLE_USER_DAILY:-5}
     volumes:
       # Course content lives in the repo. git pull + `docker compose restart api` loads changes.
       - ./content:/content:ro

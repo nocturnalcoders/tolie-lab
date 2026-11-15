@@ -1,0 +1,116 @@
+- slug: work-out-the-due-date
+  type: code
+  title: Hitung jatuh tempo
+  prompt: |
+    Baris pertama berisi tanggal tagihan dalam format `tahun-bulan-hari`, baris kedua berisi tempo pembayaran dalam hari.
+
+    Bu Rina ingin tahu kapan tagihan jatuh tempo, dan kapan ia harus diingatkan, yaitu 3 hari sebelum jatuh tempo. Cetak dua baris:
+
+    ```
+    Jatuh tempo: <tanggal>
+    Pengingat: <tanggal>
+    ```
+  language: python
+  starter: |
+    from datetime import datetime, timedelta
+
+    tagihan = datetime.strptime(input(), "%Y-%m-%d").date()
+    tempo = int(input())
+
+    # hitung jatuh tempo dan tanggal pengingat
+    print(f"Jatuh tempo: {tagihan}")
+  hints:
+    - "Tanggal ditambah `timedelta` menghasilkan tanggal baru. Banyaknya hari diisi lewat `timedelta(days=...)`."
+    - "`jatuh_tempo = tagihan + timedelta(days=tempo)`. Pengingatnya mundur tiga hari dari situ."
+    - "`pengingat = jatuh_tempo - timedelta(days=3)`, lalu cetak `f\"Jatuh tempo: {jatuh_tempo}\"` dan `f\"Pengingat: {pengingat}\"`."
+  tests:
+    - input: "2025-01-20\n30"
+      output: "Jatuh tempo: 2025-02-19\nPengingat: 2025-02-16"
+    - input: "2024-02-15\n14"
+      output: "Jatuh tempo: 2024-02-29\nPengingat: 2024-02-26"
+    - input: "2024-12-20\n14"
+      output: "Jatuh tempo: 2025-01-03\nPengingat: 2024-12-31"
+    - input: "2025-02-01\n30"
+      output: "Jatuh tempo: 2025-03-03\nPengingat: 2025-02-28"
+    - input: "2025-03-14\n0"
+      output: "Jatuh tempo: 2025-03-14\nPengingat: 2025-03-11"
+  solution: |
+    from datetime import datetime, timedelta
+
+    tagihan = datetime.strptime(input(), "%Y-%m-%d").date()
+    tempo = int(input())
+
+    jatuh_tempo = tagihan + timedelta(days=tempo)
+    pengingat = jatuh_tempo - timedelta(days=3)
+    print(f"Jatuh tempo: {jatuh_tempo}")
+    print(f"Pengingat: {pengingat}")
+
+- slug: invoice-status
+  type: code
+  title: Status tagihan
+  prompt: |
+    Baris pertama berisi tanggal **hari ini**, baris kedua tanggal jatuh tempo sebuah tagihan. Keduanya berformat `tahun-bulan-hari`.
+
+    Cetak satu baris sesuai keadaannya:
+
+    - jatuh tempo sudah lewat: `Terlambat <n> hari`
+    - jatuh tempo tepat hari ini: `Jatuh tempo hari ini`
+    - jatuh tempo belum tiba: `Sisa <n> hari`
+  language: python
+  starter: |
+    from datetime import datetime
+
+    hari_ini = datetime.strptime(input(), "%Y-%m-%d").date()
+    jatuh_tempo = datetime.strptime(input(), "%Y-%m-%d").date()
+
+    # hitung selisih harinya, lalu cetak statusnya
+    print("Jatuh tempo hari ini")
+  hints:
+    - "Tanggal dikurangi tanggal menghasilkan `timedelta`. Ambil banyaknya hari dari `.days`."
+    - "`sisa = (jatuh_tempo - hari_ini).days`. Nilainya negatif jika sudah terlambat, 0 jika hari ini, positif jika masih ada waktu."
+    - "`if sisa < 0:` cetak `f\"Terlambat {-sisa} hari\"`; `elif sisa == 0:` cetak `Jatuh tempo hari ini`; selain itu cetak `f\"Sisa {sisa} hari\"`."
+  tests:
+    - input: "2025-03-14\n2025-03-10"
+      output: "Terlambat 4 hari"
+    - input: "2025-03-14\n2025-03-14"
+      output: "Jatuh tempo hari ini"
+    - input: "2025-03-14\n2025-03-20"
+      output: "Sisa 6 hari"
+    - input: "2025-01-02\n2024-12-30"
+      output: "Terlambat 3 hari"
+    - input: "2024-02-27\n2024-03-01"
+      output: "Sisa 3 hari"
+  solution: |
+    from datetime import datetime
+
+    hari_ini = datetime.strptime(input(), "%Y-%m-%d").date()
+    jatuh_tempo = datetime.strptime(input(), "%Y-%m-%d").date()
+
+    sisa = (jatuh_tempo - hari_ini).days
+    if sisa < 0:
+        print(f"Terlambat {-sisa} hari")
+    elif sisa == 0:
+        print("Jatuh tempo hari ini")
+    else:
+        print(f"Sisa {sisa} hari")
+
+- slug: a-difference-in-a-leap-year
+  type: choice
+  title: Selisih di tahun kabisat
+  prompt: |
+    Tahun 2024 adalah tahun kabisat. Apa yang ditampilkan kode ini?
+
+    ```python
+    from datetime import date
+
+    selisih = date(2024, 3, 1) - date(2024, 2, 28)
+    print(selisih.days)
+    ```
+  options:
+    - "`1`"
+    - "`2`"
+    - "`3`"
+    - "`-2`"
+  correct: [1]
+  hint: Sebutkan satu per satu tanggal setelah 28 Februari 2024 sampai tiba di 1 Maret.
+  explanation: "Pada tahun kabisat Februari punya 29 hari. Dari 28 Februari ke 29 Februari satu hari, lalu ke 1 Maret satu hari lagi, jadi selisihnya 2. Python sudah memperhitungkan tahun kabisat, kita tidak perlu menghitungnya sendiri."

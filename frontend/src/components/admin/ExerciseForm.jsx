@@ -8,7 +8,7 @@ function fromExercise(ex, type) {
   if (!ex) {
     return type === 'choice'
       ? { type, title: '', slug: '', prompt: '', required: true, hint: '', options: ['', ''], correct: [], multiple: false, explanation: '' }
-      : { type, title: '', slug: '', prompt: '', required: true, hint: '', starter: '', solution: '', setup: '', tests: [blankTest()] };
+      : { type, title: '', slug: '', prompt: '', required: true, hint: '', starter: '', solution: '', setup: '', check: '', tests: [blankTest()] };
   }
   const c = ex.config;
   // Code exercises can have up to three hints, edited one per line.
@@ -16,7 +16,7 @@ function fromExercise(ex, type) {
   const base = { type: ex.type, title: ex.title, slug: ex.slug, prompt: ex.prompt, required: ex.required, hint };
   return ex.type === 'choice'
     ? { ...base, options: [...c.options], correct: [...c.correct], multiple: !!c.multiple, explanation: c.explanation }
-    : { ...base, starter: c.starter || '', solution: c.solution || '', setup: c.setup || '', tests: c.tests.map((t) => ({ input: t.input || '', output: t.output })) };
+    : { ...base, starter: c.starter || '', solution: c.solution || '', setup: c.setup || '', check: c.check || '', tests: c.tests.map((t) => ({ input: t.input || '', output: t.output })) };
 }
 
 // One form for both kinds of question. Code questions are checked in the browser before they are saved:
@@ -29,7 +29,8 @@ export default function ExerciseForm({ exercise, type, lessonId, language, runne
   const set = (key) => (e) => setF((s) => ({ ...s, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const isChoice = f.type === 'choice';
   const isSql = !isChoice && language === 'sql';
-  const extra = isSql ? { setup: f.setup } : {};
+  const isJs = !isChoice && language === 'javascript';
+  const extra = isSql ? { setup: f.setup, check: f.check } : {};
 
   function setOption(i, value) {
     setF((s) => ({ ...s, options: s.options.map((o, j) => (j === i ? value : o)) }));
@@ -155,6 +156,8 @@ export default function ExerciseForm({ exercise, type, lessonId, language, runne
             <>
               <label htmlFor="ex-setup">Tabel dan data <small>(SQL yang dijalankan sebelum setiap tes; peserta bisa melihatnya)</small></label>
               <textarea id="ex-setup" className="mono" value={f.setup} onChange={set('setup')} rows={6} spellCheck={false} />
+              <label htmlFor="ex-check">Query pemeriksa <small>(opsional, untuk soal INSERT/UPDATE/CREATE: dijalankan setelah jawaban peserta, dan hasilnya yang dibandingkan)</small></label>
+              <textarea id="ex-check" className="mono" value={f.check} onChange={set('check')} rows={2} spellCheck={false} />
             </>
           )}
           <label htmlFor="ex-starter">Kode awal <small>(yang tampil di editor peserta)</small></label>
@@ -162,7 +165,7 @@ export default function ExerciseForm({ exercise, type, lessonId, language, runne
           <label htmlFor="ex-solution">Solusi <small>(tidak pernah dikirim ke peserta)</small></label>
           <textarea id="ex-solution" className="mono" value={f.solution} onChange={set('solution')} rows={6} spellCheck={false} required />
           <fieldset className="tests-edit">
-            <legend>Tes <small>{isSql ? '(input: SQL tambahan untuk tes ini, misalnya baris baru; keluaran: tabel hasil, kolom dipisah |)' : '(input satu baris per input(); keluaran yang diharapkan)'}</small></legend>
+            <legend>Tes <small>{isSql ? '(input: SQL tambahan untuk tes ini, misalnya baris baru; keluaran: tabel hasil, kolom dipisah |)' : isJs ? '(input: JavaScript yang dijalankan setelah kode peserta, misalnya console.log(total(2, 3)); keluaran yang diharapkan)' : '(input satu baris per input(); keluaran yang diharapkan)'}</small></legend>
             {f.tests.map((t, i) => (
               <div className="test-row-edit" key={i}>
                 <div>
@@ -212,7 +215,7 @@ export default function ExerciseForm({ exercise, type, lessonId, language, runne
         <button type="submit" disabled={busy}>{busy ? 'Sebentar…' : 'Simpan soal'}</button>
         {!isChoice && <button type="button" className="ghost" onClick={test} disabled={busy}>Uji solusi dan kode awal</button>}
         <button type="button" className="link" onClick={onCancel}>Batal</button>
-        {!isChoice && <span className="muted">{isSql ? 'SQL' : 'Python'}: {status === 'ready' ? 'siap' : status === 'loading' ? 'memuat…' : 'dimuat saat diuji'}</span>}
+        {!isChoice && <span className="muted">{isSql ? 'SQL' : isJs ? 'JavaScript' : 'Python'}: {status === 'ready' ? 'siap' : status === 'loading' ? 'memuat…' : 'dimuat saat diuji'}</span>}
       </div>
     </form>
   );

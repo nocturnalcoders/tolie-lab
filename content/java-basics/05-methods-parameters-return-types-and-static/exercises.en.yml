@@ -1,0 +1,188 @@
+- slug: what-does-it-print
+  type: choice
+  title: What does it print?
+  prompt: |
+    Mr. Bayu wants to raise a book's price by Rp5,000 and then work out the price of 3 books. What does this program print?
+
+    ```java
+    public class Cashier {
+        static void raise(int price) {
+            price = price + 5000;
+        }
+
+        static int totalPrice(int price, int quantity) {
+            return price * quantity;
+        }
+
+        public static void main(String[] args) {
+            int price = 40000;
+            raise(price);
+            System.out.println(totalPrice(price, 3));
+        }
+    }
+    ```
+  options:
+    - "`135000`"
+    - "`125000`"
+    - "`120000`"
+    - "`45000`"
+  correct: [2]
+  hint: "The `price` inside `raise` and the `price` inside `main` are two different variables. Which one changes?"
+  explanation: >-
+    When `raise(price)` is called, the parameter `price` receives a **copy** of the value `40000`.
+    The method changes its copy to 45000 and then ends without returning anything (`void`). The
+    `price` that belongs to `main` is still 40000, so `totalPrice(40000, 3)` gives `120000`. `135000`
+    is tempting because both are called `price`, but the same name in two methods does not mean the
+    same variable. For the increase to count, the method would have to return the new value:
+    `price = raise(price);` with a return type of `int`.
+
+- slug: which-line-does-the-compiler-reject
+  type: choice
+  title: Which line does the compiler reject?
+  prompt: |
+    One line makes `javac` refuse this program. Which line, and why?
+
+    ```java
+    public class Receipt {
+        static int totalPrice(int price, int quantity) {   // line 2
+            return price * quantity;                       // line 3
+        }
+
+        static void printTotal(int total) {                // line 6
+            System.out.println("Total: Rp" + total);       // line 7
+            return total;                                  // line 8
+        }
+
+        public static void main(String[] args) {
+            printTotal(totalPrice(48000, 2));
+        }
+    }
+    ```
+  options:
+    - "Line 3, because the result of the multiplication must be stored in a variable before it is returned"
+    - "Line 6, because a `void` method cannot have parameters"
+    - "Line 7, because text cannot be joined with an `int`"
+    - "Line 8, because a `void` method cannot return a value"
+  correct: [3]
+  hint: Match every `return` with the return type written in its method header.
+  explanation: >-
+    `printTotal` is declared `void`, meaning it returns nothing, yet line 8 tries `return total;`.
+    The compiler rejects it (`incompatible types: unexpected return value`). Line 3 is fine: `return`
+    may be followed directly by a calculation, and the result is an `int`, matching the return type.
+    `void` only concerns the return value, not the parameters, so line 6 is no problem. Line 7 is
+    fine too, because `+` automatically joins a `String` with an `int`.
+
+- slug: which-line-fills-the-blank
+  type: choice
+  title: Which line fills the blank?
+  prompt: |
+    This program must print `25000.0`. Which method header is right for `_____`?
+
+    ```java
+    public class Promo {
+        _____ {
+            return total * 0.1;
+        }
+
+        public static void main(String[] args) {
+            double saving = discountFor(250000);
+            System.out.println(saving);
+        }
+    }
+    ```
+  options:
+    - "`static int discountFor(int total)`"
+    - "`static double discountFor(int total)`"
+    - "`static void discountFor(int total)`"
+    - "`static double discountFor(total)`"
+  correct: [1]
+  hint: What is the type of `total * 0.1`? The return type must be able to hold it, and every parameter needs a type.
+  explanation: >-
+    `total * 0.1` is an `int` times a `double`, which gives a `double`, so the return type must be
+    `double`. With a return type of `int`, the `return` line is rejected because the fraction could
+    be lost (`possible lossy conversion`); this option is tempting because `total` itself is an
+    `int`. With `void`, the method may not return a value, and `double saving = ...` would have
+    nothing to store. `discountFor(total)` without a type is the Python style: in Java every
+    parameter must be written with its type.
+
+- slug: why-can-it-be-called-directly
+  type: choice
+  title: Why can it be called directly?
+  prompt: |
+    In the class `Cashier`, `main` simply calls `totalPrice(price, 3)` without creating any object.
+    Why is that allowed?
+  options:
+    - "Because `totalPrice` is marked `static`: it belongs to the class `Cashier`, not to an object"
+    - "Because `totalPrice` is written above `main`"
+    - "Because `totalPrice` returns an `int`"
+    - "Because every method in Java can be called without an object"
+  correct: [0]
+  hint: Look at the first word of the `totalPrice` header, and compare it with the header of `main`.
+  explanation: >-
+    `static` makes a method belong to the class, so it can be called without an object. `main` is
+    `static` too, and `static` methods in the same class can call each other directly. The order in
+    which they are written makes no difference: unlike a Python script, which must define a function
+    before calling it, a Java method may be written below `main`. The return type has nothing to do
+    with it either. And not every method can be called without an object: a method without `static`
+    needs one, as you will see in the next lesson.
+
+- slug: practice-shipping-method
+  type: code
+  required: false
+  title: "Practice: a shipping method"
+  prompt: |
+    Complete the `shipping` method: a total of `200000` or more ships free (`0`), anything less costs `15000`. `main` already calls it and prints `Rp<total + shipping>`.
+
+    This exercise is optional. Your code runs on the server, and the daily allowance is small.
+  starter: |
+    import java.util.Scanner;
+
+    public class Main {
+        static int shipping(int total) {
+            // 0 from 200000 up, otherwise 15000
+            return 0;
+        }
+
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            int total = in.nextInt();
+            System.out.println("Rp" + (total + shipping(total)));
+        }
+    }
+  hints:
+    - "The method has to return one of two numbers, depending on `total`."
+    - "`if (total >= 200000) { return 0; }` then `return 15000;`. Mind the `>=`: exactly 200000 is already free."
+  tests:
+    - input: |
+        150000
+      output: |
+        Rp165000
+    - input: |
+        200000
+      output: |
+        Rp200000
+    - input: |
+        199999
+      output: |
+        Rp214999
+    - input: |
+        350000
+      output: |
+        Rp350000
+  solution: |
+    import java.util.Scanner;
+
+    public class Main {
+        static int shipping(int total) {
+            if (total >= 200000) {
+                return 0;
+            }
+            return 15000;
+        }
+
+        public static void main(String[] args) {
+            Scanner in = new Scanner(System.in);
+            int total = in.nextInt();
+            System.out.println("Rp" + (total + shipping(total)));
+        }
+    }

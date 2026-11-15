@@ -1,0 +1,140 @@
+- slug: find-a-tracking-number
+  type: code
+  title: Cari nomor resi
+  prompt: |
+    Baris pertama berisi `n`, lalu `n` baris nomor resi sesuai urutan rak (rak 1, rak 2, dan seterusnya). Baris terakhir adalah resi yang dicari.
+
+    Periksa rak satu per satu dari rak 1 dan **berhenti begitu ketemu**. Cetak dua baris:
+
+    ```
+    Ketemu di rak 3
+    Langkah: 3
+    ```
+
+    `Langkah` adalah jumlah rak yang diperiksa. Jika resinya tidak ada, baris pertama menjadi `Tidak ketemu`. Jika resi yang sama muncul dua kali, yang dihitung adalah rak yang pertama.
+  language: python
+  starter: |
+    n = int(input())
+    rak = []
+    for _ in range(n):
+        rak.append(input())
+    dicari = input()
+
+    posisi = 0
+    langkah = 0
+    # periksa rak satu per satu, hitung langkahnya,
+    # dan berhenti begitu ketemu
+
+    if posisi > 0:
+        print(f"Ketemu di rak {posisi}")
+    else:
+        print("Tidak ketemu")
+    print(f"Langkah: {langkah}")
+  hints:
+    - "Bagian membaca data dan mencetak sudah ada. Yang kurang hanya perulangan di tengah: `for i in range(n):` yang membandingkan `rak[i]` dengan `dicari`."
+    - "Di dalam perulangan, tambahkan `langkah += 1` lebih dulu, baru bandingkan. Dengan begitu rak tempat paket ketemu ikut terhitung."
+    - "Jika `rak[i] == dicari`, simpan `posisi = i + 1` lalu `break`. Tanpa `break`, langkahnya selalu `n` dan resi kembar akan menunjuk rak yang terakhir."
+  tests:
+    - input: "4\nKJ-104\nKJ-221\nKJ-087\nKJ-150\nKJ-087"
+      output: "Ketemu di rak 3\nLangkah: 3"
+    - input: "3\nKJ-300\nKJ-301\nKJ-302\nKJ-300"
+      output: "Ketemu di rak 1\nLangkah: 1"
+    - input: "3\nKJ-300\nKJ-301\nKJ-302\nKJ-999"
+      output: "Tidak ketemu\nLangkah: 3"
+    - input: "0\nKJ-104"
+      output: "Tidak ketemu\nLangkah: 0"
+    - input: "5\nKJ-010\nKJ-020\nKJ-010\nKJ-030\nKJ-020\nKJ-020"
+      output: "Ketemu di rak 2\nLangkah: 2"
+  solution: |
+    n = int(input())
+    rak = []
+    for _ in range(n):
+        rak.append(input())
+    dicari = input()
+
+    posisi = 0
+    langkah = 0
+    for i in range(n):
+        langkah += 1
+        if rak[i] == dicari:
+            posisi = i + 1
+            break
+
+    if posisi > 0:
+        print(f"Ketemu di rak {posisi}")
+    else:
+        print("Tidak ketemu")
+    print(f"Langkah: {langkah}")
+
+- slug: every-parcel-to-one-city
+  type: code
+  title: Semua paket ke satu kota
+  prompt: |
+    Kurir jurusan Bandung sudah datang dan perlu tahu paket mana saja yang harus diangkut.
+
+    Baris pertama berisi `n`, lalu `n` baris berformat `resi,kota` sesuai urutan rak. Baris terakhir adalah kota tujuan yang dicari. Cetak jumlah paket ke kota itu dan nomor raknya (mulai dari 1), dipisah spasi:
+
+    ```
+    Paket ke Bandung: 3
+    Rak: 1 3 5
+    ```
+
+    Jika tidak ada paket ke kota itu, baris kedua menjadi `Rak: -`.
+  language: python
+  starter: |
+    n = int(input())
+    paket = []
+    for _ in range(n):
+        resi, kota = input().split(",")
+        paket.append({"resi": resi, "kota": kota})
+    tujuan = input()
+
+    nomor_rak = []
+    # periksa semua paket, kumpulkan nomor rak yang kotanya cocok
+
+    print(f"Paket ke {tujuan}: {len(nomor_rak)}")
+    print("Rak: -")
+  hints:
+    - "Kali ini tidak ada `break`: semua paket harus diperiksa, karena yang cocok bisa lebih dari satu."
+    - "Di dalam `for i in range(n):`, jika `paket[i][\"kota\"] == tujuan`, jalankan `nomor_rak.append(str(i + 1))`. `str` diperlukan supaya nanti bisa digabung dengan `join`."
+    - "Untuk baris kedua: `if nomor_rak:` cetak `\"Rak: \" + \" \".join(nomor_rak)`, selain itu cetak `Rak: -`. List kosong dianggap `False` oleh `if`."
+  tests:
+    - input: "5\nKJ-104,Bandung\nKJ-221,Surabaya\nKJ-087,Bandung\nKJ-150,Medan\nKJ-303,Bandung\nBandung"
+      output: "Paket ke Bandung: 3\nRak: 1 3 5"
+    - input: "3\nKJ-104,Bandung\nKJ-150,Medan\nKJ-221,Surabaya\nMedan"
+      output: "Paket ke Medan: 1\nRak: 2"
+    - input: "2\nKJ-104,Bandung\nKJ-150,Medan\nMakassar"
+      output: "Paket ke Makassar: 0\nRak: -"
+    - input: "0\nBandung"
+      output: "Paket ke Bandung: 0\nRak: -"
+  solution: |
+    n = int(input())
+    paket = []
+    for _ in range(n):
+        resi, kota = input().split(",")
+        paket.append({"resi": resi, "kota": kota})
+    tujuan = input()
+
+    nomor_rak = []
+    for i in range(n):
+        if paket[i]["kota"] == tujuan:
+            nomor_rak.append(str(i + 1))
+
+    print(f"Paket ke {tujuan}: {len(nomor_rak)}")
+    if nomor_rak:
+        print("Rak: " + " ".join(nomor_rak))
+    else:
+        print("Rak: -")
+
+- slug: the-parcel-that-is-not-there
+  type: choice
+  title: Paket yang tidak ada
+  prompt: Di gudang ada 200 paket. Seorang pelanggan menanyakan resi yang ternyata **tidak ada** di rak. Dengan pencarian linear, berapa rak yang diperiksa sebelum program bisa menjawab "tidak ketemu"?
+  options:
+    - "1"
+    - "100"
+    - "200"
+    - "201"
+  correct: [2]
+  hint: Program baru boleh yakin paketnya tidak ada setelah melihat apa saja?
+  explanation: Pencarian linear baru bisa memastikan sebuah paket tidak ada setelah memeriksa semua rak, jadi 200 langkah. Inilah kasus paling sial, dan langkahnya bertambah seiring jumlah paket.
