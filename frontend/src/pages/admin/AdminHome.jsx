@@ -28,7 +28,7 @@ function Dashboard() {
           <div className="stat"><b>{totals.certificates}</b>sertifikat terbit</div>
           <div className="stat"><b>{rupiah(totals.revenue_idr)}</b>dari {totals.paid_orders} pembelian</div>
         </div>
-        <table className="posts">
+        <div className="table-scroll"><table className="posts">
           <caption className="sr">Pendaftar dan peserta aktif per hari, 14 hari terakhir</caption>
           <thead><tr><th>Hari</th><th>Pendaftar baru</th><th>Peserta aktif</th></tr></thead>
           <tbody>
@@ -40,13 +40,13 @@ function Dashboard() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       </section>
 
       <section className="card table-card" aria-label="Pelajaran yang ditinggalkan">
         <span className="tab">Pelajaran yang ditinggalkan</span>
         {started.length === 0 ? <p className="muted">Belum ada peserta yang mengerjakan latihan.</p> : (
-          <table className="posts">
+          <div className="table-scroll"><table className="posts">
             <thead><tr><th>Pelajaran</th><th>Mulai</th><th>Selesai</th><th>Menyelesaikan</th></tr></thead>
             <tbody>
               {started.map((l) => (
@@ -58,14 +58,14 @@ function Dashboard() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
       </section>
 
       <section className="card table-card" aria-label="Latihan tersulit">
         <span className="tab">Latihan tersulit</span>
         {hardest.length === 0 ? <p className="muted">Belum ada jawaban yang masuk.</p> : (
-          <table className="posts">
+          <div className="table-scroll"><table className="posts">
             <thead><tr><th>Latihan</th><th>Mencoba</th><th>Lulus</th><th>Rata-rata percobaan</th></tr></thead>
             <tbody>
               {hardest.map((x) => (
@@ -77,7 +77,7 @@ function Dashboard() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
       </section>
     </>
@@ -128,7 +128,7 @@ export default function AdminHome() {
         <>
           <section className="card table-card">
             <span className="tab">Kursus dan modul</span>
-            <table className="posts">
+            <div className="table-scroll"><table className="posts">
               <thead><tr><th>Judul</th><th>Isi</th><th>Peserta</th><th>Harga</th><th>Status</th><th /></tr></thead>
               <tbody>
                 {data.courses.map((c) => (
@@ -142,7 +142,7 @@ export default function AdminHome() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </section>
 
           <section className="card panel">
@@ -167,7 +167,7 @@ export default function AdminHome() {
           <section className="card table-card">
             <span className="tab">Sertifikat terbaru</span>
             {data.certificates.length === 0 ? <p className="muted">Belum ada sertifikat yang terbit.</p> : (
-              <table className="posts">
+              <div className="table-scroll"><table className="posts">
                 <thead><tr><th>Nama</th><th>Kursus</th><th>Nomor</th><th /></tr></thead>
                 <tbody>
                   {data.certificates.map((c) => (
@@ -183,7 +183,7 @@ export default function AdminHome() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </section>
         </>

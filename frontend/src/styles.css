@@ -207,7 +207,7 @@ p { margin: 0 0 1em; }
 .card a { color: var(--link); }
 
 
-input[type="search"], input[type="text"], input[type="password"], textarea, select {
+input[type="search"], input[type="text"], input[type="password"], input[type="number"], textarea, select {
   width: 100%;
   font: 400 16px var(--font-ui);
   color: var(--ink);
@@ -507,7 +507,9 @@ pre.err { background: #fde8e4; color: #8f2615; }
 .admin-top h1 { font-size: 34px; }
 .admin-top .meta { color: var(--muted); margin: 0 0 4px; }
 .admin-top .meta a { color: var(--amber); }
-.table-card { padding: 28px 18px 14px; overflow-x: auto; }
+/* Wide tables scroll inside .table-scroll. The card itself must not clip, or its tab is cut off. */
+.table-card { padding: 28px 18px 14px; }
+.table-scroll { overflow-x: auto; }
 table.posts { width: 100%; border-collapse: collapse; font: 400 15px var(--font-ui); color: var(--ink); }
 table.posts th { text-align: left; font-weight: 500; color: var(--ink-soft); padding: 6px 10px; border-bottom: 2px solid #e2d3b6; }
 table.posts td { padding: 12px 10px; border-bottom: 1px solid #eadfc8; vertical-align: top; }

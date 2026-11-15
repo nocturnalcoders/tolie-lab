@@ -107,7 +107,7 @@ export default function LessonAdmin() {
         <span className="tab">Soal</span>
         {exercises.length === 0 && <p className="muted">Belum ada soal di pelajaran ini.</p>}
         {exercises.length > 0 && (
-          <table className="posts">
+          <div className="table-scroll"><table className="posts">
             <thead><tr><th>#</th><th>Soal</th><th>Jenis</th><th>Jawaban peserta</th><th /></tr></thead>
             <tbody>
               {exercises.map((e) => (
@@ -123,7 +123,7 @@ export default function LessonAdmin() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
         {msg && <p className="flash err" role="alert">{msg}</p>}
         <div className="row">

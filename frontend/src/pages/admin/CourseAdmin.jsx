@@ -44,7 +44,7 @@ export default function CourseAdmin() {
 
       <section className="card table-card">
         <span className="tab">Pelajaran</span>
-        <table className="posts">
+        <div className="table-scroll"><table className="posts">
           <thead><tr><th>#</th><th>Judul</th><th>Latihan</th><th /></tr></thead>
           <tbody>
             {lessons.map((l) => (
@@ -56,7 +56,7 @@ export default function CourseAdmin() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
         <form className="add-lesson" onSubmit={addLesson}>
           <label htmlFor="new-lesson">Pelajaran baru</label>
           <div className="row">
